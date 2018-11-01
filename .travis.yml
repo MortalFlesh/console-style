@@ -1,0 +1,14 @@
+language: csharp
+dist: trusty
+sudo: true
+
+os:
+  - linux
+  - osx
+
+dotnet: 2.1.401
+mono: 5.0.1
+
+script:
+  - dotnet restore
+  - cd tests && dotnet restore && dotnet run
