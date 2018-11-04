@@ -1,5 +1,80 @@
 namespace MF.ConsoleStyle
 
+module private Table =
+    let private isNotEmpty seq =
+        seq
+        |> Seq.isEmpty
+        |> not
+
+    let private createRow items =
+        items
+        |> String.concat " "
+
+    let private renderSeparatorRow wordLengths =
+        let createSeparatorForWord wordLength =
+            String.replicate wordLength "-"
+
+        wordLengths
+        |> List.map createSeparatorForWord
+        |> createRow
+        |> printfn "%s"
+
+    let private getMaxWordLengthsPerColumn hasHeaders hasRows header rows =
+        let allRows =
+            match hasRows && not hasHeaders with
+            | true -> rows
+            | false -> rows |> Seq.append [header]
+
+        let getColumnWordLength row =
+            row
+            |> Seq.mapi (fun column word -> (column, word |> String.length))
+
+        allRows
+        |> Seq.collect getColumnWordLength
+        |> Seq.fold (fun maxWordLengthsPerColumn (column, wordLength) ->
+            let isColumnMaxLengthStored = maxWordLengthsPerColumn |> Map.containsKey column
+            let isNewColumnLength = not isColumnMaxLengthStored
+            let isCurrentWordLongerThanStored = isColumnMaxLengthStored && wordLength > maxWordLengthsPerColumn.[column]
+
+            match isCurrentWordLongerThanStored || isNewColumnLength with
+            | true -> maxWordLengthsPerColumn |> Map.add column wordLength
+            | false -> maxWordLengthsPerColumn
+        ) Map.empty<int,int>
+        |> Map.toList
+        |> List.map snd
+        |> List.map ((+) 2)    // +1 space for both sides of the word ` word `
+
+    let private formatRow (maxWordLengths: int list) items =
+        items
+        |> Seq.mapi (fun i item ->
+            sprintf " %-*s" (maxWordLengths.[i] - 1) item
+        )
+
+    let private renderTableHeader renderHeaderRow maxWordLengths headerWords =
+        headerWords
+        |> formatRow maxWordLengths
+        |> createRow
+        |> renderHeaderRow
+        maxWordLengths |> renderSeparatorRow
+
+    let private renderTableRows maxWordLengths rows =
+        rows
+        |> Seq.map ((formatRow maxWordLengths) >> createRow)
+        |> Seq.iter (printfn "%s")
+        maxWordLengths |> renderSeparatorRow
+
+    let renderTable renderHeaderRow header rows =
+        let renderTableHeader' = renderTableHeader renderHeaderRow
+        let hasHeaders = header |> isNotEmpty
+        let hasRows = rows |> isNotEmpty
+
+        if hasHeaders || hasRows then
+            let wordMaxLengths = getMaxWordLengthsPerColumn hasHeaders hasRows header rows
+
+            wordMaxLengths |> renderSeparatorRow
+            if hasHeaders then header |> renderTableHeader' wordMaxLengths
+            if hasRows then rows |> renderTableRows wordMaxLengths
+
 [<RequireQualifiedAccess>]
 module Console =
     open System
@@ -29,30 +104,12 @@ module Console =
         |> Seq.maxBy String.length
         |> String.length
 
-    let private getMaxLengthsPerColumn lines =
-        lines
-        |> Seq.collect (fun line ->
-            line
-            |> Seq.mapi (fun i value -> (i, value |> String.length))
-        )
-        |> Seq.fold (fun lengths (i, length) ->
-            let isIn = lengths |> Map.containsKey i
-
-            if (isIn && lengths.[i] < length) || not isIn
-            then lengths |> Map.add i length
-            else lengths
-        ) Map.empty<int,int>
-        |> Map.toList
-        |> List.map snd
-
     //
     // Output style
     //
 
-    // todo - add explicit format for format
-
     [<CompiledName("Messagef")>]
-    let messagef format message: unit =
+    let messagef (format: Printf.TextWriterFormat<('a -> unit)>) (message: 'a): unit =
         message |> printfn format
 
     [<CompiledName("Message")>]
@@ -82,7 +139,7 @@ module Console =
         newLine()
 
     [<CompiledName("Titlef")>]
-    let titlef format value: unit =
+    let titlef (format: Printf.StringFormat<('a -> string)>) (value: 'a): unit =
         value
         |> sprintf format
         |> title
@@ -94,7 +151,7 @@ module Console =
         newLine()
 
     [<CompiledName("Sectionf")>]
-    let sectionf format value: unit =
+    let sectionf (format: Printf.StringFormat<('a -> string)>) (value: 'a): unit =
         value
         |> sprintf format
         |> section
@@ -104,7 +161,7 @@ module Console =
         Console.WriteLine(subTitle, color Color.SubTitle)
 
     [<CompiledName("SubTitlef")>]
-    let subTitlef format value: unit =
+    let subTitlef (format: Printf.StringFormat<('a -> string)>) (value: 'a): unit =
         value
         |> sprintf format
         |> subTitle
@@ -115,7 +172,7 @@ module Console =
         newLine()
 
     [<CompiledName("Errorf")>]
-    let errorf format message: unit =
+    let errorf (format: Printf.StringFormat<('a -> string)>) (message: 'a): unit =
         message
         |> sprintf format
         |> error
@@ -126,7 +183,7 @@ module Console =
         newLine()
 
     [<CompiledName("Successf")>]
-    let successf format message: unit =
+    let successf (format: Printf.StringFormat<('a -> string)>) (message: 'a): unit =
         message
         |> sprintf format
         |> success
@@ -140,7 +197,7 @@ module Console =
         indentation + value
 
     [<CompiledName("Indentf")>]
-    let indentf format value: string =
+    let indentf (format: Printf.StringFormat<('a -> string)>) (value: 'a): string =
         value
         |> sprintf format
         |> indent
@@ -150,7 +207,7 @@ module Console =
     //
 
     [<CompiledName("Messages")>]
-    let messages (prefix: string) (messages: seq<string>) =
+    let messages (prefix: string) (messages: seq<string>): unit =
         messages
         |> Seq.map (sprintf "%s%s" prefix)
         |> Seq.iter message
@@ -168,6 +225,12 @@ module Console =
         optionsList (options |> getMaxLengthForOptions) title options
         newLine()
 
+    [<CompiledName("Optionsf")>]
+    let optionsf (format: Printf.StringFormat<('a -> string)>) (title: 'a) (options: seq<string * string>): unit =
+        options
+        |> optionsList (options |> getMaxLengthForOptions) (title |> sprintf format)
+        newLine()
+
     [<CompiledName("List")>]
     let list (messages: seq<string>): unit =
         messages
@@ -180,72 +243,10 @@ module Console =
 
     [<CompiledName("Table")>]
     let table (header: seq<string>) (rows: seq<seq<string>>): unit =
-        let isNotEmpty seq =
-            seq
-            |> Seq.isEmpty
-            |> not
+        let renderHeaderRow (row: string) =
+            Console.WriteLine(row, color Color.TableHeader)
 
-        let hasHeaders =
-            header
-            |> isNotEmpty
-        let hasRows =
-            rows
-            |> isNotEmpty
- 
-        let row values =
-            values
-            |> String.concat " "
-
-        let separatorLine length =
-            String.replicate length "-"
-
-        let getMaxLengths header rows =
-            let values =
-                match hasRows && hasHeaders with
-                | true -> rows |> Seq.append [header]
-                | false ->
-                match hasRows with
-                | true -> rows
-                | _ -> [] |> Seq.append [header]
-
-            values
-            |> getMaxLengthsPerColumn
-            |> List.map ((+) 2)
-
-        let separators lengths =
-            lengths
-            |> List.map separatorLine
-            |> row
-            |> message
-
-        let tableRow (lengths: int list) values =
-            values
-            |> Seq.mapi (fun i v ->
-                sprintf " %-*s" (lengths.[i] - 1) v
-            )
-
-        let tableHeader lengths header =
-            header
-            |> tableRow lengths
-            |> row
-            |> fun r -> Console.WriteLine(r, color Color.TableHeader)
-            lengths |> separators
-
-        let tableRows lengths rows =
-            rows
-            |> Seq.map ((tableRow lengths) >> row)
-            |> Seq.iter message
-            lengths |> separators
-
-        let renderTable () =
-            if hasHeaders || hasRows then
-                let lengths = getMaxLengths header rows
-
-                lengths |> separators
-                if hasHeaders then header |> tableHeader lengths
-                if hasRows then rows |> tableRows lengths
-
-        renderTable()        
+        Table.renderTable renderHeaderRow header rows
         newLine()
 
     [<CompiledName("ProgressStart")>]

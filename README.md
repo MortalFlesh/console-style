@@ -99,6 +99,7 @@ Section of foo
 | Function | example | color | example |
 | ---      | ---     | ---   | ---      |
 | `options` | `Console.options "Foo options" [("first", "desc 1"); ("second", "desc 2")]` | _default_ with yellow title | _see example_ 👇 |
+| `optionsf` | `Console.optionsf "%s options" "Foo" [("first", "desc 1"); ("second", "desc 2")]` | _default_ with yellow title | _see example_ 👇 |
 ```
 Foo options
     - first   desc 1
