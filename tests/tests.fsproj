@@ -12,8 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Helper/Output.fs" />
-    <Compile Include="ConsoleStyleTests.fs" />
+    <Compile Include="OutputTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
 

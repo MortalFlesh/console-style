@@ -10,15 +10,15 @@ type private OutStr(sb:StringBuilder, orig:TextWriter) =
     override x.Write (s:string) = sb.Append s |> ignore; orig.Write s
     override x.WriteLine (s:string) = sb.AppendLine s |> ignore; orig.WriteLine s
     override x.WriteLine() = sb.AppendLine() |> ignore; orig.WriteLine()
-    member x.Value with get() = sb.ToString().TrimEnd()
+    member x.Value with get() = sb.ToString()
     static member Create() =
         let orig = stdout
-        let out = new OutStr(new StringBuilder(), orig)
+        use out = new OutStr(new StringBuilder(), orig)
         Console.SetOut(out)
         out
     interface IDisposable with member x.Dispose() = Console.SetOut(orig)
 
-let withOutStr f a =
+let record f a =
     use out = OutStr.Create()
     a |> f
     out.Value
