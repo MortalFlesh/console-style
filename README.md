@@ -1,6 +1,7 @@
 Console style
 =============
 
+[![Build Status](https://dev.azure.com/MortalFlesh/console-style/_apis/build/status/MortalFlesh.console-style)](https://dev.azure.com/MortalFlesh/console-style/_build/latest?definitionId=1)
 [![Build Status](https://api.travis-ci.com/MortalFlesh/console-style.svg?branch=master)](https://travis-ci.com/MortalFlesh/console-style)
 
 One of the most boring tasks when creating console commands is to deal with the styling of the command's input and output. Displaying titles and tables or asking questions to the user involves a lot of repetitive code.
