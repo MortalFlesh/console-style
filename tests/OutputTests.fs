@@ -4,7 +4,6 @@ module OutputTest =
     open System
     open System.IO
     open Expecto
-    open MF.ConsoleStyle
 
     let readLines (filePath: string) = seq {
         use reader = new StreamReader (filePath)
@@ -24,7 +23,6 @@ module OutputTest =
                 let result = readFile "actual.txt"
                 
                 readFile "expected.txt"
-                |> List.ofSeq
                 |> List.iteri (fun i expectedLine ->
                     let result = result.[i]
 
