@@ -21,9 +21,9 @@ module private Table =
 
     let private getMaxWordLengthsPerColumn hasHeaders hasRows header rows =
         let allRows =
-            match hasRows && not hasHeaders with
-            | true -> rows
-            | false -> rows |> Seq.append [header]
+            if hasRows && not hasHeaders
+            then rows
+            else rows |> Seq.append [header]
 
         let getColumnWordLength row =
             row
@@ -32,13 +32,12 @@ module private Table =
         allRows
         |> Seq.collect getColumnWordLength
         |> Seq.fold (fun maxWordLengthsPerColumn (column, wordLength) ->
-            let isColumnMaxLengthStored = maxWordLengthsPerColumn |> Map.containsKey column
-            let isNewColumnLength = not isColumnMaxLengthStored
-            let isCurrentWordLongerThanStored = isColumnMaxLengthStored && wordLength > maxWordLengthsPerColumn.[column]
-
-            match isCurrentWordLongerThanStored || isNewColumnLength with
-            | true -> maxWordLengthsPerColumn |> Map.add column wordLength
-            | false -> maxWordLengthsPerColumn
+            maxWordLengthsPerColumn
+            |> Map.add
+                column
+                (match maxWordLengthsPerColumn.TryFind column with
+                | Some currentMaxWordLength -> max currentMaxWordLength wordLength
+                | _ -> wordLength)
         ) Map.empty<int,int>
         |> Map.toList
         |> List.map snd
@@ -82,7 +81,7 @@ module Console =
     open Colorful
     open ShellProgressBar
 
-    type private Color =
+    type private OutputType =
         | Title
         | SubTitle
         | Section
@@ -123,7 +122,7 @@ module Console =
     [<CompiledName("MainTitle")>]
     let mainTitle (title: string): unit =
         Console.WriteAscii(title, color Color.Title)
-        Console.WriteLine(String.replicate (title.Length * 6) "=", color Color.Title)
+        Console.WriteLine(String.replicate (title.Length * 6) "=", color OutputType.Title)
         newLine()
 
     [<CompiledName("MainTitlef")>]
@@ -134,8 +133,8 @@ module Console =
 
     [<CompiledName("Title")>]
     let title (title: string): unit =
-        Console.WriteLine(title, color Color.Title)
-        Console.WriteLine(String.replicate title.Length "=", color Color.Title)
+        Console.WriteLine(title, color OutputType.Title)
+        Console.WriteLine(String.replicate title.Length "=", color OutputType.Title)
         newLine()
 
     [<CompiledName("Titlef")>]
@@ -146,8 +145,8 @@ module Console =
 
     [<CompiledName("Section")>]
     let section (section: string): unit =
-        Console.WriteLine(section, color Color.Section)
-        Console.WriteLine(String.replicate section.Length "-", color Color.Section)
+        Console.WriteLine(section, color OutputType.Section)
+        Console.WriteLine(String.replicate section.Length "-", color OutputType.Section)
         newLine()
 
     [<CompiledName("Sectionf")>]
@@ -158,7 +157,7 @@ module Console =
 
     [<CompiledName("SubTitle")>]
     let subTitle (subTitle: string): unit =
-        Console.WriteLine(subTitle, color Color.SubTitle)
+        Console.WriteLine(subTitle, color OutputType.SubTitle)
 
     [<CompiledName("SubTitlef")>]
     let subTitlef (format: Printf.StringFormat<('a -> string)>) (value: 'a): unit =
@@ -168,7 +167,7 @@ module Console =
 
     [<CompiledName("Error")>]
     let error (message: string): unit =
-        Console.WriteLine(message, color Color.Error)
+        Console.WriteLine(message, color OutputType.Error)
         newLine()
 
     [<CompiledName("Errorf")>]
@@ -179,7 +178,7 @@ module Console =
 
     [<CompiledName("Success")>]
     let success (message: string): unit =
-        Console.WriteLine(message, color Color.Success)
+        Console.WriteLine(message, color OutputType.Success)
         newLine()
 
     [<CompiledName("Successf")>]
@@ -189,8 +188,7 @@ module Console =
         |> success
 
     [<CompiledName("Indentation")>]
-    let indentation: string =
-        String.replicate 4 " "
+    let indentation: string = "    "
 
     [<CompiledName("Indent")>]
     let indent (value: string): string =
@@ -222,7 +220,8 @@ module Console =
 
     [<CompiledName("Options")>]
     let options (title: string) (options: seq<string * string>): unit =
-        optionsList (options |> getMaxLengthForOptions) title options
+        options
+        |> optionsList (options |> getMaxLengthForOptions) title
         newLine()
 
     [<CompiledName("Optionsf")>]
@@ -244,20 +243,22 @@ module Console =
     [<CompiledName("Table")>]
     let table (header: seq<string>) (rows: seq<seq<string>>): unit =
         let renderHeaderRow (row: string) =
-            Console.WriteLine(row, color Color.TableHeader)
+            Console.WriteLine(row, color OutputType.TableHeader)
 
         Table.renderTable renderHeaderRow header rows
         newLine()
 
     [<CompiledName("ProgressStart")>]
     let progressStart (initialMessage: string) (total: int): ProgressBar =
-        let options = new ProgressBarOptions()
-        options.ForegroundColor <- ConsoleColor.Yellow
-        options.ForegroundColorDone <- Nullable<ConsoleColor>(ConsoleColor.DarkGreen)
-        options.BackgroundColor <- Nullable<ConsoleColor>(ConsoleColor.DarkGray)
-        options.BackgroundCharacter <- Nullable<char>('\u2593')
-        options.DisplayTimeInRealTime <- true
-        options.ProgressBarOnBottom <- true
+        let options =
+            new ProgressBarOptions (
+                ForegroundColor = ConsoleColor.Yellow,
+                ForegroundColorDone = Nullable<ConsoleColor>(ConsoleColor.DarkGreen),
+                BackgroundColor = Nullable<ConsoleColor>(ConsoleColor.DarkGray),
+                BackgroundCharacter = Nullable<char>('\u2593'),
+                DisplayTimeInRealTime = true,
+                ProgressBarOnBottom = true
+            )
 
         new ProgressBar(total, initialMessage, options)
 
@@ -272,7 +273,7 @@ module Console =
 
     [<CompiledName("Ask")>]
     let ask (question: string): string =
-        Console.Write(question + " ", color Color.SubTitle)
+        Console.Write(question + " ", color OutputType.SubTitle)
         Console.ReadLine()        
 
     [<CompiledName("Askf")>]

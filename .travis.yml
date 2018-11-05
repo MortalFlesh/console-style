@@ -10,4 +10,6 @@ dotnet: 2.1.401
 mono: 5.0.1
 
 script:
-  - cd tests && dotnet run -- prepare > actual.txt && dotnet run
+  - cd tests
+  - dotnet run -- prepare > actual.txt
+  - dotnet run

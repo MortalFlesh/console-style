@@ -7,5 +7,8 @@ pool:
   vmImage: 'Ubuntu 16.04'
 
 steps:
-- script: cd tests && dotnet run -- prepare > actual.txt && dotnet run
+- script:
+    cd tests
+    dotnet run -- prepare > actual.txt
+    dotnet run
   displayName: 'Run tests'

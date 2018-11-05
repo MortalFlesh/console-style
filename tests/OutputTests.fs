@@ -5,16 +5,10 @@ module OutputTest =
     open System.IO
     open Expecto
 
-    let readLines (filePath: string) = seq {
-        use reader = new StreamReader (filePath)
-        while not reader.EndOfStream do
-            yield reader.ReadLine ()
-    }
-
     let readFile (file: string) =
         Path.Combine(Environment.CurrentDirectory, file)
-        |> readLines
-        |> List.ofSeq
+        |> File.ReadAllLines
+        |> Array.toList
 
     [<Tests>]
     let outputSingleTest =

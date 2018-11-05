@@ -20,6 +20,7 @@ module Tests =
         Console.errorf "Hello World from %s!" "F#"
         Console.success "Hello World!"
         Console.successf "Hello World from %s!" "F#"
+        "Indented foo" |> Console.indent |> Console.message
 
         // output many
         Console.messages "prefix" ["line 1"; "line 2"]
@@ -42,13 +43,12 @@ module Tests =
 
         // todo - temporary disabled - because it is not working correctly on azure pipelines
         // progress bar
-        //let total = 10
-        //let progressBar = Console.progressStart "Starting..." total
-        //for _ in 1 .. total do
-        //    progressBar.Tick()
-        //Console.progressFinish progressBar
+        let total = 10
+        let progressBar = Console.progressStart "Starting..." total
+        for _ in 1 .. total do
+            progressBar.Tick()
+        Console.progressFinish progressBar
         0
-
 
     [<EntryPoint>]
     let main argv =

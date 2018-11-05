@@ -38,6 +38,7 @@ Hello World!
 
 Hello World from F#!
 
+    Indented foo
 prefixline 1
 prefixline 2
 Foo options
