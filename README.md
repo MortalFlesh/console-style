@@ -10,7 +10,7 @@ This library is inspired by [SymfonyStyle](https://symfony.com/doc/current/conso
 
 ## Installation
 ```sh
-
+dotnet add package ConsoleStyle
 ```
 
 ## Basic Usage
