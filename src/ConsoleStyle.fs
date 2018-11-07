@@ -121,7 +121,7 @@ module Console =
 
     [<CompiledName("MainTitle")>]
     let mainTitle (title: string): unit =
-        Console.WriteAscii(title, color Color.Title)
+        Console.WriteAscii(title, color OutputType.Title)
         Console.WriteLine(String.replicate (title.Length * 6) "=", color OutputType.Title)
         newLine()
 
