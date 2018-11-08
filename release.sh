@@ -18,7 +18,7 @@ echo "Pushing package..."
 for f in bin/Debug/*.nupkg
     do
         echo " - Pushing $f ..."
-        dotnet nuget push $f
+        dotnet nuget push $f -s https://api.nuget.org/v3/index.json -k $1
 done
 
 echo
