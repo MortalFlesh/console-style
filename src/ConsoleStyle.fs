@@ -10,18 +10,18 @@ module Console =
     type private OutputType =
         | Title
         | SubTitle
-        | Section
         | TableHeader
         | Success
         | Error
+        | Number
 
     let private color = function
         | Title -> Color.Cyan
         | SubTitle -> Color.Yellow
-        | Section -> Color.Yellow
         | TableHeader -> Color.DarkGoldenrod
         | Success -> Color.LimeGreen
         | Error -> Color.Red
+        | Number -> Color.Magenta
 
     let private getMaxLengthForOptions options =
         options
@@ -30,26 +30,87 @@ module Console =
         |> String.length
 
     //
-    // Output style
+    // Verbosity
     //
 
-    [<CompiledName("Messagef")>]
-    let messagef (format: Printf.TextWriterFormat<('a -> unit)>) (message: 'a): unit =
-        message |> printfn format
+    [<CompiledName("SetVerbosity")>]
+    let setVerbosity = Verbosity.setVerbosity
+
+    [<CompiledName("IsQuiet")>]
+    let isQuiet = Verbosity.isQuiet
+
+    [<CompiledName("IsNormal")>]
+    let isNormal = Verbosity.isNormal
+
+    [<CompiledName("IsVerbose")>]
+    let isVerbose = Verbosity.isVerbose
+
+    [<CompiledName("IsVeryVerbose")>]
+    let isVeryVerbose = Verbosity.isVeryVerbose
+
+    [<CompiledName("IsDebug")>]
+    let isDebug = Verbosity.isDebug
+
+    //
+    // Output style
+    //
+    [<CompiledName("Indentation")>]
+    let indentation: string = "    "
+
+    let private block outputType underline withNewLine (message: string) =
+        match Verbosity.isVerbose() with
+        | true ->
+            Console.Write("[")
+            Console.Write(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Number |> color)
+            Console.Write(sprintf "]%s" indentation)
+        | _ -> ()
+
+        match Verbosity.isNormal() with
+        | true ->
+            match outputType with
+            | Some t -> Console.WriteLine(message, t |> color)
+            | _ -> printfn "%s" message
+
+            match underline with
+            | Some char ->
+                let length =
+                    if Verbosity.isVerbose()
+                        then message.Length + indentation.Length + 21   // 21 is length of time string in [DD/MM/YYYY HH:MM:SS]
+                        else message.Length
+
+                match outputType with
+                | Some c -> Console.WriteLine(String.replicate length char, c |> color)
+                | _ ->
+                    char
+                    |> String.replicate length
+                    |> printfn "%s"
+            | _ -> ()
+
+            if withNewLine then printfn ""
+        | _ -> ()
 
     [<CompiledName("Message")>]
     let message (message: string): unit =
-        message |> messagef "%s"
+        message
+        |> block None None false
+
+    [<CompiledName("Messagef")>]
+    let messagef (format: Printf.StringFormat<('a -> string)>) (text: 'a): unit =
+        text
+        |> sprintf format
+        |> message
 
     [<CompiledName("NewLine")>]
     let newLine (): unit =
-        message ""
+        if Verbosity.isNormal() then
+            printfn ""
 
     [<CompiledName("MainTitle")>]
     let mainTitle (title: string): unit =
-        Console.WriteAscii(title, color OutputType.Title)
-        Console.WriteLine(String.replicate (title.Length * 6) "=", color OutputType.Title)
-        newLine()
+        if Verbosity.isNormal() then
+            Console.WriteAscii(title, color Title)
+            Console.WriteLine(String.replicate (title.Length * 6) "=", color Title)
+            newLine()
 
     [<CompiledName("MainTitlef")>]
     let mainTitlef (format: Printf.StringFormat<('a -> string)>) (title: 'a): unit =
@@ -59,9 +120,8 @@ module Console =
 
     [<CompiledName("Title")>]
     let title (title: string): unit =
-        Console.WriteLine(title, color OutputType.Title)
-        Console.WriteLine(String.replicate title.Length "=", color OutputType.Title)
-        newLine()
+        title
+        |> block (Some Title) (Some "=") true
 
     [<CompiledName("Titlef")>]
     let titlef (format: Printf.StringFormat<('a -> string)>) (value: 'a): unit =
@@ -71,9 +131,8 @@ module Console =
 
     [<CompiledName("Section")>]
     let section (section: string): unit =
-        Console.WriteLine(section, color OutputType.Section)
-        Console.WriteLine(String.replicate section.Length "-", color OutputType.Section)
-        newLine()
+        section
+        |> block (Some SubTitle) (Some "-") true
 
     [<CompiledName("Sectionf")>]
     let sectionf (format: Printf.StringFormat<('a -> string)>) (value: 'a): unit =
@@ -83,7 +142,8 @@ module Console =
 
     [<CompiledName("SubTitle")>]
     let subTitle (subTitle: string): unit =
-        Console.WriteLine(subTitle, color OutputType.SubTitle)
+        subTitle
+        |> block (Some SubTitle) None false
 
     [<CompiledName("SubTitlef")>]
     let subTitlef (format: Printf.StringFormat<('a -> string)>) (value: 'a): unit =
@@ -93,8 +153,8 @@ module Console =
 
     [<CompiledName("Error")>]
     let error (message: string): unit =
-        Console.WriteLine(message, color OutputType.Error)
-        newLine()
+        message
+        |> block (Some Error) None true
 
     [<CompiledName("Errorf")>]
     let errorf (format: Printf.StringFormat<('a -> string)>) (message: 'a): unit =
@@ -104,17 +164,14 @@ module Console =
 
     [<CompiledName("Success")>]
     let success (message: string): unit =
-        Console.WriteLine(message, color OutputType.Success)
-        newLine()
+        message
+        |> block (Some Success) None true
 
     [<CompiledName("Successf")>]
     let successf (format: Printf.StringFormat<('a -> string)>) (message: 'a): unit =
         message
         |> sprintf format
         |> success
-
-    [<CompiledName("Indentation")>]
-    let indentation: string = "    "
 
     [<CompiledName("Indent")>]
     let indent (value: string): string =
@@ -132,15 +189,15 @@ module Console =
 
     [<CompiledName("Messages")>]
     let messages (prefix: string) (messages: seq<string>): unit =
-        messages
-        |> Seq.map (sprintf "%s%s" prefix)
-        |> Seq.iter message
+        if Verbosity.isNormal() then
+            messages
+            |> Seq.iter (printfn "%s%s" prefix)
 
     let private optionsList maxLength title options =
         subTitle title
         options
-        |> Seq.map (fun (command, description) ->
-            sprintf "- %-*s %-s" (maxLength + 1) command description
+        |> Seq.map (fun (option, description) ->
+            sprintf "- %-*s %-s" (maxLength + 1) option description
         )
         |> messages indentation
 
@@ -158,9 +215,9 @@ module Console =
 
     [<CompiledName("List")>]
     let list (messages: seq<string>): unit =
-        messages
-        |> Seq.map (sprintf " - %s")
-        |> Seq.iter message
+        if Verbosity.isNormal() then
+            messages
+            |> Seq.iter (printfn " - %s")
 
     //
     // Complex components
@@ -168,30 +225,42 @@ module Console =
 
     [<CompiledName("Table")>]
     let table (header: seq<string>) (rows: seq<seq<string>>): unit =
-        let renderHeaderRow (row: string) =
-            Console.WriteLine(row, color OutputType.TableHeader)
+        if Verbosity.isNormal() then
+            let renderHeaderRow (row: string) =
+                Console.WriteLine(row, TableHeader |> color)
 
-        Table.renderTable renderHeaderRow header rows
-        newLine()
+            Table.renderTable renderHeaderRow header rows
+            newLine()
 
     [<CompiledName("ProgressStart")>]
-    let progressStart (initialMessage: string) (total: int): ProgressBar =
-        let options =
-            new ProgressBarOptions (
-                ForegroundColor = ConsoleColor.Yellow,
-                ForegroundColorDone = Nullable<ConsoleColor>(ConsoleColor.DarkGreen),
-                BackgroundColor = Nullable<ConsoleColor>(ConsoleColor.DarkGray),
-                BackgroundCharacter = Nullable<char>('\u2593'),
-                DisplayTimeInRealTime = true,
-                ProgressBarOnBottom = true
-            )
+    let progressStart (initialMessage: string) (total: int): ProgressBar option =
+        if Verbosity.isNormal() && Console.WindowWidth > 0 then
+            let options =
+                new ProgressBarOptions (
+                    ForegroundColor = ConsoleColor.Yellow,
+                    ForegroundColorDone = Nullable<ConsoleColor>(ConsoleColor.DarkGreen),
+                    BackgroundColor = Nullable<ConsoleColor>(ConsoleColor.DarkGray),
+                    BackgroundCharacter = Nullable<char>('\u2593'),
+                    DisplayTimeInRealTime = true,
+                    ProgressBarOnBottom = true
+                )
 
-        new ProgressBar(total, initialMessage, options)
+            new ProgressBar(total, initialMessage, options) |> Some
+        else None
+
+    [<CompiledName("ProgressAdvance")>]
+    let progressAdvance (progress: ProgressBar option): unit =
+        match progress with
+        | Some progress -> progress.Tick()
+        | _ -> ()
 
     [<CompiledName("ProgressFinish")>]
-    let progressFinish (progress: ProgressBar): unit =
-        progress.Message <- "Finished"
-        progress.Dispose()
+    let progressFinish (progress: ProgressBar option): unit =
+        match progress with
+        | Some progress ->
+            progress.Message <- "Finished"
+            progress.Dispose()
+        | _ -> ()
 
     //
     // Inputs
@@ -199,8 +268,8 @@ module Console =
 
     [<CompiledName("Ask")>]
     let ask (question: string): string =
-        Console.Write(question + " ", color OutputType.SubTitle)
-        Console.ReadLine()        
+        Console.Write(question + " ", SubTitle |> color)
+        Console.ReadLine()
 
     [<CompiledName("Askf")>]
     let askf format question: string =

@@ -146,3 +146,50 @@ for _ in 1 .. total do
 
 Console.progressFinish progressBar
 ```
+
+## Verbosity
+There are 5 levels of verbosity and every higher (_more verbose_) level will just add more information to previous - meaning, that `VeryVerbose` = `Normal` + `Verbose` + _More_ and so on (_except of `Quiet` which is oposite_)
+
+    Level =
+        | Quiet
+        | Normal
+        | Verbose
+        | VeryVerbose
+        | Debug
+
+Default level is `Normal`
+
+Some functions have a different output based on current verbosity level
+
+On `Quiet` only input functions will show an output, no other output is shown (_some components are not even inicialized_)
+- `ask` and `askf` function will show a _question_
+
+From `Verbose` it shows date with time (`DD/MM/YYYY HH:MM:SS`) on the start of each line (_not for multiline outputs_)
+
+Note: not every level adds information to output
+
+### Usage
+You can set a level of verbosity by
+```fs
+Verbosity.Verbose |> Console.setVerbosity
+```
+
+You can use a verbosity level in your application directly by
+```fs
+Console.isQuiet()
+Console.isNormal()
+Console.isVerbose()
+Console.isVeryVerbose()
+Console.isDebug()
+```
+
+### Example
+As it was mentioned before, each level is addition to previous, so we have (except of `Quiet`)
+
+| ⬇️ _function_ AND _level_ ➡️ | `Quiet`  | `Normal` | `Verbose` | `VeryVerbose` | `Debug` |
+| ---                         | ---      | ---      | ---       | ---           | ---     |
+| `isQuiet()`                 | **true** | false    | false     | false         | false   |
+| `isNormal()`                | false    | **true** | **true**  | **true**      | **true**|
+| `isVerbose()`               | false    | false    | **true**  | **true**      | **true**|
+| `isVeryVerbose()`           | false    | false    | false     | **true**      | **true**|
+| `isDebug()`                 | false    | false    | false     | false         | **true**|
