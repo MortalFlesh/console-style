@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="src/Verbosity.fs" />
+    <Compile Include="src/Table.fs" />
     <Compile Include="src/ConsoleStyle.fs" />
   </ItemGroup>
 

@@ -9,6 +9,4 @@ os:
 dotnet: 2.1.401
 
 script:
-  - cd tests
-  - dotnet run -- prepare > actual.txt
-  - dotnet run
+  - tests/all

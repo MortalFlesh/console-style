@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -e
+cd tests
+
+echo "build ..."
+dotnet build
+
+echo "clear old..."
+rm -rf data/*actual*.txt
+
+echo "prepare output results ..."
+for i in "default" "quiet" "normal" "verbose" "veryVerbose" "debug"
+do
+    echo " - prepare: $i ..."
+    dotnet bin/Debug/netcoreapp2.1/tests.dll prepare output $i > data/output-actual-$i.txt
+done
+
+echo "prepare progress results ..."
+for i in "default" "quiet"
+do
+    echo " - prepare: $i ..."
+    dotnet bin/Debug/netcoreapp2.1/tests.dll prepare progress $i > data/progress-actual-$i.txt
+done
+
+echo "run tests ..."
+dotnet bin/Debug/netcoreapp2.1/tests.dll

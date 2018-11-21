@@ -8,7 +8,5 @@ pool:
 
 steps:
 - script:
-    cd tests
-    dotnet run -- prepare > actual.txt
-    dotnet run
+    tests/all
   displayName: 'Run tests'

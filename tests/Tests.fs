@@ -1,57 +1,92 @@
-﻿namespace ConsoleStyle.Tests
+namespace ConsoleStyle.Tests
 
 module Tests =
+    open System
+    open System.IO
+    open System.Text.RegularExpressions
     open Expecto
+    open ConsoleStyle.Tests.Output
+    open ConsoleStyle.Tests.ProgressBar
     open MF.ConsoleStyle
 
-    let runTest() = 
-        // output single
-        Console.mainTitle "ConsoleStyle"
-        Console.mainTitlef "Hello World from %s!" "F#"
-        Console.title "Hello World!"
-        Console.titlef "Hello World from %s!" "F#"
-        Console.section "Hello World!"
-        Console.sectionf "Hello World from %s!" "F#"
-        Console.subTitle "Hello World!"
-        Console.subTitlef "Hello World from %s!" "F#"
-        Console.message "Hello World!"
-        Console.messagef "Hello World from %s!" "F#"
-        Console.error "Hello World!"
-        Console.errorf "Hello World from %s!" "F#"
-        Console.success "Hello World!"
-        Console.successf "Hello World from %s!" "F#"
-        "Indented foo" |> Console.indent |> Console.message
+    let cases = [
+        "default"
+        "quiet"
+        "normal"
+        "verbose"
+        "veryVerbose"
+        "debug"
+    ]
 
-        // output many
-        Console.messages "prefix" ["line 1"; "line 2"]
-        Console.options "Foo options" [("first", "Description of the 1st"); ("second", "Description of the 2nd")]
-        Console.optionsf "%s options" "foo" [("first", "desc 1"); ("second", "desc 2")]
-        Console.list ["line 1"; "line 2"]
+    let readFile (file: string) =
+        Path.Combine(Environment.CurrentDirectory, file)
+        |> File.ReadAllLines
+        |> Array.toList
 
-        // components
-        // table
-        Console.table ["FirstName"; "Surname"] [
-            ["Jon"; "Snow"]
-            ["Peter"; "Parker"]
-        ]
-        Console.table [] [
-            ["Jon"; "Snow"]
-            ["Peter"; "Parker"]
-        ]
-        Console.table ["FirstName"; "Surname"] []
-        Console.table [] []
+    let files prefix case =
+        let expected =
+            case
+            |> sprintf "data/%s-expected-%s.txt" prefix
+            |> readFile
+        let result =
+            case
+            |> sprintf "data/%s-actual-%s.txt" prefix
+            |> readFile
+            |> List.map (fun line ->
+                Regex.Replace(line, @"^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\]", "[_____DATE_TIME_____]")
+            )
+        (expected, result)
 
-        // todo - temporary disabled - because it is not working correctly on azure pipelines
-        // progress bar
-        let total = 10
-        let progressBar = Console.progressStart "Starting..." total
-        for _ in 1 .. total do
-            progressBar.Tick()
-        Console.progressFinish progressBar
-        0
+    [<Tests>]
+    let outputTest =
+        cases
+        |> List.map (fun case ->
+            testCase case <| fun _ ->
+                let (expected, result) = case |> files "output"
+
+                Expect.equal (result |> List.length) (expected |> List.length) ""
+
+                expected
+                |> List.iteri (fun i expectedLine ->
+                    Expect.equal result.[i] expectedLine ""
+                )
+        )
+        |> testList "Check output file"
+
+    [<Tests>]
+    let progressBarTest =
+        cases
+        |> List.filter (fun case -> case = "default" || case = "quiet")
+        |> List.map (fun case ->
+            testCase case <| fun _ ->
+                if Console.WindowWidth <= 0 then Tests.skiptest "Progress bar is not displayed here"
+
+                let (expected, result) = case |> files "progress"
+
+                Expect.equal (result |> List.length) (expected |> List.length) ""
+
+                expected
+                |> List.iteri (fun i expectedLine ->
+                    Expect.equal result.[i] expectedLine ""
+                )
+        )
+        |> testList "Check progress bar file"
 
     [<EntryPoint>]
     let main argv =
         match argv with
-        | [|"prepare"|] -> runTest()
+        | [|"prepare"; testType; verbosity|] ->
+            let level =
+                match verbosity with
+                | "quiet" -> Verbosity.Quiet |> Some
+                | "normal" -> Verbosity.Normal |> Some
+                | "verbose" -> Verbosity.Verbose |> Some
+                | "veryVerbose" -> Verbosity.VeryVerbose |> Some
+                | "debug" -> Verbosity.Debug |> Some
+                | _ -> None
+
+            match testType with
+            | "output" -> level |> OutputTest.prepare
+            | "progress" -> level |> ProgressBarTest.prepare
+            | _ -> 1
         | _ -> Tests.runTestsInAssembly defaultConfig argv
