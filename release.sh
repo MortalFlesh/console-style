@@ -15,10 +15,13 @@ dotnet pack
 
 echo
 echo "Pushing package..."
+mkdir -p bin/released
+
 for f in bin/Debug/*.nupkg
     do
         echo " - Pushing $f ..."
         dotnet nuget push $f -s https://api.nuget.org/v3/index.json -k $1
+        mv $f bin/released/
 done
 
 echo
