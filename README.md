@@ -1,6 +1,7 @@
 Console style
 =============
 
+[![NuGet Version and Downloads count](https://buildstats.info/nuget/ConsoleStyle)](https://www.nuget.org/packages/ConsoleStyle)
 [![Build Status](https://dev.azure.com/MortalFlesh/console-style/_apis/build/status/MortalFlesh.console-style)](https://dev.azure.com/MortalFlesh/console-style/_build/latest?definitionId=1)
 [![Build Status](https://api.travis-ci.com/MortalFlesh/console-style.svg?branch=master)](https://travis-ci.com/MortalFlesh/console-style)
 
