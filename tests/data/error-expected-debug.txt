@@ -1,0 +1,2 @@
+[_____DATE_TIME_____]    Error!
+[_____DATE_TIME_____]    Formatted error F#!

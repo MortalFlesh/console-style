@@ -37,12 +37,11 @@ module Tests =
             )
         (expected, result)
 
-    [<Tests>]
-    let outputTest =
+    let testCases prefix cases =
         cases
         |> List.map (fun case ->
             testCase case <| fun _ ->
-                let (expected, result) = case |> files "output"
+                let (expected, result) = case |> files prefix
 
                 Expect.equal (result |> List.length) (expected |> List.length) ""
 
@@ -51,7 +50,18 @@ module Tests =
                     Expect.equal result.[i] expectedLine ""
                 )
         )
+
+    [<Tests>]
+    let outputTest =
+        cases
+        |> testCases "output"
         |> testList "Check output file"
+
+    [<Tests>]
+    let errorOutputTest =
+        cases
+        |> testCases "error"
+        |> testList "Check error output file"
 
     [<Tests>]
     let progressBarTest =

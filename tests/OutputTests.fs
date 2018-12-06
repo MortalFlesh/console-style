@@ -20,20 +20,20 @@ module OutputTest =
 
         // output single
         Console.mainTitle "ConsoleStyle"
-        Console.mainTitlef "Hello World from %s!" "F#"
-        Console.title "Hello World!"
-        Console.titlef "Hello World from %s!" "F#"
-        Console.section "Hello World!"
-        Console.sectionf "Hello World from %s!" "F#"
-        Console.subTitle "Hello World!"
-        Console.subTitlef "Hello World from %s!" "F#"
-        Console.message "Hello World!"
-        Console.messagef "Hello World from %s!" "F#"
-        Console.error "Hello World!"
-        Console.errorf "Hello World from %s!" "F#"
-        Console.success "Hello World!"
-        Console.successf "Hello World from %s!" "F#"
-        "Indented foo" |> Console.indent |> Console.message
+        Console.mainTitlef "Formatted mainTitle %s!" "F#"
+        Console.title "Title!"
+        Console.titlef "Formatted title %s!" "F#"
+        Console.section "Section!"
+        Console.sectionf "Formatted section %s!" "F#"
+        Console.subTitle "Subtitle!"
+        Console.subTitlef "Formatted subtitle %s!" "F#"
+        Console.message "Message!"
+        Console.messagef "Formatted message %s!" "F#"
+        Console.error "Error!"
+        Console.errorf "Formatted error %s!" "F#"
+        Console.success "Success!"
+        Console.successf "Formatted success %s!" "F#"
+        "Indented message" |> Console.indent |> Console.message
 
         // output many
         Console.messages "prefix" ["line 1"; "line 2"]

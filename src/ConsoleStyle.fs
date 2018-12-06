@@ -3,25 +3,9 @@ namespace MF.ConsoleStyle
 [<RequireQualifiedAccess>]
 module Console =
     open System
-    open System.Drawing
     open Colorful
     open ShellProgressBar
-
-    type private OutputType =
-        | Title
-        | SubTitle
-        | TableHeader
-        | Success
-        | Error
-        | Number
-
-    let private color = function
-        | Title -> Color.Cyan
-        | SubTitle -> Color.Yellow
-        | TableHeader -> Color.DarkGoldenrod
-        | Success -> Color.LimeGreen
-        | Error -> Color.Red
-        | Number -> Color.Magenta
+    open Types
 
     let private getMaxLengthForOptions options =
         options
@@ -57,37 +41,8 @@ module Console =
     [<CompiledName("Indentation")>]
     let indentation: string = "    "
 
-    let private block outputType underline withNewLine (message: string) =
-        match Verbosity.isVerbose() with
-        | true ->
-            Console.Write("[")
-            Console.Write(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Number |> color)
-            Console.Write(sprintf "]%s" indentation)
-        | _ -> ()
-
-        match Verbosity.isNormal() with
-        | true ->
-            match outputType with
-            | Some t -> Console.WriteLine(message, t |> color)
-            | _ -> printfn "%s" message
-
-            match underline with
-            | Some char ->
-                let length =
-                    if Verbosity.isVerbose()
-                        then message.Length + indentation.Length + 21   // 21 is length of time string in [DD/MM/YYYY HH:MM:SS]
-                        else message.Length
-
-                match outputType with
-                | Some c -> Console.WriteLine(String.replicate length char, c |> color)
-                | _ ->
-                    char
-                    |> String.replicate length
-                    |> printfn "%s"
-            | _ -> ()
-
-            if withNewLine then printfn ""
-        | _ -> ()
+    let private block = Render.block indentation
+    let private color = Render.color
 
     [<CompiledName("Message")>]
     let message (message: string): unit =
@@ -154,7 +109,7 @@ module Console =
     [<CompiledName("Error")>]
     let error (message: string): unit =
         message
-        |> block (Some Error) None true
+        |> block (Some Error) None false
 
     [<CompiledName("Errorf")>]
     let errorf (format: Printf.StringFormat<('a -> string)>) (message: 'a): unit =
