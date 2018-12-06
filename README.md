@@ -81,8 +81,8 @@ Section of foo
 | `newLine` | `Console.newLine()` | _default_ | |
 | `subTitle` | `Console.subTitle "Sub title"` | yellow | |
 | `subTitlef` | `Console.subTitlef "Sub title of %s" "foo"` | yellow | |
-| `error` | `Console.error "Something went wrong!"` | red | |
-| `errorf` | `Console.errorf "Error: %s" "Some problem"` | red | |
+| `error` | `Console.error "Something went wrong!"` | red | This output goes to `stderr` |
+| `errorf` | `Console.errorf "Error: %s" "Some problem"` | red | This output goes to `stderr` |
 | `success` | `Console.success "Done"` | green | |
 | `successf` | `Console.successf "Success: %s" "OK"` | green | |
 | `indentation` | `Console.indentation` | _default_ | _indentation of four spaces_ |
