@@ -44,16 +44,34 @@ module Console =
     let private block = Render.block indentation
     let private color = Render.color
 
+    let private format1 render (format: Printf.StringFormat<'a -> string>) (valueA: 'a) =
+        valueA
+        |> sprintf format
+        |> render
+
+    let private format2 render (format: Printf.StringFormat<('a -> 'b -> string)>) (valueA: 'a) (valueB: 'b) =
+        (valueA, valueB)
+        ||> sprintf format
+        |> render
+
+    let private format3 render (format: Printf.StringFormat<('a -> 'b -> 'c -> string)>) (valueA: 'a) (valueB: 'b) (valueC: 'c) =
+        (valueA, valueB, valueC)
+        |||> sprintf format
+        |> render
+
     [<CompiledName("Message")>]
     let message (message: string): unit =
         message
         |> block None None false
 
     [<CompiledName("Messagef")>]
-    let messagef (format: Printf.StringFormat<('a -> string)>) (text: 'a): unit =
-        text
-        |> sprintf format
-        |> message
+    let messagef format = format1 message format
+
+    [<CompiledName("Messagef2")>]
+    let messagef2 format = format2 message format
+
+    [<CompiledName("Messagef3")>]
+    let messagef3 format = format3 message format
 
     [<CompiledName("NewLine")>]
     let newLine (): unit =
@@ -68,10 +86,13 @@ module Console =
             newLine()
 
     [<CompiledName("MainTitlef")>]
-    let mainTitlef (format: Printf.StringFormat<('a -> string)>) (title: 'a): unit =
-        title
-        |> sprintf format
-        |> mainTitle
+    let mainTitlef format = format1 mainTitle format
+
+    [<CompiledName("MainTitlef2")>]
+    let mainTitlef2 format = format2 mainTitle format
+
+    [<CompiledName("MainTitlef3")>]
+    let mainTitlef3 format = format3 mainTitle format
 
     [<CompiledName("Title")>]
     let title (title: string): unit =
@@ -79,10 +100,13 @@ module Console =
         |> block (Some Title) (Some "=") true
 
     [<CompiledName("Titlef")>]
-    let titlef (format: Printf.StringFormat<('a -> string)>) (value: 'a): unit =
-        value
-        |> sprintf format
-        |> title
+    let titlef format = format1 title format
+
+    [<CompiledName("Titlef2")>]
+    let titlef2 format = format2 title format
+
+    [<CompiledName("Titlef3")>]
+    let titlef3 format = format3 title format
 
     [<CompiledName("Section")>]
     let section (section: string): unit =
@@ -90,10 +114,13 @@ module Console =
         |> block (Some SubTitle) (Some "-") true
 
     [<CompiledName("Sectionf")>]
-    let sectionf (format: Printf.StringFormat<('a -> string)>) (value: 'a): unit =
-        value
-        |> sprintf format
-        |> section
+    let sectionf format = format1 section format
+
+    [<CompiledName("Sectionf2")>]
+    let sectionf2 format = format2 section format
+
+    [<CompiledName("Sectionf3")>]
+    let sectionf3 format = format3 section format
 
     [<CompiledName("SubTitle")>]
     let subTitle (subTitle: string): unit =
@@ -101,10 +128,13 @@ module Console =
         |> block (Some SubTitle) None false
 
     [<CompiledName("SubTitlef")>]
-    let subTitlef (format: Printf.StringFormat<('a -> string)>) (value: 'a): unit =
-        value
-        |> sprintf format
-        |> subTitle
+    let subTitlef format = format1 subTitle format
+
+    [<CompiledName("SubTitlef2")>]
+    let subTitlef2 format = format2 subTitle format
+
+    [<CompiledName("SubTitlef3")>]
+    let subTitlef3 format = format3 subTitle format
 
     [<CompiledName("Error")>]
     let error (message: string): unit =
@@ -112,10 +142,13 @@ module Console =
         |> block (Some Error) None false
 
     [<CompiledName("Errorf")>]
-    let errorf (format: Printf.StringFormat<('a -> string)>) (message: 'a): unit =
-        message
-        |> sprintf format
-        |> error
+    let errorf format = format1 error format
+
+    [<CompiledName("Errorf2")>]
+    let errorf2 format = format2 error format
+
+    [<CompiledName("Errorf3")>]
+    let errorf3 format = format3 error format
 
     [<CompiledName("Success")>]
     let success (message: string): unit =
@@ -123,20 +156,17 @@ module Console =
         |> block (Some Success) None true
 
     [<CompiledName("Successf")>]
-    let successf (format: Printf.StringFormat<('a -> string)>) (message: 'a): unit =
-        message
-        |> sprintf format
-        |> success
+    let successf format = format1 success format
+
+    [<CompiledName("Successf2")>]
+    let successf2 format = format2 success format
+
+    [<CompiledName("Successf3")>]
+    let successf3 format = format3 success format
 
     [<CompiledName("Indent")>]
     let indent (value: string): string =
         indentation + value
-
-    [<CompiledName("Indentf")>]
-    let indentf (format: Printf.StringFormat<('a -> string)>) (value: 'a): string =
-        value
-        |> sprintf format
-        |> indent
 
     //
     // Output many
@@ -160,12 +190,6 @@ module Console =
     let options (title: string) (options: seq<string * string>): unit =
         options
         |> optionsList (options |> getMaxLengthForOptions) title
-        newLine()
-
-    [<CompiledName("Optionsf")>]
-    let optionsf (format: Printf.StringFormat<('a -> string)>) (title: 'a) (options: seq<string * string>): unit =
-        options
-        |> optionsList (options |> getMaxLengthForOptions) (title |> sprintf format)
         newLine()
 
     [<CompiledName("List")>]
@@ -227,7 +251,10 @@ module Console =
         Console.ReadLine()
 
     [<CompiledName("Askf")>]
-    let askf format question: string =
-        question
-        |> sprintf format
-        |> ask
+    let askf format = format1 ask format
+
+    [<CompiledName("Askf2")>]
+    let askf2 format = format2 ask format
+
+    [<CompiledName("Askf3")>]
+    let askf3 format = format3 ask format

@@ -87,7 +87,7 @@ Section of foo
 | `successf` | `Console.successf "Success: %s" "OK"` | green | |
 | `indentation` | `Console.indentation` | _default_ | _indentation of four spaces_ |
 | `indent` | `Console.indent "Something indented"` | _default_ | _adds four spaces at the begining_ |
-| `indentf` | `Console.indent "%s indented" "Something"` | _default_ | _adds four spaces at the begining_ |
+_NOTE_: all formatted (_*f_) functions, has more options - see [Formatting](#formatting)
 
 ### Output - many
 
@@ -101,7 +101,6 @@ Section of foo
 | Function | example | color | example |
 | ---      | ---     | ---   | ---      |
 | `options` | `Console.options "Foo options" [("first", "desc 1"); ("second", "desc 2")]` | _default_ with yellow title | _see example_ 👇 |
-| `optionsf` | `Console.optionsf "%s options" "Foo" [("first", "desc 1"); ("second", "desc 2")]` | _default_ with yellow title | _see example_ 👇 |
 ```
 Foo options
     - first   desc 1
@@ -114,6 +113,16 @@ Foo options
  - line 1
  - line 2
 ```
+
+### Formatting
+Since formatting is handled by compiler and is not easy to reproduce, there are functions for formatting 1, 2 and 3 parameters
+```fs
+Console.messagef  "Format %s parameter" "one"
+Console.messagef2 "Format %s, %s parameter" "one" "two"
+Console.messagef3 "Format %s, %s and %s parameter" "one" "two" "three"
+Console.message (sprintf "Format %s, %s, %s and %s parameter" "one" "two" "three" "four")
+```
+_NOTE_: Other functions allowing formatting works the same way.
 
 ### Output complex components
 
