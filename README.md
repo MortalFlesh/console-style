@@ -44,10 +44,10 @@ What's your name? {stdin}
 
 ### Output - single
 
-| Function | example | color | example |
+| Function | example | color | note |
 | ---      | ---     | ---   | ---      |
-| `mainTitle` | `Console.mainTitle "ConsoleStyle"` | cyan | _see example_ 👇 |
-| `mainTitlef` | `Console.mainTitlef "Console%" "Style"` | cyan | _see example_ 👇 |
+| `mainTitle` | `Console.mainTitle "ConsoleStyle"` | cyan | _see output_ 👇 |
+| `mainTitlef` | `Console.mainTitlef "Console%s" "Style"` | cyan | _see output_ 👇 |
 ```
   _____                        __        ____  __           __
  / ___/ ___   ___   ___ ___   / / ___   / __/ / /_  __ __  / / ___
@@ -58,23 +58,23 @@ What's your name? {stdin}
 ========================================================================
 
 ```
-| Function | example | color | example |
+| Function | example | color | note |
 | ---      | ---     | ---   | ---      |
-| `title` | `Console.title "Title"` | cyan | _see example_ 👇 |
-| `titlef` | `Console.titlef "Title of %s" "foo"` | cyan | _see example_ 👇 |
+| `title` | `Console.title "Title of foo"` | cyan | _see output_ 👇 |
+| `titlef` | `Console.titlef "Title of %s" "foo"` | cyan | _see output_ 👇 |
 ```
 Title of foo
 ============
 ```
-| Function | example | color | example |
+| Function | example | color | note |
 | ---      | ---     | ---   | ---      |
-| `section` | `Console.secion "Section of foo"` | yellow | _see example_ 👇 |
-| `sectionf` | `Console.sectionf "Section of %s" "foo"` | yellow | _see example_ 👇 |
+| `section` | `Console.secion "Section of foo"` | yellow | _see output_ 👇 |
+| `sectionf` | `Console.sectionf "Section of %s" "foo"` | yellow | _see output_ 👇 |
 ```
 Section of foo
 --------------
 ```
-| Function | example | color | example |
+| Function | example | color | note |
 | ---      | ---     | ---   | ---      |
 | `message` | `Console.message "a simple message"` | _default_ | |
 | `messagef` | `Console.messagef "a simple %s" "message"` | _default_ | |
@@ -87,33 +87,44 @@ Section of foo
 | `successf` | `Console.successf "Success: %s" "OK"` | green | |
 | `indentation` | `Console.indentation` | _default_ | _indentation of four spaces_ |
 | `indent` | `Console.indent "Something indented"` | _default_ | _adds four spaces at the begining_ |
-| `indentf` | `Console.indent "%s indented" "Something"` | _default_ | _adds four spaces at the begining_ |
+
+_NOTE_: all formatted (_*f_) functions, has more options - see [Formatting](#formatting)
 
 ### Output - many
 
-| Function | example | color | example |
+| Function | example | color | note |
 | ---      | ---     | ---   | ---      |
-| `messages` | `Console.messages "-prefix-" ["line 1"; "line 2"]` | _default_ | _see example_ 👇 |
+| `messages` | `Console.messages "-prefix-" ["line 1"; "line 2"]` | _default_ | _see output_ 👇 |
 ```
 -prefix-line 1
 -prefix-line 2
 ```
-| Function | example | color | example |
+| Function | example | color | note |
 | ---      | ---     | ---   | ---      |
-| `options` | `Console.options "Foo options" [("first", "desc 1"); ("second", "desc 2")]` | _default_ with yellow title | _see example_ 👇 |
-| `optionsf` | `Console.optionsf "%s options" "Foo" [("first", "desc 1"); ("second", "desc 2")]` | _default_ with yellow title | _see example_ 👇 |
+| `options` | `Console.options "Foo options" [("first", "desc 1"); ("second", "desc 2")]` | _default_ with yellow title | _see output_ 👇 |
 ```
 Foo options
     - first   desc 1
     - second  desc 2
 ```
-| Function | example | color | example |
+| Function | example | color | note |
 | ---      | ---     | ---   | ---      |
-| `list` | `Console.list ["line 1"; "line 2"]` | _default_ | _see example_ 👇 |
+| `list` | `Console.list ["line 1"; "line 2"]` | _default_ | _see output_ 👇 |
 ```
  - line 1
  - line 2
 ```
+
+### Formatting
+Since string formatting with `sprintf` is handled by compiler and is not easy to reproduce, there are explicit functions for formatting 1, 2 and 3 parameters.
+It is still **type safe** and **compiler friendly** (_only limitation is for number of parameters, but you can still simply use `sprintf` directly_).
+```fs
+Console.messagef  "Format %s parameter" "one"
+Console.messagef2 "Format %s, %s parameter" "one" "two"
+Console.messagef3 "Format %s, %s and %s parameter" "one" "two" "three"
+Console.message   (sprintf "Format %s, %s, %s and %s parameter" "one" "two" "three" "more ...")
+```
+_NOTE_: Other functions allowing formatting works the same way.
 
 ### Output complex components
 

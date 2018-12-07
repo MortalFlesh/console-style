@@ -1,6 +1,10 @@
 #!/bin/bash
-
 set -e
+
+# variables
+RUN_TESTS=bin/Debug/netcoreapp2.1/tests.dll
+
+# running tests
 cd tests
 
 echo "build ..."
@@ -13,15 +17,15 @@ echo "prepare output results ..."
 for i in "default" "quiet" "normal" "verbose" "veryVerbose" "debug"
 do
     echo " - prepare: $i ..."
-    dotnet bin/Debug/netcoreapp2.1/tests.dll prepare output $i > data/output-actual-$i.txt 2> data/error-actual-$i.txt
+    dotnet $RUN_TESTS prepare output $i > data/output-actual-$i.txt 2> data/error-actual-$i.txt
 done
 
 echo "prepare progress results ..."
 for i in "default" "quiet"
 do
     echo " - prepare: $i ..."
-    dotnet bin/Debug/netcoreapp2.1/tests.dll prepare progress $i > data/progress-actual-$i.txt
+    dotnet $RUN_TESTS prepare progress $i > data/progress-actual-$i.txt
 done
 
 echo "run tests ..."
-dotnet bin/Debug/netcoreapp2.1/tests.dll
+dotnet $RUN_TESTS

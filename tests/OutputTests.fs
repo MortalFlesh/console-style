@@ -19,29 +19,50 @@ module OutputTest =
         printfn "Is debug %s" (if Console.isDebug() then "yes" else "no")
 
         // output single
-        Console.mainTitle "ConsoleStyle"
+        Console.mainTitle "This is mainTitle!"
         Console.mainTitlef "Formatted mainTitle %s!" "F#"
-        Console.title "Title!"
+        Console.mainTitlef2 "Formatted mainTitle %s and %i!" "F#" 42
+        Console.mainTitlef3 "Formatted mainTitle %s with %s and %i!" "foo" "bar" 42
+
+        Console.title "This is title!"
         Console.titlef "Formatted title %s!" "F#"
-        Console.section "Section!"
+        Console.titlef2 "Formatted title %s and %i!" "F#" 42
+        Console.titlef3 "Formatted title %s with %s and %i!" "foo" "bar" 42
+
+        Console.section "This is section!"
         Console.sectionf "Formatted section %s!" "F#"
-        Console.subTitle "Subtitle!"
-        Console.subTitlef "Formatted subtitle %s!" "F#"
-        Console.message "Message!"
+        Console.sectionf2 "Formatted section %s and %i!" "F#" 42
+        Console.sectionf3 "Formatted section %s with %s and %i!" "foo" "bar" 42
+
+        Console.subTitle "This is subTitle!"
+        Console.subTitlef "Formatted subTitle %s!" "F#"
+        Console.subTitlef2 "Formatted subTitle %s and %i!" "F#" 42
+        Console.subTitlef3 "Formatted subTitle %s with %s and %i!" "foo" "bar" 42
+
+        Console.message "This is message!"
         Console.messagef "Formatted message %s!" "F#"
-        Console.error "Error!"
+        Console.messagef2 "Formatted message %s and %i!" "F#" 42
+        Console.messagef3 "Formatted message %s with %s and %i!" "foo" "bar" 42
+
+        Console.error "This is error!"
         Console.errorf "Formatted error %s!" "F#"
-        Console.success "Success!"
+        Console.errorf2 "Formatted error %s and %i!" "F#" 42
+        Console.errorf3 "Formatted error %s with %s and %i!" "foo" "bar" 42
+
+        Console.success "This is success!"
         Console.successf "Formatted success %s!" "F#"
+        Console.successf2 "Formatted success %s and %i!" "F#" 42
+        Console.successf3 "Formatted success %s with %s and %i!" "foo" "bar" 42
+
         "Indented message" |> Console.indent |> Console.message
+
+        Console.newLine()
 
         // output many
         Console.messages "prefix" ["line 1"; "line 2"]
         Console.options "Foo options" [("first", "Description of the 1st"); ("second", "Description of the 2nd")]
-        Console.optionsf "%s options" "foo" [("first", "desc 1"); ("second", "desc 2")]
         Console.list ["line 1"; "line 2"]
 
-        // components
         // table
         Console.table ["FirstName"; "Surname"] [
             ["Jon"; "Snow"]
