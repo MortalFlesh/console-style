@@ -2,6 +2,8 @@
 
 <!-- There is always Unreleased section on the top. Subsections (Add, Changed, Fix, Removed) should be Add as needed. -->
 ## Unreleased
+
+## 1.2.0 - 2018-12-07
 - Print error output as standard error output
 - Add other output functions with formatting of more parameters
 
