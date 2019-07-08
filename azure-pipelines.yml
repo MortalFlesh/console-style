@@ -8,5 +8,5 @@ pool:
 
 steps:
 - script:
-    tests/all
+    ./fake.sh build target tests no-clean
   displayName: 'Run tests'
