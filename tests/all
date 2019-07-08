@@ -2,7 +2,7 @@
 set -e
 
 # variables
-RUN_TESTS=bin/Debug/netcoreapp2.1/tests.dll
+RUN_TESTS=bin/Debug/netcoreapp2.2/tests.dll
 
 # running tests
 cd tests

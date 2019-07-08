@@ -11,8 +11,12 @@ bld/
 [Ll]og/
 
 # Paket dependency manager
-.paket/paket.exe
+.paket/
+packages/
 paket-files/
 
 # FAKE - F# Make
 .fake/
+
+# Ionide
+.ionide/
