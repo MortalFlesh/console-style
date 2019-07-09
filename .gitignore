@@ -20,3 +20,6 @@ paket-files/
 
 # Ionide
 .ionide/
+
+# Release
+release/

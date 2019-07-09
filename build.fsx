@@ -113,10 +113,37 @@ Target.create "Tests" (fun _ ->
     DotnetCore.runOrFail testsDll "tests"
 )
 
+Target.create "Release" (fun _ ->
+    match UserInput.getUserInput "Are you sure - is it tagged yet? [y|n]: " with
+    | "y"
+    | "yes" ->
+        match UserInput.getUserPassword "Nuget ApiKey: " with
+        | "" -> failwithf "You have to provide an api key for nuget."
+        | apiKey ->
+            !! "*.*proj"
+            |> Seq.iter (DotNet.pack id)
+
+            Directory.ensure "release"
+
+            !! "bin/**/*.nupkg"
+            |> Seq.map (tee (DotNet.nugetPush (fun defaults ->
+                { defaults with
+                    PushParams = {
+                        defaults.PushParams with
+                            ApiKey = Some apiKey
+                            Source = Some "https://api.nuget.org/v3/index.json"
+                    }
+                }
+            )))
+            |> Seq.iter (Shell.moveFile "release")
+    | _ -> ()
+)
+
 "Clean"
     ==> "Build"
     ==> "ClearTests"
     ==> "PrepareTests"
     ==> "Tests"
+    ==> "Release"
 
 Target.runOrDefaultWithArguments "Build"
