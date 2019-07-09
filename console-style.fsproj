@@ -1,7 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <OutputType>Library</OutputType>
     <PackageId>ConsoleStyle</PackageId>
     <Version>1.2.0</Version>
@@ -16,8 +17,5 @@
     <Compile Include="src/ConsoleStyle.fs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Colorful.Console" Version="1.2.9" />
-    <PackageReference Include="ShellProgressBar" Version="4.2.0" />
-  </ItemGroup>
+  <Import Project=".paket\Paket.Restore.targets" />
 </Project>

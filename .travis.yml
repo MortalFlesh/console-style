@@ -1,12 +1,13 @@
 language: csharp
-dist: trusty
-sudo: true
+dist: bionic
+sudo: required
+mono: none
 
 os:
   - linux
   - osx
 
-dotnet: 2.1.401
+dotnet: 2.2.100
 
 script:
-  - tests/all
+  - ./fake.sh build target tests no-clean

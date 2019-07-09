@@ -2,6 +2,9 @@
 
 <!-- There is always Unreleased section on the top. Subsections (Add, Changed, Fix, Removed) should be Add as needed. -->
 ## Unreleased
+- Use paket for dependency management
+- Update for dotnet core 2.2
+- Add Lint
 
 ## 1.2.0 - 2018-12-07
 - Print error output as standard error output
