@@ -40,8 +40,7 @@ module private Table =
                 | _ -> wordLength)
         ) Map.empty<int,int>
         |> Map.toList
-        |> List.map snd
-        |> List.map ((+) 2)    // +1 space for both sides of the word ` word `
+        |> List.map (snd >> ((+) 2))    // +1 space for both sides of the word ` word `
 
     let private formatRow (maxWordLengths: int list) items =
         items

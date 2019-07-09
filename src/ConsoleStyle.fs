@@ -215,7 +215,7 @@ module Console =
     let progressStart (initialMessage: string) (total: int): ProgressBar option =
         if Verbosity.isNormal() && Console.WindowWidth > 0 then
             let options =
-                new ProgressBarOptions (
+                ProgressBarOptions (
                     ForegroundColor = ConsoleColor.Yellow,
                     ForegroundColorDone = Nullable<ConsoleColor>(ConsoleColor.DarkGreen),
                     BackgroundColor = Nullable<ConsoleColor>(ConsoleColor.DarkGray),
