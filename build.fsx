@@ -192,9 +192,11 @@ Target.create "Release" (fun _ ->
 "Clean"
     ==> "Build"
     ==> "Lint"
-    ==> "ClearTests"
-    ==> "PrepareTests"
     ==> "Tests"
     ==> "Release"
+
+"ClearTests"
+    ==> "PrepareTests"
+    ==> "Tests"
 
 Target.runOrDefaultWithArguments "Build"
