@@ -2,6 +2,8 @@
 
 <!-- There is always Unreleased section on the top. Subsections (Add, Changed, Fix, Removed) should be Add as needed. -->
 ## Unreleased
+
+## 1.3.0 - 2019-07-10
 - Use paket for dependency management
 - Update for dotnet core 2.2
 - Add Lint
