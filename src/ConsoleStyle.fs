@@ -178,18 +178,24 @@ module Console =
             messages
             |> Seq.iter (printfn "%s%s" prefix)
 
-    let private optionsList maxLength title options =
+    let private optionsList linePrefix maxLength title options =
         subTitle title
         options
         |> Seq.map (fun (option, description) ->
-            sprintf "- %-*s %-s" (maxLength + 1) option description
+            sprintf "%s%-*s %-s" linePrefix (maxLength + 1) option description
         )
         |> messages indentation
 
     [<CompiledName("Options")>]
     let options (title: string) (options: seq<string * string>): unit =
         options
-        |> optionsList (options |> getMaxLengthForOptions) title
+        |> optionsList "- " (options |> getMaxLengthForOptions) title
+        newLine()
+
+    [<CompiledName("SimpleOptions")>]
+    let simpleOptions (title: string) (options: seq<string * string>): unit =
+        options
+        |> optionsList "" (options |> getMaxLengthForOptions) title
         newLine()
 
     [<CompiledName("List")>]

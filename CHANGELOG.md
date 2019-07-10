@@ -5,6 +5,7 @@
 - Use paket for dependency management
 - Update for dotnet core 2.2
 - Add Lint
+- Add `simpleOptions` function to show `options` without any line prefix
 
 ## 1.2.0 - 2018-12-07
 - Print error output as standard error output

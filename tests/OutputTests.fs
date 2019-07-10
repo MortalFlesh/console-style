@@ -61,6 +61,7 @@ module OutputTest =
         // output many
         Console.messages "prefix" ["line 1"; "line 2"]
         Console.options "Foo options" [("first", "Description of the 1st"); ("second", "Description of the 2nd")]
+        Console.simpleOptions "Foo simple options" [("first", "Description of the 1st"); ("second", "Description of the 2nd")]
         Console.list ["line 1"; "line 2"]
 
         // table

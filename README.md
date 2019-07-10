@@ -109,6 +109,14 @@ Foo options
 ```
 | Function | example | color | note |
 | ---      | ---     | ---   | ---      |
+| `simpleOptions` | `Console.simpleOptions "Foo options" [("first", "desc 1"); ("second", "desc 2")]` | Same as `options`, but without line prefix. _default_ with yellow title | _see output_ 👇 |
+```
+Foo options
+    first   desc 1
+    second  desc 2
+```
+| Function | example | color | note |
+| ---      | ---     | ---   | ---      |
 | `list` | `Console.list ["line 1"; "line 2"]` | _default_ | _see output_ 👇 |
 ```
  - line 1
