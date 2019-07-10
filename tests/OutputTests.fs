@@ -62,6 +62,7 @@ module OutputTest =
         Console.messages "prefix" ["line 1"; "line 2"]
         Console.options "Foo options" [("first", "Description of the 1st"); ("second", "Description of the 2nd")]
         Console.simpleOptions "Foo simple options" [("first", "Description of the 1st"); ("second", "Description of the 2nd")]
+        Console.groupedOptions ":" "Grouped options" [("first", "desc 1"); ("group:first", "desc group 1"); ("group:second", "desc group 2"); ("second", "desc 2")]
         Console.list ["line 1"; "line 2"]
 
         // table

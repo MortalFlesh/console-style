@@ -13,6 +13,7 @@
     <Compile Include="src/Types.fs" />
     <Compile Include="src/Verbosity.fs" />
     <Compile Include="src/Render.fs" />
+    <Compile Include="src/Options.fs" />
     <Compile Include="src/Table.fs" />
     <Compile Include="src/ConsoleStyle.fs" />
   </ItemGroup>

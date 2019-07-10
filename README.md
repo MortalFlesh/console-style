@@ -117,6 +117,17 @@ Foo options
 ```
 | Function | example | color | note |
 | ---      | ---     | ---   | ---      |
+| `groupedOptions` | `Console.groupedOptions ":" "Grouped options" [("first", "desc 1"); ("group:first", "desc group 1"); ("group:second", "desc group 2"); ("second", "desc 2")]` | Grouped options by their prefix, if there is any. _default_ with yellow title | _see output_ 👇 |
+```
+Grouped options
+    first         desc 1
+    second        desc 2
+ group
+    group:first   desc group 1
+    group:second  desc group 2
+```
+| Function | example | color | note |
+| ---      | ---     | ---   | ---      |
 | `list` | `Console.list ["line 1"; "line 2"]` | _default_ | _see output_ 👇 |
 ```
  - line 1

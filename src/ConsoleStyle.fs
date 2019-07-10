@@ -5,7 +5,6 @@ module Console =
     open System
     open Colorful
     open ShellProgressBar
-    open Types
 
     let private getMaxLengthForOptions options =
         options
@@ -41,7 +40,7 @@ module Console =
     [<CompiledName("Indentation")>]
     let indentation: string = "    "
 
-    let private block = Render.block indentation
+    let private block = Render.block indentation true
     let private color = Render.color
 
     let private format1 render (format: Printf.StringFormat<'a -> string>) (valueA: 'a) =
@@ -178,24 +177,22 @@ module Console =
             messages
             |> Seq.iter (printfn "%s%s" prefix)
 
-    let private optionsList linePrefix maxLength title options =
-        subTitle title
-        options
-        |> Seq.map (fun (option, description) ->
-            sprintf "%s%-*s %-s" linePrefix (maxLength + 1) option description
-        )
-        |> messages indentation
-
     [<CompiledName("Options")>]
     let options (title: string) (options: seq<string * string>): unit =
         options
-        |> optionsList "- " (options |> getMaxLengthForOptions) title
+        |> Options.optionsList (messages indentation) "- " (options |> getMaxLengthForOptions) title
         newLine()
 
     [<CompiledName("SimpleOptions")>]
     let simpleOptions (title: string) (options: seq<string * string>): unit =
         options
-        |> optionsList "" (options |> getMaxLengthForOptions) title
+        |> Options.optionsList (messages indentation) "" (options |> getMaxLengthForOptions) title
+        newLine()
+
+    [<CompiledName("GroupedOptions")>]
+    let groupedOptions (separator: string) (title: string) (options: seq<string * string>): unit =
+        options
+        |> Options.groupedOptionsList (messages indentation) (options |> getMaxLengthForOptions) separator title
         newLine()
 
     [<CompiledName("List")>]

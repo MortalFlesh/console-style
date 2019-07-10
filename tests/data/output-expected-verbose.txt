@@ -80,13 +80,20 @@ Is debug no
 
 prefixline 1
 prefixline 2
-[_____DATE_TIME_____]    Foo options
+Foo options
     - first   Description of the 1st
     - second  Description of the 2nd
 
-[_____DATE_TIME_____]    Foo simple options
+Foo simple options
     first   Description of the 1st
     second  Description of the 2nd
+
+Grouped options
+    first         desc 1
+    second        desc 2
+ group
+    group:first   desc group 1
+    group:second  desc group 2
 
  - line 1
  - line 2

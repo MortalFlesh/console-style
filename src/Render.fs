@@ -4,7 +4,6 @@ module private Render =
     open System
     open System.Drawing
     open Colorful
-    open Types
 
     type private Render = {
         Normal: unit -> unit
@@ -39,8 +38,7 @@ module private Render =
         | _ -> configuration.Normal()
 
     let private renderDateTime indentation outputType =
-        match Verbosity.isVerbose() with
-        | true ->
+        if Verbosity.isVerbose() then
             let renderNormalDateTime _ =
                 Console.Write("[")
                 Console.Write(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Number |> color)
@@ -56,7 +54,6 @@ module private Render =
                     Console.Error.Write(sprintf "]%s" indentation)
                 )
             }
-        | _ -> ()
 
     let private renderUnderline underline length outputType =
         match Verbosity.isNormal(), underline with
@@ -71,12 +68,12 @@ module private Render =
             }
         | _ -> ()
 
-    let block indentation outputType underline withNewLine (message: string) =
-        outputType
-        |> renderDateTime indentation
+    let block indentation allowDateTime outputType underline withNewLine (message: string) =
+        if allowDateTime then
+            outputType
+            |> renderDateTime indentation
 
-        match Verbosity.isNormal() with
-        | true ->
+        if Verbosity.isNormal() then
             outputType
             |> render {
                 Normal = fun _ -> printfn "%s" message
@@ -85,7 +82,7 @@ module private Render =
             }
 
             let underlineLength =
-                if Verbosity.isVerbose()
+                if Verbosity.isVerbose() && allowDateTime
                     then message.Length + indentation.Length + 21   // 21 is length of time string in [DD/MM/YYYY HH:MM:SS]
                     else message.Length
 
@@ -99,4 +96,3 @@ module private Render =
                     WithType = fun _ -> printfn ""
                     Error = fun _ -> eprintfn ""
                 }
-        | _ -> ()
