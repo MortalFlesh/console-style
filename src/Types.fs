@@ -7,3 +7,4 @@ type private OutputType =
     | Success
     | Error
     | Number
+    | TextWithMarkup of string option

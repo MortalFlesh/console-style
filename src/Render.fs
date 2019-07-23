@@ -9,7 +9,11 @@ module private Render =
         Normal: unit -> unit
         WithType: OutputType -> unit
         Error: unit -> unit
+        WithMarkup: unit -> unit
     }
+
+    let private normalizeColor (string: string) =
+        string.ToLower().Trim().Replace("_", "").Replace("-", "")
 
     let color = function
         | Title -> Color.Cyan
@@ -18,6 +22,43 @@ module private Render =
         | Success -> Color.LimeGreen
         | Error -> Color.Red
         | Number -> Color.Magenta
+        | TextWithMarkup color ->
+            match color |> Option.map normalizeColor with
+            | Some "lightyellow"
+            | Some "yellow" -> Color.Yellow
+            | Some "darkyellow" -> Color.DarkGoldenrod
+
+            | Some "lightred"
+            | Some "red" -> Color.Red
+            | Some "darkred" -> Color.DarkRed
+
+            | Some "lightgreen"
+            | Some "green" -> Color.LimeGreen
+            | Some "darkgreen" -> Color.DarkGreen
+
+            | Some "lightcyan"
+            | Some "cyan"
+            | Some "lightblue" -> Color.Cyan
+            | Some "darkcyan"
+            | Some "blue" -> Color.DarkCyan
+            | Some "darkblue" -> Color.MidnightBlue
+
+            | Some "lightpink"
+            | Some "pink"
+            | Some "lightmagenta"
+            | Some "magenta" -> Color.Magenta
+            | Some "darkpink"
+            | Some "darkmagenta"
+            | Some "purple" -> Color.Purple
+
+            | Some "lightgray" -> Color.LightGray
+            | Some "gray"
+            | Some "darkgray"-> Color.Silver
+
+            | Some "black" -> Color.Black
+
+            | Some "white"
+            | _ -> Color.White
 
     let private eprintfn format =
         format |>
@@ -34,6 +75,7 @@ module private Render =
         | Some t ->
             match t with
             | Error -> configuration.Error()
+            | TextWithMarkup _ -> configuration.WithMarkup()
             | _ -> configuration.WithType t
         | _ -> configuration.Normal()
 
@@ -48,6 +90,7 @@ module private Render =
             |> render {
                 Normal = renderNormalDateTime
                 WithType = renderNormalDateTime
+                WithMarkup = renderNormalDateTime
                 Error = (fun _ ->
                     Console.Error.Write("[")
                     Console.Error.Write(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Number |> color)
@@ -63,10 +106,33 @@ module private Render =
             outputType
             |> render {
                 Normal = fun _ -> printfn "%s" underline
+                WithMarkup = fun _ -> Console.WriteLine(underline)
                 WithType = fun t -> Console.WriteLine(underline, t |> color)
                 Error = fun _ -> eprintfn "%s" underline
             }
         | _ -> ()
+
+    let rec private printWithMarkup (message: string) =
+        if message.Contains("<c:") then
+            match message.Split("<c", 2) with
+            | [| before; withMarkup |] ->
+                Console.Write(before)
+
+                let (messageColor, message) =
+                    match withMarkup.Split(">", 2) with
+                    | [| color; text |] -> (Some (color.TrimStart ':'), text)
+                    | _ -> (None, message)
+
+                match message.Split("</c>", 2) with
+                | [| textToColor; rest |] ->
+                    Console.Write(textToColor, TextWithMarkup messageColor |> color)
+
+                    if rest.Contains "<c:" then printWithMarkup rest
+                    else Console.WriteLine(rest)
+
+                | _ -> Console.WriteLine(message)
+            | _ -> Console.WriteLine(message)
+        else Console.WriteLine(message)
 
     let block indentation allowDateTime outputType underline withNewLine (message: string) =
         if allowDateTime then
@@ -79,6 +145,7 @@ module private Render =
                 Normal = fun _ -> printfn "%s" message
                 WithType = fun t -> Console.WriteLine(message, t |> color)
                 Error = fun _ -> eprintfn "%s" message
+                WithMarkup = fun _ -> printWithMarkup message
             }
 
             let underlineLength =
@@ -93,6 +160,7 @@ module private Render =
                 outputType
                 |> render {
                     Normal = fun _ -> printfn ""
-                    WithType = fun _ -> printfn ""
+                    WithMarkup = fun _ -> Console.WriteLine()
+                    WithType = fun _ -> Console.WriteLine()
                     Error = fun _ -> eprintfn ""
                 }

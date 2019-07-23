@@ -3,7 +3,7 @@ namespace ConsoleStyle.Tests.Output
 module OutputTest =
     open MF.ConsoleStyle
 
-    let prepare verbosity = 
+    let prepare verbosity =
         match verbosity with
         | Some verbosity ->
             printfn "Verbosity: %A" verbosity
@@ -39,10 +39,10 @@ module OutputTest =
         Console.subTitlef2 "Formatted subTitle %s and %i!" "F#" 42
         Console.subTitlef3 "Formatted subTitle %s with %s and %i!" "foo" "bar" 42
 
-        Console.message "This is message!"
-        Console.messagef "Formatted message %s!" "F#"
-        Console.messagef2 "Formatted message %s and %i!" "F#" 42
-        Console.messagef3 "Formatted message %s with %s and %i!" "foo" "bar" 42
+        Console.message "This is <c:green>message</c>!"
+        Console.messagef "Formatted <c:green>message</c> %s!" "F#"
+        Console.messagef2 "Formatted <c:green>message</c> %s and %i!" "F#" 42
+        Console.messagef3 "Formatted <c:green>message</c> %s with %s and %i!" "foo" "bar" 42
 
         Console.error "This is error!"
         Console.errorf "Formatted error %s!" "F#"
@@ -59,11 +59,14 @@ module OutputTest =
         Console.newLine()
 
         // output many
-        Console.messages "prefix" ["line 1"; "line 2"]
-        Console.options "Foo options" [("first", "Description of the 1st"); ("second", "Description of the 2nd")]
-        Console.simpleOptions "Foo simple options" [("first", "Description of the 1st"); ("second", "Description of the 2nd")]
-        Console.groupedOptions ":" "Grouped options" [("first", "desc 1"); ("group:first", "desc group 1"); ("group:second", "desc group 2"); ("second", "desc 2")]
-        Console.list ["line 1"; "line 2"]
+        Console.messages "prefix" ["<c:yellow>line 1</c>"; "line 2"]
+        Console.options "Foo options" [("first", "Description of the <c:blue>1st</c>"); ("second", "Description of the 2nd")]
+        Console.simpleOptions "Foo simple options" [("first", "Description of the <c:blue>1st</c>"); ("second", "Description of the 2nd")]
+        Console.groupedOptions ":" "Grouped options" [("first", "desc <c:darkgreen>1</c>"); ("group:first", "desc group 1"); ("group:second", "desc group 2"); ("second", "desc 2")]
+        Console.list [
+            "<c:yellow>line 1"  // missing end tag
+            "<c:>line 2</c>"    // missing color
+        ]
 
         // table
         Console.table ["FirstName"; "Surname"] [
