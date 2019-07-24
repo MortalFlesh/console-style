@@ -2,6 +2,8 @@
 
 <!-- There is always Unreleased section on the top. Subsections (Add, Changed, Fix, Removed) should be Add as needed. -->
 ## Unreleased
+
+## 1.4.0 - 2019-07-24
 - Fix error when empty options (_sequence_) is given.
 - Allow simple _markup_ for coloring part of text in functions:
     - `message` (_and all variants with formatting_)
