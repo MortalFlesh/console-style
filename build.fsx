@@ -195,7 +195,8 @@ Target.create "Release" (fun _ ->
     ==> "Tests"
     ==> "Release"
 
-"ClearTests"
+"Build"
+    ?=> "ClearTests"
     ==> "PrepareTests"
     ==> "Tests"
 

@@ -145,6 +145,46 @@ Console.message   (sprintf "Format %s, %s, %s and %s parameter" "one" "two" "thr
 ```
 _NOTE_: Other functions allowing formatting works the same way.
 
+### Markup in text
+There is a special _tag_ for coloring a part of text (`<c:COLOR>text</c>`). It is not transformed in every function.
+
+Functions allowing a markup in the text:
+- `message` (_and all `messagef*` variants_)
+- `list`
+- `messages`
+- `options`
+- `simpleOptions`
+- `groupedOptions`
+
+List of available colors:
+- lightyellow, yellow, darkyellow
+- lightred, red, darkred
+- lightgreen, green, darkgreen
+- lightcyan, cyan, darkcyan
+- lightblue, blue, darkblue
+- lightpink, pink, darkpink
+- lightmagenta, magenta, darkmagenta
+- purple
+- lightgray, gray, darkgray
+- black
+- white
+
+_NOTE_: Some of the color variants may be the same (_or just an alias_), this is the limitation of terminals.
+
+_TIP_: Given color is normalized, so you can use `-` or `_` as separator or even use different case for colors.
+(_Example: `darkblue` is same as `dark_blue`, `DARK--Blue`, `dark-blue`, ..._)
+
+#### Usage
+```fs
+Console.message "Hello <c:green>world</c>!" // `Hello` and `!` will be in default color, and `world` will be green.
+Console.message "<c:red>Hello</c> <c:green>world</c>!"  // Different color for every word.
+
+Console.simpleOptions "Options:" [
+    "option1"; "This is the <c:magenta>first</c> option <c:yellow>[default: \"foo\"]</c>"
+    "option2"; "This is the <c:magenta>second</c> option"
+]
+```
+
 ### Output complex components
 
 #### Table

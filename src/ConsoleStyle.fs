@@ -7,10 +7,12 @@ module Console =
     open ShellProgressBar
 
     let private getMaxLengthForOptions options =
-        options
-        |> Seq.map fst
-        |> Seq.maxBy String.length
-        |> String.length
+        if options |> Seq.isEmpty then 0
+        else
+            options
+            |> Seq.map fst
+            |> Seq.maxBy String.length
+            |> String.length
 
     //
     // Verbosity
@@ -41,6 +43,7 @@ module Console =
     let indentation: string = "    "
 
     let private block = Render.block indentation true
+    let private blockWithMarkup allowDateTime = Render.block indentation allowDateTime (Some (TextWithMarkup None))
     let private color = Render.color
 
     let private format1 render (format: Printf.StringFormat<'a -> string>) (valueA: 'a) =
@@ -61,7 +64,7 @@ module Console =
     [<CompiledName("Message")>]
     let message (message: string): unit =
         message
-        |> block None None false
+        |> blockWithMarkup true None false
 
     [<CompiledName("Messagef")>]
     let messagef format = format1 message format
@@ -175,7 +178,7 @@ module Console =
     let messages (prefix: string) (messages: seq<string>): unit =
         if Verbosity.isNormal() then
             messages
-            |> Seq.iter (printfn "%s%s" prefix)
+            |> Seq.iter (sprintf "%s%s" prefix >> blockWithMarkup false None false)
 
     [<CompiledName("Options")>]
     let options (title: string) (options: seq<string * string>): unit =
@@ -199,7 +202,7 @@ module Console =
     let list (messages: seq<string>): unit =
         if Verbosity.isNormal() then
             messages
-            |> Seq.iter (printfn " - %s")
+            |> Seq.iter (sprintf " - %s" >> blockWithMarkup false None false)
 
     //
     // Complex components
