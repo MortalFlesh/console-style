@@ -7,10 +7,12 @@ module Console =
     open ShellProgressBar
 
     let private getMaxLengthForOptions options =
-        options
-        |> Seq.map fst
-        |> Seq.maxBy String.length
-        |> String.length
+        if options |> Seq.isEmpty then 0
+        else
+            options
+            |> Seq.map fst
+            |> Seq.maxBy String.length
+            |> String.length
 
     //
     // Verbosity
