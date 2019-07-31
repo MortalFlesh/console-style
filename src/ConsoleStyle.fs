@@ -10,7 +10,7 @@ module Console =
         if options |> Seq.isEmpty then 0
         else
             options
-            |> Seq.map fst
+            |> Seq.map (fst >> Render.Markup.removeMarkup)
             |> Seq.maxBy String.length
             |> String.length
 

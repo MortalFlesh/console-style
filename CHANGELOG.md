@@ -2,6 +2,7 @@
 
 <!-- There is always Unreleased section on the top. Subsections (Add, Changed, Fix, Removed) should be Add as needed. -->
 ## Unreleased
+- Fix markup in grouped options.
 
 ## 1.4.0 - 2019-07-24
 - Fix error when empty options (_sequence_) is given.
