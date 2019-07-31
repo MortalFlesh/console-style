@@ -2,6 +2,8 @@
 
 <!-- There is always Unreleased section on the top. Subsections (Add, Changed, Fix, Removed) should be Add as needed. -->
 ## Unreleased
+
+## 1.4.1 - 2019-07-31
 - Fix markup in grouped options.
 
 ## 1.4.0 - 2019-07-24
