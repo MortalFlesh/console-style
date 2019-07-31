@@ -8,13 +8,13 @@ let main argv =
 
     Console.groupedOptions ":" "Available commands:" [
         "list", "Lists commands"
-        "deployment:list", "Lists environment"
-        "deployment:release", "Release a package"
-        "debug:configuration", "Dumps configuration"
-        "test:d", "D"
-        "test:c", "C"
-        "test:a", "a"
-        "test:b", "B"
+        "<c:blue>deployment:list</c>", "Lists environment"
+        "deployment:list", "Release a package"
+        "<c:blue>debug</c>:<c:dark-pink>configuration</c>", "Dumps configuration"
+        "<c:red>test</c>:<c:pink>d</c>", "D"
+        "<c:dark-red>test</c>:<c:yellow>c</c>", "C"
+        "<c:gray>test</c>:<c:purple>a</c>", "a"
+        "<c:white>test</c>:<c:black>b</c>", "B"
     ]
 
     Console.simpleOptions "Options:" [
@@ -23,8 +23,8 @@ let main argv =
         yield "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c>[default: \"./config.yaml\"] (undefined color)"
         yield "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c:>[default: \"./config.yaml\"] (undefined color)"
         yield "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c[default: \"./config.yaml\"] (incomplete tag)"
-        yield "    --message", "Some message"
-        yield "    --parts", "Required parts <c:yellow>[default: [\"foo\"; \"bar\"]]</c> <c:blue>(multiple values allowed)</c>"
+        yield "    --message",       "Some message"
+        yield "    --parts",         "Required parts <c:yellow>[default: [\"foo\"; \"bar\"]]</c> <c:blue>(multiple values allowed)</c>"
 
         yield! [
             "lightyellow"

@@ -62,7 +62,12 @@ module OutputTest =
         Console.messages "prefix" ["<c:yellow>line 1</c>"; "line 2"]
         Console.options "Foo options" [("first", "Description of the <c:blue>1st</c>"); ("second", "Description of the 2nd")]
         Console.simpleOptions "Foo simple options" [("first", "Description of the <c:blue>1st</c>"); ("second", "Description of the 2nd")]
-        Console.groupedOptions ":" "Grouped options" [("first", "desc <c:darkgreen>1</c>"); ("group:first", "desc group 1"); ("group:second", "desc group 2"); ("second", "desc 2")]
+        Console.groupedOptions ":" "Grouped options" [
+            "<c:green>first</c>", "desc <c:darkgreen>1</c>"
+            "<c:green>group</c>:<c:dark-green>first</c>", "desc group 1"
+            "<c:green>group:second</c>", "desc group 2"
+            "second", "desc 2"
+        ]
         Console.list [
             "<c:yellow>line 1"  // missing end tag
             "<c:>line 2</c>"    // missing color

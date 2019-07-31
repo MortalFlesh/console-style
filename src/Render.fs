@@ -60,6 +60,30 @@ module private Render =
             | Some "white"
             | _ -> Color.White
 
+    let (|ColorName|_|) = function
+        | Some (color: Color) ->
+            let color = color.Name
+            let colorName =
+                if color = Color.Yellow.Name then "yellow"
+                elif color = Color.DarkGoldenrod.Name then "darkyellow"
+                elif color = Color.Red.Name then "red"
+                elif color = Color.DarkRed.Name then "darkred"
+                elif color = Color.LimeGreen.Name then "green"
+                elif color = Color.DarkGreen.Name then "darkgreen"
+                elif color = Color.Cyan.Name then "lightblue"
+                elif color = Color.DarkCyan.Name then "blue"
+                elif color = Color.MidnightBlue.Name then "darkblue"
+                elif color = Color.Magenta.Name then "pink"
+                elif color = Color.Purple.Name then "darkpink"
+                elif color = Color.LightGray.Name then "lightgray"
+                elif color = Color.Silver.Name then "gray"
+                elif color = Color.Black.Name then "black"
+                elif color = Color.White.Name then "white"
+                else ""
+            if colorName <> "" then Some colorName
+            else None
+        | _ -> None
+
     let private eprintfn format =
         format |>
         Printf.kprintf (fun message ->
@@ -112,27 +136,81 @@ module private Render =
             }
         | _ -> ()
 
-    let rec private printWithMarkup (message: string) =
-        if message.Contains("<c:") then
-            match message.Split("<c", 2) with
-            | [| before; withMarkup |] ->
-                Console.Write(before)
+    module internal Markup =
+        let hasMarkup (message: string) =
+            message.Contains "<c:"
 
-                let (messageColor, message) =
-                    match withMarkup.Split(">", 2) with
-                    | [| color; text |] -> (Some (color.TrimStart ':'), text)
-                    | _ -> (None, message)
+        type private MessageParts = (string * Color option) list
 
-                match message.Split("</c>", 2) with
-                | [| textToColor; rest |] ->
-                    Console.Write(textToColor, TextWithMarkup messageColor |> color)
+        let private addNotEmptyPart (parts: MessageParts) color part =
+            if part <> ""
+            then (part, color) :: parts
+            else parts
 
-                    if rest.Contains "<c:" then printWithMarkup rest
-                    else Console.WriteLine(rest)
+        let private parseMarkup (message: string): MessageParts =
+            let rec parseMarkup (parts: MessageParts) (message: string) =
+                if message |> hasMarkup then
+                    match message.Split("<c", 2) with
+                    | [| before; withMarkup |] ->
+                        let parts = before |> addNotEmptyPart parts None
 
-                | _ -> Console.WriteLine(message)
-            | _ -> Console.WriteLine(message)
-        else Console.WriteLine(message)
+                        let (message, color) =
+                            match withMarkup.Split(">", 2) with
+                            | [| colorName; text |] ->
+                                let color =
+                                    colorName.TrimStart ':'
+                                    |> Some
+                                    |> TextWithMarkup
+                                    |> color
+
+                                text, Some color
+                            | _ -> message, None
+
+                        match message.Split("</c>", 2) with
+                        | [| text; rest |] ->
+                            let texts = text |> addNotEmptyPart parts color
+
+                            if rest |> hasMarkup then parseMarkup texts rest
+                            else rest |> addNotEmptyPart texts None
+
+                        | _ -> message |> addNotEmptyPart parts None
+                    | _ -> message |> addNotEmptyPart parts None
+                else message |> addNotEmptyPart parts None
+
+            message
+            |> parseMarkup []
+            |> List.rev
+
+        let (|HasMarkup|_|) = function
+            | message when message |> hasMarkup -> message |> parseMarkup |> Some
+            | _ -> None
+
+        let removeMarkup = function
+            | HasMarkup texts -> texts |> List.map fst |> String.concat ""
+            | text -> text
+
+        let toMessage (parts: MessageParts) =
+            parts
+            |> List.map (fun (part, color) ->
+                match color with
+                | ColorName colorName -> sprintf "<c:%s>%s</c>" colorName part
+                | _ -> part
+            )
+            |> String.concat ""
+
+        let printWithMarkup message =
+            let rec printMarkup: MessageParts -> unit = function
+                | [] -> Console.WriteLine()
+                | (text, color) :: others ->
+                    match color with
+                    | Some color -> Console.Write(text, color)
+                    | _ -> Console.Write(text)
+
+                    others |> printMarkup
+
+            message
+            |> parseMarkup
+            |> printMarkup
 
     let block indentation allowDateTime outputType underline withNewLine (message: string) =
         if allowDateTime then
@@ -145,7 +223,7 @@ module private Render =
                 Normal = fun _ -> printfn "%s" message
                 WithType = fun t -> Console.WriteLine(message, t |> color)
                 Error = fun _ -> eprintfn "%s" message
-                WithMarkup = fun _ -> printWithMarkup message
+                WithMarkup = fun _ -> Markup.printWithMarkup message
             }
 
             let underlineLength =
