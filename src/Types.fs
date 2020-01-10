@@ -1,6 +1,6 @@
 namespace MF.ConsoleStyle
 
-type private OutputType =
+type internal OutputType =
     | Title
     | SubTitle
     | TableHeader

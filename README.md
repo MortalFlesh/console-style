@@ -155,6 +155,8 @@ Functions allowing a markup in the text:
 - `options`
 - `simpleOptions`
 - `groupedOptions`
+- `table`
+    - only in rows (_any markup will be removed from header_)
 
 List of available colors:
 - lightyellow, yellow, darkyellow
@@ -180,8 +182,8 @@ Console.message "Hello <c:green>world</c>!" // `Hello` and `!` will be in defaul
 Console.message "<c:red>Hello</c> <c:green>world</c>!"  // Different color for every word.
 
 Console.simpleOptions "Options:" [
-    "option1"; "This is the <c:magenta>first</c> option <c:yellow>[default: \"foo\"]</c>"
-    "option2"; "This is the <c:magenta>second</c> option"
+    "option1", "This is the <c:magenta>first</c> option <c:yellow>[default: \"foo\"]</c>"
+    "option2", "This is the <c:magenta>second</c> option"
 ]
 ```
 

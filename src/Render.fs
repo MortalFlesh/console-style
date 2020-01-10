@@ -1,6 +1,6 @@
 namespace MF.ConsoleStyle
 
-module private Render =
+module internal Render =
     open System
     open System.Drawing
     open Colorful
@@ -15,7 +15,7 @@ module private Render =
     let private normalizeColor (string: string) =
         string.ToLower().Trim().Replace("_", "").Replace("-", "")
 
-    let color = function
+    let internal color = function
         | Title -> Color.Cyan
         | SubTitle -> Color.Yellow
         | TableHeader -> Color.DarkGoldenrod
@@ -136,7 +136,7 @@ module private Render =
             }
         | _ -> ()
 
-    module internal Markup =
+    module Markup =
         let hasMarkup (message: string) =
             message.Contains "<c:"
 
@@ -147,7 +147,7 @@ module private Render =
             then (part, color) :: parts
             else parts
 
-        let private parseMarkup (message: string): MessageParts =
+        let internal parseMarkup (message: string): MessageParts =
             let rec parseMarkup (parts: MessageParts) (message: string) =
                 if message |> hasMarkup then
                     match message.Split("<c", 2) with
@@ -212,7 +212,7 @@ module private Render =
             |> parseMarkup
             |> printMarkup
 
-    let block indentation allowDateTime outputType underline withNewLine (message: string) =
+    let internal block indentation allowDateTime outputType underline withNewLine (message: string) =
         if allowDateTime then
             outputType
             |> renderDateTime indentation

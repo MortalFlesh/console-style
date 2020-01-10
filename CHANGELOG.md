@@ -5,6 +5,9 @@
 - Update dependencies
 - [**BC**] Require .net core `^3.1`
 - Add `AssemblyInfo`
+- [**BC**] Table requires `list` instead of `seq`
+- Allow markup in Tables
+- Ignore markup in Table header
 
 ## 1.4.1 - 2019-07-31
 - Fix markup in grouped options.

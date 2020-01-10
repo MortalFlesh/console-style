@@ -84,11 +84,6 @@ module private DotnetCore =
         | _ -> ()
 
     let execute command args (dir: string) =
-        Trace.tracefn "Dir %A for command %A contains:" dir command
-        !! (dir + "/*")
-        |> Seq.iter (Trace.tracefn " --> %A")
-        Trace.tracefn "==================="
-
         let cmd =
             sprintf "%s/%s"
                 (dir.TrimEnd('/'))
@@ -160,7 +155,7 @@ Target.create "Build" (fun _ ->
     |> Seq.iter (DotNet.build id)
 )
 
-Target.create "Lint" <| skipOn "no-lint" (fun p ->
+Target.create "Lint" <| skipOn "no-lint" (fun _ ->
     DotnetCore.installOrUpdateTool toolsDir "dotnet-fsharplint"
 
     let checkResult (messages: string list) =

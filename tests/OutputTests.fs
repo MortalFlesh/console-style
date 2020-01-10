@@ -85,4 +85,55 @@ module OutputTest =
         Console.table ["FirstName"; "Surname"] []
         Console.table [] []
 
+        [
+            "yellow", [
+                "lightyellow"
+                "yellow"
+                "darkyellow"
+            ]
+
+            "red", [
+                "lightred"
+                "red"
+                "darkred"
+            ]
+
+            "green", [
+                "lightgreen"
+                "green"
+                "darkgreen"
+            ]
+
+            "blue", [
+                "Light-cyan"
+                "Light-Blue"
+                "blue"
+                "darkcyan"
+                "darkblue"
+            ]
+
+            "pink", [
+                "pink"
+                "dark-pink"
+            ]
+
+            "gray", [
+                "lightgray"
+                "gray"
+                "darkGray"
+            ]
+
+            "black", []
+            "white", []
+        ]
+        |> List.map (fun (colorGroup, colors) ->
+            let colorize color = sprintf "<c:%s>%s</c>" color color
+
+            [
+                colorize colorGroup
+                colors |> List.map colorize |> String.concat ", "
+            ]
+        )
+        |> Console.table [ "Color Group"; "Colors" ]
+
         0
