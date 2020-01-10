@@ -18,52 +18,72 @@ let main argv =
     ]
 
     Console.simpleOptions "Options:" [
-        yield "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c:yellow>[default: \"./config.yaml\"]</c>"
-        yield "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c:yellow>[default: \"./config.yaml\"] (missing end tag)"
-        yield "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c>[default: \"./config.yaml\"] (undefined color)"
-        yield "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c:>[default: \"./config.yaml\"] (undefined color)"
-        yield "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c[default: \"./config.yaml\"] (incomplete tag)"
-        yield "    --message",       "Some message"
-        yield "    --parts",         "Required parts <c:yellow>[default: [\"foo\"; \"bar\"]]</c> <c:blue>(multiple values allowed)</c>"
-
-        yield! [
-            "lightyellow"
-            "yellow"
-            "darkyellow"
-
-            "lightred"
-            "red"
-            "darkred"
-
-            "lightgreen"
-            "green"
-            "darkgreen"
-
-            "Light-cyan"
-            "Light-Blue"
-            "blue"
-            "darkcyan"
-            "darkblue"
-
-            "pink"
-            "dark-pink"
-
-            "lightgray"
-            "gray"
-            "darkGray"
-
-            "black"
-            "white"
-        ]
-        |> List.map (fun c -> "    " + c, sprintf "colored <c:%s>message</c>!" c)
+        "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c:yellow>[default: \"./config.yaml\"]</c>"
+        "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c:yellow>[default: \"./config.yaml\"] (missing end tag)"
+        "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c>[default: \"./config.yaml\"] (undefined color)"
+        "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c:>[default: \"./config.yaml\"] (undefined color)"
+        "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c[default: \"./config.yaml\"] (incomplete tag)"
+        "    --message",       "Some message"
+        "    --parts",         "Required parts <c:yellow>[default: [\"foo\"; \"bar\"]]</c> <c:blue>(multiple values allowed)</c>"
     ]
 
     let total = 10
     let progressBar = Console.progressStart "Starting..." total
     for _ in 1 .. total do
-        System.Threading.Thread.Sleep 500
+        System.Threading.Thread.Sleep 200
         progressBar |> Console.progressAdvance
     Console.progressFinish progressBar
+
+    [
+            "yellow", [
+                "lightyellow"
+                "yellow"
+                "darkyellow"
+            ]
+
+            "red", [
+                "lightred"
+                "red"
+                "darkred"
+            ]
+
+            "green", [
+                "lightgreen"
+                "green"
+                "darkgreen"
+            ]
+
+            "blue", [
+                "Light-cyan"
+                "Light-Blue"
+                "blue"
+                "darkcyan"
+                "darkblue"
+            ]
+
+            "pink", [
+                "pink"
+                "dark-pink"
+            ]
+
+            "gray", [
+                "lightgray"
+                "gray"
+                "darkGray"
+            ]
+
+            "black", []
+            "white", []
+        ]
+        |> List.map (fun (colorGroup, colors) ->
+            let colorize color = sprintf "<c:%s>%s</c>" color color
+
+            [
+                colorize colorGroup
+                colors |> List.map colorize |> String.concat ", "
+            ]
+        )
+        |> Console.table [ "Color Group"; "Colors" ]
 
     Console.newLine()
 

@@ -209,12 +209,16 @@ module Console =
     //
 
     [<CompiledName("Table")>]
-    let table (header: seq<string>) (rows: seq<seq<string>>): unit =
+    let table (header: list<string>) (rows: list<list<string>>): unit =
         if Verbosity.isNormal() then
-            let renderHeaderRow (row: string) =
-                Console.WriteLine(row, TableHeader |> color)
+            let removeMarkup = Render.Markup.removeMarkup
 
-            Table.renderTable renderHeaderRow header rows
+            let renderHeaderLine (headerLine: string) =
+                Console.WriteLine(headerLine, TableHeader |> color)
+
+            let renderRowLine = blockWithMarkup false None false
+
+            Table.render removeMarkup renderHeaderLine renderRowLine (header |> List.map removeMarkup) rows
             newLine()
 
     [<CompiledName("ProgressStart")>]

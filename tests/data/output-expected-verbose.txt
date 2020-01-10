@@ -114,3 +114,16 @@ Grouped options
 ----------- ---------
 
 
+------------- --------------------------------------------------
+ Color Group   Colors                                           
+------------- --------------------------------------------------
+ yellow        lightyellow, yellow, darkyellow                  
+ red           lightred, red, darkred                           
+ green         lightgreen, green, darkgreen                     
+ blue          Light-cyan, Light-Blue, blue, darkcyan, darkblue 
+ pink          pink, dark-pink                                  
+ gray          lightgray, gray, darkGray                        
+ black                                                          
+ white                                                          
+------------- --------------------------------------------------
+
