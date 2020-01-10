@@ -69,6 +69,8 @@ module Tests =
         |> List.filter (fun case -> case = "default" || case = "quiet")
         |> List.map (fun case ->
             testCase case <| fun _ ->
+                Tests.skiptest "Progress bar test is skipped since it has no visible output"
+
                 if Console.WindowWidth <= 0 then Tests.skiptest "Progress bar is not displayed here"
 
                 let (expected, result) = case |> files "progress"

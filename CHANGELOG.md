@@ -2,6 +2,9 @@
 
 <!-- There is always Unreleased section on the top. Subsections (Add, Changed, Fix, Removed) should be Add as needed. -->
 ## Unreleased
+- Update dependencies
+- [**BC**] Require .net core `^3.1`
+- Add `AssemblyInfo`
 
 ## 1.4.1 - 2019-07-31
 - Fix markup in grouped options.
@@ -18,7 +21,7 @@
 
 ## 1.3.0 - 2019-07-10
 - Use paket for dependency management
-- Update for dotnet core 2.2
+- Update for .net core 2.2
 - Add Lint
 - Add `simpleOptions` function to show `options` without any line prefix
 - Add `groupedOptions` function to show `options` grouped by prefix

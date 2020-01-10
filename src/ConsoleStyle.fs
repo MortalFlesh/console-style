@@ -224,8 +224,9 @@ module Console =
                 ProgressBarOptions (
                     ForegroundColor = ConsoleColor.Yellow,
                     ForegroundColorDone = Nullable<ConsoleColor>(ConsoleColor.DarkGreen),
+
                     BackgroundColor = Nullable<ConsoleColor>(ConsoleColor.DarkGray),
-                    BackgroundCharacter = Nullable<char>('\u2593'),
+
                     DisplayTimeInRealTime = true,
                     ProgressBarOnBottom = true
                 )

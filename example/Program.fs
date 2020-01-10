@@ -58,4 +58,13 @@ let main argv =
         |> List.map (fun c -> "    " + c, sprintf "colored <c:%s>message</c>!" c)
     ]
 
+    let total = 10
+    let progressBar = Console.progressStart "Starting..." total
+    for _ in 1 .. total do
+        System.Threading.Thread.Sleep 500
+        progressBar |> Console.progressAdvance
+    Console.progressFinish progressBar
+
+    Console.newLine()
+
     0
