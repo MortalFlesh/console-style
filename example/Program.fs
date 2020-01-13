@@ -7,24 +7,24 @@ let main argv =
     Console.title "Example"
 
     Console.groupedOptions ":" "Available commands:" [
-        "list", "Lists commands"
-        "<c:blue>deployment:list</c>", "Lists environment"
-        "deployment:list", "Release a package"
-        "<c:blue>debug</c>:<c:dark-pink>configuration</c>", "Dumps configuration"
-        "<c:red>test</c>:<c:pink>d</c>", "D"
-        "<c:dark-red>test</c>:<c:yellow>c</c>", "C"
-        "<c:gray>test</c>:<c:purple>a</c>", "a"
-        "<c:white>test</c>:<c:black>b</c>", "B"
+        [ "list"; "Lists commands" ]
+        [ "<c:blue>deployment:list</c>"; "Lists environment" ]
+        [ "deployment:list"; "Release a package" ]
+        [ "<c:blue>debug</c>:<c:dark-pink>configuration</c>"; "Dumps configuration" ]
+        [ "<c:red>test</c>:<c:pink>d</c>"; "D" ]
+        [ "<c:dark-red>test</c>:<c:yellow>c</c>"; "C" ]
+        [ "<c:gray>test</c>:<c:purple>a</c>"; "a" ]
+        [ "<c:white>test</c>:<c:black>b</c>"; "B" ]
     ]
 
     Console.simpleOptions "Options:" [
-        "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c:yellow>[default: \"./config.yaml\"]</c>"
-        "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c:yellow>[default: \"./config.yaml\"] (missing end tag)"
-        "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c>[default: \"./config.yaml\"] (undefined color)"
-        "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c:>[default: \"./config.yaml\"] (undefined color)"
-        "-c, --config=CONFIG", "Path to deploy <c:dark-blue>config</c> <c[default: \"./config.yaml\"] (incomplete tag)"
-        "    --message",       "Some message"
-        "    --parts",         "Required parts <c:yellow>[default: [\"foo\"; \"bar\"]]</c> <c:blue>(multiple values allowed)</c>"
+        [ "-c, --config=CONFIG"; "Path to deploy <c:dark-blue>config</c> <c:yellow>[default: \"./config.yaml\"]</c>" ]
+        [ "-c, --config=CONFIG"; "Path to deploy <c:dark-blue>config</c> <c:yellow>[default: \"./config.yaml\"] (missing end tag)" ]
+        [ "-c, --config=CONFIG"; "Path to deploy <c:dark-blue>config</c> <c>[default: \"./config.yaml\"] (undefined color)" ]
+        [ "-c, --config=CONFIG"; "Path to deploy <c:dark-blue>config</c> <c:>[default: \"./config.yaml\"] (undefined color)" ]
+        [ "-c, --config=CONFIG"; "Path to deploy <c:dark-blue>config</c> <c[default: \"./config.yaml\"] (incomplete tag)" ]
+        [ "    --message";       "Some message" ]
+        [ "    --parts";         "Required parts <c:yellow>[default: [\"foo\"; \"bar\"]]</c> <c:blue>(multiple values allowed)</c>" ]
     ]
 
     let total = 10

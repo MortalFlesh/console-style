@@ -6,14 +6,6 @@ module Console =
     open Colorful
     open ShellProgressBar
 
-    let private getMaxLengthForOptions options =
-        if options |> Seq.isEmpty then 0
-        else
-            options
-            |> Seq.map (fst >> Render.Markup.removeMarkup)
-            |> Seq.maxBy String.length
-            |> String.length
-
     //
     // Verbosity
     //
@@ -181,21 +173,21 @@ module Console =
             |> Seq.iter (sprintf "%s%s" prefix >> blockWithMarkup false None false)
 
     [<CompiledName("Options")>]
-    let options (title: string) (options: seq<string * string>): unit =
+    let options (title: string) (options: list<string list>): unit =
         options
-        |> Options.optionsList (messages indentation) "- " (options |> getMaxLengthForOptions) title
+        |> Options.optionsList (messages indentation) "-" title
         newLine()
 
     [<CompiledName("SimpleOptions")>]
-    let simpleOptions (title: string) (options: seq<string * string>): unit =
+    let simpleOptions (title: string) (options: list<string list>): unit =
         options
-        |> Options.optionsList (messages indentation) "" (options |> getMaxLengthForOptions) title
+        |> Options.optionsList (messages indentation) "" title
         newLine()
 
     [<CompiledName("GroupedOptions")>]
-    let groupedOptions (separator: string) (title: string) (options: seq<string * string>): unit =
+    let groupedOptions (separator: string) (title: string) (options: list<string list>): unit =
         options
-        |> Options.groupedOptionsList (messages indentation) (options |> getMaxLengthForOptions) separator title
+        |> Options.groupedOptionsList (messages indentation) separator title
         newLine()
 
     [<CompiledName("List")>]
@@ -211,14 +203,12 @@ module Console =
     [<CompiledName("Table")>]
     let table (header: list<string>) (rows: list<list<string>>): unit =
         if Verbosity.isNormal() then
-            let removeMarkup = Render.Markup.removeMarkup
-
             let renderHeaderLine (headerLine: string) =
                 Console.WriteLine(headerLine, TableHeader |> color)
 
             let renderRowLine = blockWithMarkup false None false
 
-            Table.render removeMarkup renderHeaderLine renderRowLine (header |> List.map removeMarkup) rows
+            Table.render renderHeaderLine renderRowLine header rows
             newLine()
 
     [<CompiledName("ProgressStart")>]

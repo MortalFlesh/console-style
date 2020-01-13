@@ -1,62 +1,88 @@
 namespace MF.ConsoleStyle
 
-module private Options =
+[<RequireQualifiedAccess>]
+module internal Options =
+    open Words
     open Render.Markup
 
-    let private subTitle (subTitle: string): unit =
+    type private RawOptions = (string list) list
+    type private Options = Options of Line list
+
+    [<RequireQualifiedAccess>]
+    module private RawOptions =
+        let toOptions (rawOptions: RawOptions) =
+            rawOptions
+            |> List.map (List.map Word)
+            |> Options
+
+    [<RequireQualifiedAccess>]
+    module private OptionLine =
+        let toLine prefix maxWordLengths =
+            Line.format removeMarkup (sprintf "%-*s") maxWordLengths
+            >> fun words ->
+                match prefix, words with
+                | _, [] -> []
+                | null, words
+                | "", words -> words
+                | prefix, (Word firstWord) :: words -> Word (sprintf "%s %s" prefix firstWord) :: words
+
+    [<RequireQualifiedAccess>]
+    module private Options =
+        let toRawLines (Options options) =
+            let maxWordLengths = options |> MaxWordLengths.perWordsInLine removeMarkup
+
+            options, maxWordLengths
+
+        let toLines linePrefix options =
+            let options, maxWordLengths = options |> toRawLines
+
+            options
+            |> List.map (OptionLine.toLine linePrefix maxWordLengths >> Line.concat "  ")
+
+    let private renderSubTitle (subTitle: string): unit =
         subTitle
         |> Render.block "" false (Some SubTitle) None false
 
-    let private message (message: string): unit =
+    let private renderMessage (message: string): unit =
         message
         |> Render.block "" false (Some (TextWithMarkup None)) None false
 
-    let private toLine prefix maxLength (option, description) =
-        match option with
-        | HasMarkup parts ->
-            let (lastPart, lastPartColor), rest =
-                match parts |> List.rev with
-                | [] -> ("", None), []  // this case should never happen, since `HasMarkup` only marks messages with at least one markup
-                | (part, color) :: otherParts -> (part, color), otherParts
-
-            let fullMessageLength = parts |> List.sumBy (fst >> String.length)
-            let lastPartIndentation = maxLength - fullMessageLength + lastPart.Length
-            let lastPartIndented = sprintf "%-*s" (lastPartIndentation + 1) lastPart
-
-            let optionWithMarkup =
-                (lastPartIndented, lastPartColor) :: rest
-                |> List.rev
-                |> toMessage
-
-            sprintf "%s%s %s" prefix optionWithMarkup description
-        | optionWithoutMarkup ->
-            sprintf "%s%-*s %-s" prefix (maxLength + 1) optionWithoutMarkup description
-
-    let optionsList messages linePrefix maxLength title options =
-        subTitle title
+    let optionsList renderLines linePrefix title (options: RawOptions) =
+        renderSubTitle title
         options
-        |> Seq.map (toLine linePrefix maxLength)
-        |> messages
+        |> RawOptions.toOptions
+        |> Options.toLines linePrefix
+        |> renderLines
 
-    let groupedOptionsList messages maxLength (separator: string) (title: string) (options: seq<string * string>): unit =
-        subTitle title
+    let groupedOptionsList renderLines (separator: string) (title: string) (options: RawOptions): unit =
+        let groupName optionLine =
+            match optionLine with
+            | [] -> ""
+            | (Word groupName) :: _ -> groupName |> removeMarkup
+
+        let options, maxWordLengths =
+            options
+            |> RawOptions.toOptions
+            |> Options.toRawLines
+
+        renderSubTitle title
+
         options
-        |> Seq.map (fun (option, description) ->
-            let optionText = option |> removeMarkup
-
+        |> List.map (fun words ->
+            let groupName = words |> groupName
             let group =
-                if optionText.Contains separator
-                then Some (optionText.Split separator |> Array.head)
+                if groupName.Contains separator
+                then Some (groupName.Split separator |> Array.head)
                 else None
 
-            (group, toLine "" maxLength (option, description))
+            (group, words)
         )
-        |> Seq.sortBy fst
-        |> Seq.groupBy fst
-        |> Seq.iter (fun (group, options) ->
-            group |> Option.map (sprintf " <c:dark-yellow>%s</c>" >> message) |> ignore
+        |> List.sortBy fst
+        |> List.groupBy fst
+        |> List.iter (fun (group, options) ->
+            group |> Option.iter (sprintf " <c:dark-yellow>%s</c>" >> renderMessage)
             options
-            |> Seq.map snd
-            |> Seq.sortBy removeMarkup
-            |> messages
+            |> List.map (snd >> (OptionLine.toLine "" maxWordLengths) >> Line.concat "  ")
+            |> List.sortBy removeMarkup
+            |> renderLines
         )

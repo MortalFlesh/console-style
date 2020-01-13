@@ -84,13 +84,18 @@ Foo options
     - first   Description of the 1st
     - second  Description of the 2nd
 
+Different options
+    - first   Description of the 1st
+    - second  Description of the 2nd
+    - third   Description             of the 3rd
+
 Foo simple options
     first   Description of the 1st
     second  Description of the 2nd
 
 Grouped options
-    first         desc 1
-    second        desc 2
+    first         desc 1      
+    second        desc 2      
  group
     group:first   desc group 1
     group:second  desc group 2
