@@ -101,7 +101,7 @@ _NOTE_: all formatted (_*f_) functions, has more options - see [Formatting](#for
 ```
 | Function | example | color | note |
 | ---      | ---     | ---   | ---      |
-| `options` | `Console.options "Foo options" [("first", "desc 1"); ("second", "desc 2")]` | _default_ with yellow title | _see output_ 👇 |
+| `options` | `Console.options "Foo options" [ ["first"; "desc 1"]; ["second"; "desc 2"] ]` | _default_ with yellow title | _see output_ 👇 |
 ```
 Foo options
     - first   desc 1
@@ -109,7 +109,7 @@ Foo options
 ```
 | Function | example | color | note |
 | ---      | ---     | ---   | ---      |
-| `simpleOptions` | `Console.simpleOptions "Foo options" [("first", "desc 1"); ("second", "desc 2")]` | Same as `options`, but without line prefix. _default_ with yellow title | _see output_ 👇 |
+| `simpleOptions` | `Console.simpleOptions "Foo options" [ ["first"; "desc 1"]; ["second", "desc 2"] ]` | Same as `options`, but without line prefix. _default_ with yellow title | _see output_ 👇 |
 ```
 Foo options
     first   desc 1
@@ -117,14 +117,14 @@ Foo options
 ```
 | Function | example | color | note |
 | ---      | ---     | ---   | ---      |
-| `groupedOptions` | `Console.groupedOptions ":" "Grouped options" [("first", "desc 1"); ("group:first", "desc group 1"); ("group:second", "desc group 2"); ("second", "desc 2")]` | Grouped options by their prefix, if there is any. _default_ with yellow title | _see output_ 👇 |
+| `groupedOptions` | `Console.groupedOptions ":" "Grouped options" [ ["first"; "desc 1"]; ["group:first"; "desc"; "group 1"]; ["group:second"; "desc"; "group 2"]; ["second"; "desc 2"] ]` | Grouped options by their prefix, if there is any. _default_ with yellow title | _see output_ 👇 |
 ```
 Grouped options
     first         desc 1
     second        desc 2
  group
-    group:first   desc group 1
-    group:second  desc group 2
+    group:first   desc    group 1
+    group:second  desc    group 2
 ```
 | Function | example | color | note |
 | ---      | ---     | ---   | ---      |
@@ -182,8 +182,8 @@ Console.message "Hello <c:green>world</c>!" // `Hello` and `!` will be in defaul
 Console.message "<c:red>Hello</c> <c:green>world</c>!"  // Different color for every word.
 
 Console.simpleOptions "Options:" [
-    "option1", "This is the <c:magenta>first</c> option <c:yellow>[default: \"foo\"]</c>"
-    "option2", "This is the <c:magenta>second</c> option"
+    [ "option1"; "This is the <c:magenta>first</c> option"; "<c:yellow>[default: \"foo\"]</c>" ]
+    [ "option2"; "This is the <c:magenta>second</c> option" ]
 ]
 ```
 
@@ -191,9 +191,9 @@ Console.simpleOptions "Options:" [
 
 #### Table
 ```fs
-Console.table ["FirstName"; "Surname"] [
-    ["Jon"; "Snow"]
-    ["Peter"; "Parker"]
+Console.table [ "FirstName"; "Surname" ] [
+    [ "Jon"; "Snow" ]
+    [ "Peter"; "Parker" ]
 ]
 ```
 Output:

@@ -8,6 +8,11 @@
 - [**BC**] Table requires `list` instead of `seq`
 - Allow markup in Tables
 - Ignore markup in Table header
+- [**BC**] Options requires `list` instead of `seq`
+- [**BC**] Change `string * string` to `string list` in functions:
+    - `options`
+    - `simpleOptions`
+    - `groupedOptions`
 
 ## 1.4.1 - 2019-07-31
 - Fix markup in grouped options.
