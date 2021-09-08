@@ -211,8 +211,31 @@ module Console =
             Table.render renderHeaderLine renderRowLine header rows
             newLine()
 
+    type private ShellProgress = ShellProgressBar.ProgressBar
+
+    type ProgressBar =
+        private
+        | Active of ShellProgress
+        | Inactive
+
+        with
+            member this.Advance() =
+                match this with
+                | Active progressBar -> progressBar.Tick()
+                | _ -> ()
+
+            member this.Finish() =
+                match this with
+                | Active progressBar ->
+                    progressBar.Message <- "Finished"
+                    progressBar.Dispose()
+                | _ -> ()
+
+            interface IDisposable with
+                member this.Dispose() = this.Finish()
+
     [<CompiledName("ProgressStart")>]
-    let progressStart (initialMessage: string) (total: int): ProgressBar option =
+    let progressStart (initialMessage: string) (total: int): ProgressBar =
         if Verbosity.isNormal() && Console.WindowWidth > 0 then
             let options =
                 ProgressBarOptions (
@@ -225,22 +248,16 @@ module Console =
                     ProgressBarOnBottom = true
                 )
 
-            new ProgressBar(total, initialMessage, options) |> Some
-        else None
+            new ShellProgress(total, initialMessage, options) |> Active
+        else Inactive
 
     [<CompiledName("ProgressAdvance")>]
-    let progressAdvance (progress: ProgressBar option): unit =
-        match progress with
-        | Some progress -> progress.Tick()
-        | _ -> ()
+    let progressAdvance (progress: ProgressBar): unit =
+        progress.Advance()
 
     [<CompiledName("ProgressFinish")>]
-    let progressFinish (progress: ProgressBar option): unit =
-        match progress with
-        | Some progress ->
-            progress.Message <- "Finished"
-            progress.Dispose()
-        | _ -> ()
+    let progressFinish (progress: ProgressBar): unit =
+        progress.Finish()
 
     //
     // Inputs

@@ -2,6 +2,11 @@
 
 <!-- There is always Unreleased section on the top. Subsections (Add, Changed, Fix, Removed) should be Add as needed. -->
 ## Unreleased
+- Add `ProgressBar` type to implement `IDisposable` instead of using `option`
+- [**BC**] Change `ProgressBar` functions to use `ProgressBar` type
+    - `Console.progressStart`
+    - `Console.progressAdvance`
+    - `Console.progressFinish`
 
 ## 2.0.0 - 2020-01-13
 - Update dependencies
