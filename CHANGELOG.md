@@ -7,6 +7,8 @@
     - `Console.progressStart`
     - `Console.progressAdvance`
     - `Console.progressFinish`
+- [**BC**] Use net 5.0
+- Update dependencies
 
 ## 2.0.0 - 2020-01-13
 - Update dependencies

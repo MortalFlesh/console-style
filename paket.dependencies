@@ -1,10 +1,10 @@
-framework: netcoreapp3.1
+source https://api.nuget.org/v3/index.json
+framework: net5.0
 storage: none
 
-source https://api.nuget.org/v3/index.json
-nuget FSharp.Core
-nuget Colorful.Console >= 1.2
-nuget ShellProgressBar >= 4.2
+nuget FSharp.Core ~> 5.0
+nuget Colorful.Console ~> 1.2
+nuget ShellProgressBar ~> 4.2
 
 group Tests
     storage: none
