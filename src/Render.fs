@@ -5,240 +5,195 @@ module internal Render =
     open System.Drawing
     open Colorful
 
+    type private SystemConsole = System.Console
+    type private ColorfulConsole = Colorful.Console
+    type [<Obsolete("use expclicit console")>] private Console = Console
+
     type private Render = {
+        [<Obsolete("Is it necessary?")>] OnLine: unit -> unit
         Normal: unit -> unit
         WithType: OutputType -> unit
         Error: unit -> unit
         WithMarkup: unit -> unit
     }
 
-    let private normalizeColor (string: string) =
-        string.ToLower().Trim().Replace("_", "").Replace("-", "")
-
-    let internal color = function
-        | Title -> Color.Cyan
-        | SubTitle -> Color.Yellow
-        | TableHeader -> Color.DarkGoldenrod
-        | Success -> Color.LimeGreen
-        | Error -> Color.Red
-        | Number -> Color.Magenta
-        | TextWithMarkup color ->
-            match color |> Option.map normalizeColor with
-            | Some "lightyellow"
-            | Some "yellow" -> Color.Yellow
-            | Some "darkyellow" -> Color.DarkGoldenrod
-
-            | Some "lightred"
-            | Some "red" -> Color.Red
-            | Some "darkred" -> Color.DarkRed
-
-            | Some "lightgreen"
-            | Some "green" -> Color.LimeGreen
-            | Some "darkgreen" -> Color.DarkGreen
-
-            | Some "lightcyan"
-            | Some "cyan"
-            | Some "lightblue" -> Color.Cyan
-            | Some "darkcyan"
-            | Some "blue" -> Color.DarkCyan
-            | Some "darkblue" -> Color.MidnightBlue
-
-            | Some "lightpink"
-            | Some "pink"
-            | Some "lightmagenta"
-            | Some "magenta" -> Color.Magenta
-            | Some "darkpink"
-            | Some "darkmagenta"
-            | Some "purple" -> Color.Purple
-
-            | Some "lightgray" -> Color.LightGray
-            | Some "gray"
-            | Some "darkgray"-> Color.Silver
-
-            | Some "black" -> Color.Black
-
-            | Some "white"
-            | _ -> Color.White
-
-    let (|ColorName|_|) = function
-        | Some (color: Color) ->
-            let color = color.Name
-            let colorName =
-                if color = Color.Yellow.Name then "yellow"
-                elif color = Color.DarkGoldenrod.Name then "darkyellow"
-                elif color = Color.Red.Name then "red"
-                elif color = Color.DarkRed.Name then "darkred"
-                elif color = Color.LimeGreen.Name then "green"
-                elif color = Color.DarkGreen.Name then "darkgreen"
-                elif color = Color.Cyan.Name then "lightblue"
-                elif color = Color.DarkCyan.Name then "blue"
-                elif color = Color.MidnightBlue.Name then "darkblue"
-                elif color = Color.Magenta.Name then "pink"
-                elif color = Color.Purple.Name then "darkpink"
-                elif color = Color.LightGray.Name then "lightgray"
-                elif color = Color.Silver.Name then "gray"
-                elif color = Color.Black.Name then "black"
-                elif color = Color.White.Name then "white"
-                else ""
-            if colorName <> "" then Some colorName
-            else None
-        | _ -> None
+    [<Obsolete("Dont have default")>]
+    let [<Literal>] DefaultIndentation = "    "
 
     let private eprintfn format =
         format |>
         Printf.kprintf (fun message ->
-            let old = System.Console.ForegroundColor
+            let old = SystemConsole.ForegroundColor
             try
-                System.Console.ForegroundColor <- ConsoleColor.Red
-                System.Console.Error.WriteLine message
+                SystemConsole.ForegroundColor <- ConsoleColor.Red
+                SystemConsole.Error.WriteLine message
             finally
-                System.Console.ForegroundColor <- old
+                SystemConsole.ForegroundColor <- old
         )
 
     let private render configuration = function
-        | Some t ->
-            match t with
-            | Error -> configuration.Error()
-            | TextWithMarkup _ -> configuration.WithMarkup()
-            | _ -> configuration.WithType t
+        | Some Error -> configuration.Error()
+        | Some (TextWithMarkup _) -> configuration.WithMarkup()
+        | Some OnLine -> configuration.OnLine()
+        | Some t -> configuration.WithType t
         | _ -> configuration.Normal()
 
-    let private renderDateTime indentation outputType =
-        if Verbosity.isVerbose() then
+    let private renderDateTimeValue verbosity showDateTime: string option =
+        let format =
+            match showDateTime with
+            | ShowDateTime -> Some "yyyy-MM-dd HH:mm:ss"
+            | ShowDateTimeAs format -> Some format
+            | ShowDateTimeFrom fromVerbosity when fromVerbosity |> Verbosity.isSameOrAbove verbosity -> Some "yyyy-MM-dd HH:mm:ss"
+            | ShowDateTimeFromAs (fromVerbosity, format) when fromVerbosity |> Verbosity.isSameOrAbove verbosity -> Some format
+            | _ -> None
+
+        format
+        |> Option.map (fun format -> DateTime.Now.ToString(format) |> sprintf "[%s]")
+
+    [<Obsolete("Use a renderDateTimeValue")>]
+    let private renderDateTime verbosity indentation outputType =
+        // todo - allow to set a verbosity for a date time to show (or use a default)
+        if Verbosity.isVeryVerbose verbosity then
             let renderNormalDateTime _ =
-                Console.Write("[")
-                Console.Write(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Number |> color)
-                Console.Write(sprintf "]%s" indentation)
+                SystemConsole.Write("[")
+                SystemConsole.Write(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Number |> OutputType.color)
+                SystemConsole.Write(sprintf "]%s" indentation)
 
             outputType
             |> render {
+                OnLine = renderNormalDateTime
                 Normal = renderNormalDateTime
                 WithType = renderNormalDateTime
                 WithMarkup = renderNormalDateTime
                 Error = (fun _ ->
-                    Console.Error.Write("[")
-                    Console.Error.Write(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Number |> color)
-                    Console.Error.Write(sprintf "]%s" indentation)
+                    SystemConsole.Error.Write("[")
+                    SystemConsole.Error.Write(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Number |> OutputType.color)
+                    SystemConsole.Error.Write(sprintf "]%s" indentation)
                 )
             }
 
-    let private renderUnderline underline length outputType =
-        match Verbosity.isNormal(), underline with
+    let private renderUnderlineValue underline length =
+        underline |> String.replicate length
+
+    [<Obsolete("Use a renderUnderlineValue")>]
+    let private renderUnderline verbosity underline length outputType =
+        match Verbosity.isNormal verbosity, underline with
         | true, Some char ->
             let underline = char |> String.replicate length
 
             outputType
             |> render {
-                Normal = fun _ -> printfn "%s" underline
-                WithMarkup = fun _ -> Console.WriteLine(underline)
-                WithType = fun t -> Console.WriteLine(underline, t |> color)
-                Error = fun _ -> eprintfn "%s" underline
+                OnLine = ignore
+                Normal = fun _ -> SystemConsole.WriteLine underline
+                WithMarkup = fun _ -> SystemConsole.WriteLine underline
+                WithType = fun t -> ColorfulConsole.WriteLine(underline, t |> OutputType.color)
+                Error = fun _ -> SystemConsole.Error.WriteLine underline
             }
         | _ -> ()
 
-    module Markup =
-        let hasMarkup (message: string) =
-            message.Contains "<c:"
+    let private renderSuccess message =
+        let prefix = " [OK] "
+        let prefixLength = prefix.Length
+        let length = max 120 (prefixLength + message.LengthWithoutMarkup + 1)
 
-        type private MessageParts = (string * Color option) list
+        let line = String.replicate length " "
+        let render = OutputType.formatSuccess >> Markup.render
 
-        let private addNotEmptyPart (parts: MessageParts) color part =
-            if part <> ""
-            then (part, color) :: parts
-            else parts
+        [
+            line
+            sprintf "%s%s%s"
+                prefix
+                (if message.HasMarkup then message.Text |> Markup.render else message.Text)
+                (String.replicate (length - message.LengthWithoutMarkup - prefixLength) " " |> render)
+            line
+        ]
+        |> List.map render
+        |> String.concat "\n"
 
-        let internal parseMarkup (message: string): MessageParts =
-            let rec parseMarkup (parts: MessageParts) (message: string) =
-                if message |> hasMarkup then
-                    match message.Split("<c", 2) with
-                    | [| before; withMarkup |] ->
-                        let parts = before |> addNotEmptyPart parts None
-
-                        let (message, color) =
-                            match withMarkup.Split(">", 2) with
-                            | [| colorName; text |] ->
-                                let color =
-                                    colorName.TrimStart ':'
-                                    |> Some
-                                    |> TextWithMarkup
-                                    |> color
-
-                                text, Some color
-                            | _ -> message, None
-
-                        match message.Split("</c>", 2) with
-                        | [| text; rest |] ->
-                            let texts = text |> addNotEmptyPart parts color
-
-                            if rest |> hasMarkup then parseMarkup texts rest
-                            else rest |> addNotEmptyPart texts None
-
-                        | _ -> message |> addNotEmptyPart parts None
-                    | _ -> message |> addNotEmptyPart parts None
-                else message |> addNotEmptyPart parts None
-
-            message
-            |> parseMarkup []
-            |> List.rev
-
-        let (|HasMarkup|_|) = function
-            | message when message |> hasMarkup -> message |> parseMarkup |> Some
-            | _ -> None
-
-        let removeMarkup = function
-            | HasMarkup texts -> texts |> List.map fst |> String.concat ""
-            | text -> text
-
-        let toMessage (parts: MessageParts) =
-            parts
-            |> List.map (fun (part, color) ->
-                match color with
-                | ColorName colorName -> sprintf "<c:%s>%s</c>" colorName part
-                | _ -> part
-            )
-            |> String.concat ""
-
-        let printWithMarkup message =
-            let rec printMarkup: MessageParts -> unit = function
-                | [] -> Console.WriteLine()
-                | (text, color) :: others ->
-                    match color with
-                    | Some color -> Console.Write(text, color)
-                    | _ -> Console.Write(text)
-
-                    others |> printMarkup
-
-            message
-            |> parseMarkup
-            |> printMarkup
-
-    let internal block indentation allowDateTime outputType underline withNewLine (message: string) =
+    let internal block verbosity indentation allowDateTime outputType underline withNewLine (message: string) =
         if allowDateTime then
             outputType
-            |> renderDateTime indentation
+            |> renderDateTime verbosity indentation
 
-        if Verbosity.isNormal() then
+        if Verbosity.isNormal verbosity then
             outputType
             |> render {
-                Normal = fun _ -> printfn "%s" message
-                WithType = fun t -> Console.WriteLine(message, t |> color)
-                Error = fun _ -> eprintfn "%s" message
-                WithMarkup = fun _ -> Markup.printWithMarkup message
+                OnLine = fun _ -> SystemConsole.Write message
+                Normal = fun _ -> SystemConsole.WriteLine message
+                WithType = fun t -> SystemConsole.WriteLine(message, t |> OutputType.color)
+                Error = fun _ -> SystemConsole.Error.WriteLine message
+                WithMarkup = fun _ -> message |> Markup.render |> SystemConsole.WriteLine
             }
 
             let underlineLength =
-                if Verbosity.isVerbose() && allowDateTime
-                    then message.Length + indentation.Length + 21   // 21 is length of time string in [DD/MM/YYYY HH:MM:SS]
+                /// 21 is length of time string in [DD/MM/YYYY HH:MM:SS]
+                let dateTimeLength = 21
+
+                if Verbosity.isVerbose verbosity && allowDateTime
+                    then message.Length + indentation.Length + dateTimeLength
                     else message.Length
 
             outputType
-            |> renderUnderline underline underlineLength
+            |> renderUnderline verbosity underline underlineLength
 
             if withNewLine then
                 outputType
                 |> render {
-                    Normal = fun _ -> printfn ""
-                    WithMarkup = fun _ -> Console.WriteLine()
-                    WithType = fun _ -> Console.WriteLine()
-                    Error = fun _ -> eprintfn ""
+                    OnLine = ignore
+                    Normal = fun _ -> SystemConsole.WriteLine()
+                    WithMarkup = fun _ -> SystemConsole.WriteLine()
+                    WithType = fun _ -> SystemConsole.WriteLine()
+                    Error = fun _ -> SystemConsole.Error.WriteLine()
                 }
+
+    let message verbosity (style: Style) outputType ({ Text = text } as message: Message): RenderedMessage =
+        if verbosity |> Verbosity.isNormal then
+            let indentation =
+                match style with
+                | Style.IsIndentated indentation -> indentation
+                | _ -> DefaultIndentation
+
+            let mutable dateTimeLength = 0
+
+            // todo handle outputType (probably with some markings before/after messages/parts)
+
+            let parts: string list =
+                [
+                    match style with
+                    | Style.HasShowDateTime showDateTime ->
+                        // yield color outputType // todo - render date time in a color of the output
+                        match renderDateTimeValue verbosity showDateTime with
+                        | Some dateTime ->
+                            yield dateTime
+                            dateTimeLength <- dateTimeLength + dateTime.Length
+
+                            yield indentation
+                            dateTimeLength <- dateTimeLength + indentation.Length
+                        | _ -> ()
+                    | _ -> ()
+
+                    match outputType, message.HasMarkup with
+                    | OutputType.OnLine, _ -> yield text
+
+                    | OutputType.Title, false -> yield text |> OutputType.formatTitle |> Markup.render
+                    | OutputType.SubTitle, false -> yield text |> OutputType.formatSubTitle |> Markup.render
+                    | OutputType.Section, false -> yield text |> OutputType.formatSection |> Markup.render
+                    | OutputType.TableHeader, false -> yield text |> OutputType.formatTableHeader |> Markup.render
+
+                    | OutputType.Success, _ -> yield renderSuccess message
+
+                    | _, true -> yield Markup.render text
+                    | _, false -> yield text
+
+                    // Underline
+                    match outputType, style with
+                    // todo - title/subtitle with markup wont have underline atm
+                    | Title, _ -> yield "\n" + renderUnderlineValue "=" (message.LengthWithoutMarkup + dateTimeLength) |> OutputType.formatTitle |> Markup.render
+                    | Section, _ -> yield "\n" + renderUnderlineValue "-" (message.LengthWithoutMarkup + dateTimeLength) |> OutputType.formatSection |> Markup.render
+
+                    | _, Style.ShowUnderline style -> yield renderUnderlineValue style (message.Length + dateTimeLength)
+                    | _ -> ()
+                ]
+
+            parts |> String.concat "" |> RenderedMessage
+        else RenderedMessage.empty

@@ -7,8 +7,9 @@
     - `Console.progressStart`
     - `Console.progressAdvance`
     - `Console.progressFinish`
-- [**BC**] Use net 5.0
+- [**BC**] Use net 6.0
 - Update dependencies
+- [**BC**] Remove `CompiledName` attribute
 
 ## 2.0.0 - 2020-01-13
 - Update dependencies

@@ -85,30 +85,6 @@ module Tests =
         )
         |> testList "Check progress bar file"
 
-    [<Tests>]
-    let parseMarkupTest =
-        [
-            "Empty string", "", []
-            "No markup", "Hello World", [ ("Hello World", None) ]
-            "Green World", "Hello <c:green>World</c>", [ ("Hello ", None); ("World", Some Color.LimeGreen) ]
-
-            "Formatted Word (Table.Row.Column)",
-            sprintf " %-*s" ((* column length *)10 - (* leading space *)1) "Word",
-            [ (" Word     ", None) ]
-
-            "Formatted Word With Color (Table.Row.Column)",
-            sprintf " %-*s" ((* column length *)10 - (* leading space *)1 + (* markup length *)11) "<c:red>Word</c>",
-            [ (" ", None); ("Word", Some Color.Red); ("     ", None) ]
-        ]
-        |> List.map (fun (case, string, expected) ->
-            testCase case <| fun _ ->
-                let result = string |> Render.Markup.parseMarkup
-
-                sprintf "Parse markup of %A" string
-                |> Expect.equal result expected
-        )
-        |> testList "Check parsing markup"
-
     [<EntryPoint>]
     let main argv =
         match argv with

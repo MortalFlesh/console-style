@@ -3,13 +3,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\console-style.fsproj">
-      <Name>ConsoleStyle.fsproj</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\console-style.fsproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +17,8 @@
   <ItemGroup>
     <Compile Include="ProgressBarTests.fs" />
     <Compile Include="OutputTests.fs" />
+    <Compile Include="BufferedOutput.fs" />
+    <Compile Include="MarkupTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
 

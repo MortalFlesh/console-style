@@ -1,5 +1,229 @@
 namespace MF.ConsoleStyle
 
+open System
+open MF.ConsoleStyle
+// open Colorful
+// open ShellProgressBar
+
+type ConsoleStyle (output: Output.IOutput, style) =
+    // todo - add additional constructors or default args or a builder
+
+    let mutable style = style
+
+    (*
+    let mutable verbosity: Verbosity.Level = verbosity |> Option.defaultValue Verbosity.Normal
+
+    let mutable showDateTimeFrom: Verbosity.Level = showDateTimeFrom |> Option.defaultValue Verbosity.VeryVerbose
+    let mutable dateTimeFormat: string option = dateTimeFormat *)
+
+    (* let block = Render.block verbosity indentation true
+    let blockWithMarkup allowDateTime = Render.block verbosity indentation allowDateTime (Some TextWithMarkup)
+    let color = OutputType.color *)
+
+    (* let render outputType style =
+        // todo - handle verbosity
+        Render.message verbosity [
+            Render.Indentation indentation
+
+            if showDateTimeFrom <> Verbosity.Quiet && showDateTimeFrom |> Verbosity.isSameOrAbove verbosity then
+                Render.Style.WithDateTime dateTimeFormat
+
+            yield! style
+        ] outputType *)
+
+    // Verbosity
+    member _.SetVerbosity(level) = output.Verbosity <- level
+    member _.IsQuiet() = output.IsQuiet()
+    member _.IsNormal() = output.IsNormal()
+    member _.IsVerbose() = output.IsVerbose()
+    member _.IsVeryVerbose() = output.IsVeryVerbose()
+    member _.IsDebug() = output.IsDebug()
+
+    // Style
+    member _.ChangeStyle(newStyle) = style <- newStyle
+    member _.UpdateStyle(f) = style <- f style
+
+    // Output
+    (* member _.Message(message: string): unit =
+        message
+        |> blockWithMarkup true None false *)
+
+    //member _.Write (message: string): unit = message |> Render.block indentation false (Some OnLine) None false
+    member _.Write (message: string) =
+        message
+        |> Markup.Message.ofString
+        |> Render.message output.Verbosity style TextWithMarkup
+        |> RenderedMessage.value
+        |> output.Write
+
+    member this.Write (format, a) = sprintf format a |> this.Write
+    member this.Write (format, a, b) = sprintf format a b |> this.Write
+    member this.Write (format, a, b, c) = sprintf format a b c |> this.Write
+    member this.Write (format, a, b, c, d) = sprintf format a b c d |> this.Write
+    member this.Write (format, a, b, c, d, e) = sprintf format a b c d e |> this.Write
+
+    /// It works as WriteLine
+    member _.Message (message: string) =
+        message
+        |> Markup.Message.ofString
+        |> Render.message output.Verbosity style TextWithMarkup
+        |> RenderedMessage.value
+        |> output.WriteLine
+
+    member this.Message (format, a) = sprintf format a |> this.Message
+    member this.Message (format, a, b) = sprintf format a b |> this.Message
+    member this.Message (format, a, b, c) = sprintf format a b c |> this.Message
+    member this.Message (format, a, b, c, d) = sprintf format a b c d |> this.Message
+    member this.Message (format, a, b, c, d, e) = sprintf format a b c d e |> this.Message
+
+    member _.Title (title: string) =
+        title
+        |> Markup.Message.ofString
+        |> Render.message output.Verbosity style Title
+        |> RenderedMessage.value
+        |> sprintf "%s\n"
+        |> output.WriteLine
+
+    member this.Title (format, a) = sprintf format a |> this.Title
+    member this.Title (format, a, b) = sprintf format a b |> this.Title
+    member this.Title (format, a, b, c) = sprintf format a b c |> this.Title
+    member this.Title (format, a, b, c, d) = sprintf format a b c d |> this.Title
+    member this.Title (format, a, b, c, d, e) = sprintf format a b c d e |> this.Title
+
+    member _.SubTitle (subTitle: string) =
+        subTitle
+        |> Markup.Message.ofString
+        |> Render.message output.Verbosity style SubTitle
+        |> RenderedMessage.value
+        |> output.WriteLine
+
+    member this.SubTitle (format, a) = sprintf format a |> this.SubTitle
+    member this.SubTitle (format, a, b) = sprintf format a b |> this.SubTitle
+    member this.SubTitle (format, a, b, c) = sprintf format a b c |> this.SubTitle
+    member this.SubTitle (format, a, b, c, d) = sprintf format a b c d |> this.SubTitle
+    member this.SubTitle (format, a, b, c, d, e) = sprintf format a b c d e |> this.SubTitle
+
+    member _.Section (section: string) =
+        section
+        |> Markup.Message.ofString
+        |> Render.message output.Verbosity style Section
+        |> RenderedMessage.value
+        |> sprintf "%s\n"
+        |> output.WriteLine
+
+    member this.Section (format, a) = sprintf format a |> this.Section
+    member this.Section (format, a, b) = sprintf format a b |> this.Section
+    member this.Section (format, a, b, c) = sprintf format a b c |> this.Section
+    member this.Section (format, a, b, c, d) = sprintf format a b c d |> this.Section
+    member this.Section (format, a, b, c, d, e) = sprintf format a b c d e |> this.Section
+
+    member _.NewLine (): unit = output.WriteLine("")
+
+    // todo
+    member _.MainTitle (title: string): unit =
+        ()
+    (*
+        Message title
+        |> output.WriteBig { style with NewLine = Some (NewLines 2) }
+
+    member this.MainTitle (format, a) = sprintf format, a |> this.MainTitle
+    member this.MainTitle (format, a, b) = sprintf format a b |> this.MainTitle
+    member this.MainTitle (format, a, b, c) = sprintf format a b c |> this.MainTitle
+    member this.MainTitle (format, a, b, c, d) = sprintf format a b c d |> this.MainTitle
+    member this.MainTitle (format, a, b, c, d, e) = sprintf format a b c d e |> this.MainTitle *)
+
+    member this.MainTitleFigle (title: string): unit =
+        // todo
+        (* if Verbosity.isNormal verbosity then
+            let font = FigletFont.Load("chunky.flf")
+            let figlet = Figlet(font)
+            let figletString = figlet.ToAscii(title)
+
+            let linelength =
+                match figletString.ConcreteValue.Split("\n") |> Seq.toList with
+                | [] -> figletString.ConcreteValue.Length
+                | lines -> lines |> List.map String.length |> List.maxBy id
+
+            //Console.WriteLine(figlet.ToAscii(title), Drawing.ColorTranslator.FromHtml("#D2000"))
+            Console.Write(figletString, color Title)
+            Console.WriteLine(String.replicate linelength "=", color Title)
+            this.NewLine() *)
+        ()
+
+    member this.MainTitleFigle (format, a) = sprintf format, a |> this.MainTitleFigle
+    member this.MainTitleFigle (format, a, b) = sprintf format a b |> this.MainTitleFigle
+    member this.MainTitleFigle (format, a, b, c) = sprintf format a b c |> this.MainTitleFigle
+    member this.MainTitleFigle (format, a, b, c, d) = sprintf format a b c d |> this.MainTitleFigle
+    member this.MainTitleFigle (format, a, b, c, d, e) = sprintf format a b c d e |> this.MainTitleFigle
+
+    member _.Success (success: string) =
+        success
+        |> Markup.Message.ofString
+        |> Render.message output.Verbosity style Success
+        |> RenderedMessage.value
+        |> sprintf "%s\n"
+        |> output.WriteLine
+
+    member this.Success (format, a) = sprintf format a |> this.Success
+    member this.Success (format, a, b) = sprintf format a b |> this.Success
+    member this.Success (format, a, b, c) = sprintf format a b c |> this.Success
+    member this.Success (format, a, b, c, d) = sprintf format a b c d |> this.Success
+    member this.Success (format, a, b, c, d, e) = sprintf format a b c d e |> this.Success
+
+    // ..
+    member _.Ask (question: string): string =
+        question
+        |> Markup.Message.ofString
+        |> Render.message output.Verbosity style SubTitle
+        |> RenderedMessage.value
+        |> output.Write
+
+        Console.ReadLine()
+
+    //
+    // Complex components
+    //
+
+    (* let table (header: list<string>) (rows: list<list<string>>): unit =
+        if isNormal() then
+            let renderHeaderLine (headerLine: string) =
+                Console.WriteLine(headerLine, TableHeader |> color)
+
+            let renderRowLine = blockWithMarkup false None false
+
+            Table.render renderHeaderLine renderRowLine header rows
+            newLine() *)
+
+    member this.Table header rows =
+        if this.IsNormal() then
+            let renderHeaderLine (headerLine: string) =
+                headerLine
+                |> Markup.Message.ofString
+                |> Render.message output.Verbosity style TableHeader
+                |> RenderedMessage.value
+                |> output.WriteLine
+
+            let renderRowLine = this.Message
+
+            Table.render renderHeaderLine renderRowLine
+                header
+                rows
+
+            this.NewLine()
+        else ()
+
+    member this.Tabs(tabs) =
+        if this.IsNormal() then
+            Tabs.render this.Message tabs
+            this.NewLine()
+        else ()
+
+    member this.Tabs(tabs, length) =
+        if this.IsNormal() then
+            Tabs.renderInLength this.Message length tabs
+            this.NewLine()
+        else ()
+
 [<RequireQualifiedAccess>]
 module Console =
     open System
@@ -9,34 +233,23 @@ module Console =
     //
     // Verbosity
     //
+    let mutable private verbosity = Verbosity.Normal
 
-    [<CompiledName("SetVerbosity")>]
-    let setVerbosity = Verbosity.setVerbosity
-
-    [<CompiledName("IsQuiet")>]
-    let isQuiet = Verbosity.isQuiet
-
-    [<CompiledName("IsNormal")>]
-    let isNormal = Verbosity.isNormal
-
-    [<CompiledName("IsVerbose")>]
-    let isVerbose = Verbosity.isVerbose
-
-    [<CompiledName("IsVeryVerbose")>]
-    let isVeryVerbose = Verbosity.isVeryVerbose
-
-    [<CompiledName("IsDebug")>]
-    let isDebug = Verbosity.isDebug
+    let setVerbosity level = verbosity <- level
+    let isQuiet () = Verbosity.isQuiet verbosity
+    let isNormal () = Verbosity.isNormal verbosity
+    let isVerbose () = Verbosity.isVerbose verbosity
+    let isVeryVerbose () = Verbosity.isVeryVerbose verbosity
+    let isDebug () = Verbosity.isDebug verbosity
 
     //
     // Output style
     //
-    [<CompiledName("Indentation")>]
-    let indentation: string = "    "
+    let indentation: string = Render.DefaultIndentation
 
-    let private block = Render.block indentation true
-    let private blockWithMarkup allowDateTime = Render.block indentation allowDateTime (Some (TextWithMarkup None))
-    let private color = Render.color
+    let private block = Render.block verbosity indentation true
+    let private blockWithMarkup allowDateTime = Render.block verbosity indentation allowDateTime (Some TextWithMarkup)
+    let private color = OutputType.color
 
     let private format1 render (format: Printf.StringFormat<'a -> string>) (valueA: 'a) =
         valueA
@@ -53,112 +266,88 @@ module Console =
         |||> sprintf format
         |> render
 
-    [<CompiledName("Message")>]
     let message (message: string): unit =
         message
         |> blockWithMarkup true None false
 
-    [<CompiledName("Messagef")>]
+    let write (message: string): unit =
+        message
+        |> Render.block verbosity indentation false (Some OnLine) None false
+
     let messagef format = format1 message format
-
-    [<CompiledName("Messagef2")>]
     let messagef2 format = format2 message format
-
-    [<CompiledName("Messagef3")>]
     let messagef3 format = format3 message format
 
-    [<CompiledName("NewLine")>]
     let newLine (): unit =
-        if Verbosity.isNormal() then
+        if isNormal() then
             printfn ""
 
-    [<CompiledName("MainTitle")>]
     let mainTitle (title: string): unit =
-        if Verbosity.isNormal() then
+        if isNormal() then
             Console.WriteAscii(title, color Title)
             Console.WriteLine(String.replicate (title.Length * 6) "=", color Title)
             newLine()
 
-    [<CompiledName("MainTitlef")>]
+    let mainTitleX (title: string): unit =
+        if isNormal() then
+            let font = FigletFont.Load("chunky.flf")
+            let figlet = Figlet(font)
+            let figletString = figlet.ToAscii(title)
+
+            let linelength =
+                match figletString.ConcreteValue.Split("\n") |> Seq.toList with
+                | [] -> figletString.ConcreteValue.Length
+                | lines -> lines |> List.map String.length |> List.maxBy id
+
+            //Console.WriteLine(figlet.ToAscii(title), Drawing.ColorTranslator.FromHtml("#D2000"))
+            Console.Write(figletString, color Title)
+            Console.WriteLine(String.replicate linelength "=", color Title)
+            newLine()
+
     let mainTitlef format = format1 mainTitle format
-
-    [<CompiledName("MainTitlef2")>]
     let mainTitlef2 format = format2 mainTitle format
-
-    [<CompiledName("MainTitlef3")>]
     let mainTitlef3 format = format3 mainTitle format
 
-    [<CompiledName("Title")>]
     let title (title: string): unit =
         title
         |> block (Some Title) (Some "=") true
 
-    [<CompiledName("Titlef")>]
     let titlef format = format1 title format
-
-    [<CompiledName("Titlef2")>]
     let titlef2 format = format2 title format
-
-    [<CompiledName("Titlef3")>]
     let titlef3 format = format3 title format
 
-    [<CompiledName("Section")>]
     let section (section: string): unit =
         section
         |> block (Some SubTitle) (Some "-") true
 
-    [<CompiledName("Sectionf")>]
     let sectionf format = format1 section format
-
-    [<CompiledName("Sectionf2")>]
     let sectionf2 format = format2 section format
-
-    [<CompiledName("Sectionf3")>]
     let sectionf3 format = format3 section format
 
-    [<CompiledName("SubTitle")>]
     let subTitle (subTitle: string): unit =
         subTitle
         |> block (Some SubTitle) None false
 
-    [<CompiledName("SubTitlef")>]
     let subTitlef format = format1 subTitle format
-
-    [<CompiledName("SubTitlef2")>]
     let subTitlef2 format = format2 subTitle format
-
-    [<CompiledName("SubTitlef3")>]
     let subTitlef3 format = format3 subTitle format
 
-    [<CompiledName("Error")>]
     let error (message: string): unit =
         message
         |> block (Some Error) None false
 
-    [<CompiledName("Errorf")>]
     let errorf format = format1 error format
-
-    [<CompiledName("Errorf2")>]
     let errorf2 format = format2 error format
-
-    [<CompiledName("Errorf3")>]
     let errorf3 format = format3 error format
 
-    [<CompiledName("Success")>]
     let success (message: string): unit =
         message
         |> block (Some Success) None true
 
-    [<CompiledName("Successf")>]
     let successf format = format1 success format
-
-    [<CompiledName("Successf2")>]
     let successf2 format = format2 success format
-
-    [<CompiledName("Successf3")>]
     let successf3 format = format3 success format
 
-    [<CompiledName("Indent")>]
     let indent (value: string): string =
         indentation + value
 
@@ -166,33 +355,28 @@ module Console =
     // Output many
     //
 
-    [<CompiledName("Messages")>]
     let messages (prefix: string) (messages: seq<string>): unit =
-        if Verbosity.isNormal() then
+        if isNormal() then
             messages
             |> Seq.iter (sprintf "%s%s" prefix >> blockWithMarkup false None false)
 
-    [<CompiledName("Options")>]
     let options (title: string) (options: list<string list>): unit =
         options
-        |> Options.optionsList (messages indentation) "-" title
+        |> Options.optionsList (messages indentation) verbosity "-" title
         newLine()
 
-    [<CompiledName("SimpleOptions")>]
     let simpleOptions (title: string) (options: list<string list>): unit =
         options
-        |> Options.optionsList (messages indentation) "" title
+        |> Options.optionsList (messages indentation) verbosity "" title
         newLine()
 
-    [<CompiledName("GroupedOptions")>]
     let groupedOptions (separator: string) (title: string) (options: list<string list>): unit =
         options
-        |> Options.groupedOptionsList (messages indentation) separator title
+        |> Options.groupedOptionsList (messages indentation) verbosity separator title
         newLine()
 
-    [<CompiledName("List")>]
     let list (messages: seq<string>): unit =
-        if Verbosity.isNormal() then
+        if isNormal() then
             messages
             |> Seq.iter (sprintf " - %s" >> blockWithMarkup false None false)
 
@@ -200,9 +384,8 @@ module Console =
     // Complex components
     //
 
-    [<CompiledName("Table")>]
     let table (header: list<string>) (rows: list<list<string>>): unit =
-        if Verbosity.isNormal() then
+        if isNormal() then
             let renderHeaderLine (headerLine: string) =
                 Console.WriteLine(headerLine, TableHeader |> color)
 
@@ -234,9 +417,8 @@ module Console =
             interface IDisposable with
                 member this.Dispose() = this.Finish()
 
-    [<CompiledName("ProgressStart")>]
     let progressStart (initialMessage: string) (total: int): ProgressBar =
-        if Verbosity.isNormal() && Console.WindowWidth > 0 then
+        if isNormal() && Console.WindowWidth > 0 then
             let options =
                 ProgressBarOptions (
                     ForegroundColor = ConsoleColor.Yellow,
@@ -251,11 +433,9 @@ module Console =
             new ShellProgress(total, initialMessage, options) |> Active
         else Inactive
 
-    [<CompiledName("ProgressAdvance")>]
     let progressAdvance (progress: ProgressBar): unit =
         progress.Advance()
 
-    [<CompiledName("ProgressFinish")>]
     let progressFinish (progress: ProgressBar): unit =
         progress.Finish()
 
@@ -263,16 +443,10 @@ module Console =
     // Inputs
     //
 
-    [<CompiledName("Ask")>]
     let ask (question: string): string =
         Console.Write(question + " ", SubTitle |> color)
         Console.ReadLine()
 
-    [<CompiledName("Askf")>]
     let askf format = format1 ask format
-
-    [<CompiledName("Askf2")>]
     let askf2 format = format2 ask format
-
-    [<CompiledName("Askf3")>]
     let askf3 format = format3 ask format

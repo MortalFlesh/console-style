@@ -105,7 +105,7 @@ module private Table =
         (header: string list)
         (rows: (string list) list) =
 
-        let removeMarkup = Render.Markup.removeMarkup
+        let removeMarkup = Markup.removeMarkup
 
         let formatRow maxWordLengths = Row.format removeMarkup maxWordLengths >> RowLine.value
 
