@@ -22,6 +22,7 @@
     <Compile Include="src/Verbosity.fs" />
     <Compile Include="src/Types.fs" />
     <Compile Include="src/Markup.fs" />
+    <Compile Include="src/Style.fs" />
     <Compile Include="src/Render.fs" />
   </ItemGroup>
 

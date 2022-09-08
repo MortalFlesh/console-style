@@ -1,5 +1,9 @@
 // Learn more about F# at http://fsharp.org
 
+let orFail = function
+    | Ok value -> value
+    | Error error -> failwithf "Error: %A" error
+
 open MF.ConsoleStyle
 
 let showOldConsole() =
@@ -106,7 +110,9 @@ let showNewConsole (console: ConsoleStyle) =
     console.Message("<c:|bg:yellow>Hello</c> <c:white|bg:#D20000>%s</c> <c:#DEB887FF>and</c> everyone <c:black|bg:#43ff64d9>else</c>.", "world")
     console.NewLine()
 
-    console.Title "Spectrum"
+    console.Title "Color Example"
+
+    console.Section("Spectrum with %s and %s colors", "<c:dark-yellow>foreground</c>", "<c:black|bg:dark-yellow>background</c>")
     let spectrum = [
         "#124542", "a"
         "#185C58", "b"
@@ -119,19 +125,17 @@ let showNewConsole (console: ConsoleStyle) =
         "#9CDEDA", "j"
         "#BBE9E6", "k"
     ]
-    console.Section("Spectrum with %s", "<c:dark-yellow>font color</c>")
+    console.SubTitle("Spectrum with foreground")
     spectrum
     |> List.iter (fun (color, letter) -> console.Write("<c:%s>%s</c>", color, letter))
     |> console.NewLine
     |> console.NewLine
 
-    console.Section("Spectrum with %s", "<c:black|bg:dark-yellow>background color</c>")
+    console.SubTitle("Spectrum with background")
     spectrum
     |> List.iter (fun (color, letter) -> console.Write("<c:black|bg:%s>%s</c>", color, letter))
     |> console.NewLine
     |> console.NewLine
-
-    console.Title "Example"
 
     (* console.GroupedOptions ":" "Available commands:" [
         [ "list"; "Lists commands" ]
@@ -266,6 +270,13 @@ let showNewConsole (console: ConsoleStyle) =
     |> List.iter (String.concat "" >> console.Message)
     |> console.NewLine
 
+    console.Section "Custom tags"
+    console.Message ("Now the <customTag>custom tags</customTag> example")
+    console.Table [ "Tag"; "Value" ] [
+        [ "service"; "<service>domain-context</service>" ]
+        [ "name"; "<name>Jon Snow</name>" ]
+    ]
+
     console.Success "Done"
     console.Success("Done %s", "<c:black|bg:magenta>in</c>-<c:white|bg:dark-cyan>style</c>")
 
@@ -286,6 +297,23 @@ let main argv =
         ShowDateTime = None
         NewLine = None
         DateTimeFormat = None
+        CustomTags = [
+            CustomTag.createWithMarkup (TagName "customTag") {
+                Bold = true
+                Dim = true
+                Italic = true
+                Underline = true
+                Reverse = true
+                Strikethrough = true
+                Foreground = Some "black"
+                Background = Some "red"
+            }
+            CustomTag.createAndParseMarkup (TagName "service") ":#0b6695|bg:#f79333|u" |> orFail
+            {
+                Tag = TagName "name"
+                Markup = MarkupString.create "#23ae91"
+            }
+        ]
     }
 
     let console = ConsoleStyle(consoleOutput, style)

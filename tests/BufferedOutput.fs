@@ -17,6 +17,9 @@ let bufferedOutputTests =
             ShowDateTime = None
             NewLine = None
             DateTimeFormat = None
+            CustomTags = [
+                { Tag = TagName "error"; Markup = MarkupString ":red|bg:black|r" }
+            ]
         }
 
         let console = ConsoleStyle(consoleOutput, style)
@@ -67,4 +70,23 @@ let bufferedOutputTests =
             console.Write(word)
             let output = consoleOutput.Fetch() |> Markup.removeMarkup
             Expect.equal output expected "Fetched output should be same with removed markup (even after rendering)."
+
+        testCase "should buffer the output with custom tag" <| fun _ ->
+            let word = "This is custom <error>error message</error>."
+            let expected = "This is custom \u001b[7;38;2;255;0;0;48;2;0;0;0merror message\u001b[0m."
+            let expectedAppliedCustomTag = "This is custom <c:red|bg:black|r>error message</c>."
+            let expectedNoMarkup = "This is custom error message."
+
+            let wordWithoutMarkup = word |> Style.removeMarkup style
+            Expect.equal wordWithoutMarkup expectedNoMarkup "Word without markup should be the same as the expected output"
+
+            let wordWithoutCustomTags = word |> Style.applyCustomTags style
+            Expect.equal wordWithoutCustomTags expectedAppliedCustomTag "Word should have custom tag replaced by a markup"
+
+            console.Write(word)
+            let outputWithMarkup = consoleOutput.Fetch()
+            Expect.equal outputWithMarkup expected "Fetched output should be formatted."
+
+            let output = outputWithMarkup |> Markup.removeMarkup
+            Expect.equal output expectedNoMarkup "Fetched output should be same with removed markup (even after rendering)."
     ]

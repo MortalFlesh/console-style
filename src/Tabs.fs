@@ -56,9 +56,9 @@ module private Tabs =
     let private line wordLength (color: string) =
         sprintf "<c:black|bg:%s>%s</c>" color (String.replicate wordLength " ")
 
-    let private text tabLength color text =
+    let private text (removeMarkup: string -> string) tabLength color text =
         let color = color |> Color.hash
-        let textWithoutMarkup = text |> Markup.removeMarkup
+        let textWithoutMarkup = text |> removeMarkup
         let colorize = sprintf "<c:black|bg:%s>%s</c>" color
 
         let spacesBefore, word, spacesAfter =
@@ -82,18 +82,19 @@ module private Tabs =
                 (String.replicate spacesAfter " ")
             |> colorize
 
-    let renderInLength render length (tabs: Tab list) =
+    let renderInLength removeMarkup render length (tabs: Tab list) =
         let colors = tabs |> List.map (Tab.color >> Color.hash)
         let line = colors |> List.map (line length)
 
         let withValues = tabs |> List.exists Tab.hasValue
+        let text = text removeMarkup length
 
         [
             line
-            tabs |> List.map (fun tab -> tab.Text |> text length tab.Color)
+            tabs |> List.map (fun tab -> tab.Text |> text tab.Color)
 
             if withValues then
-                tabs |> List.map (fun tab -> tab.Value |> Option.defaultValue "" |> text length tab.Color)
+                tabs |> List.map (fun tab -> tab.Value |> Option.defaultValue "" |> text tab.Color)
 
             line
         ]
@@ -106,7 +107,7 @@ module private Tabs =
         |> List.map Word.length
         |> List.max
 
-    let render render tabs =
+    let render removeMarkup render tabs =
         let (WordLength length) = tabs |> getMaxWordLength <+> padding
 
-        renderInLength render length tabs
+        renderInLength removeMarkup render length tabs

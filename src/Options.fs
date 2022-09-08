@@ -16,8 +16,8 @@ module internal Options =
 
     [<RequireQualifiedAccess>]
     module private OptionLine =
-        let toLine prefix maxWordLengths =
-            Line.format Markup.removeMarkup (sprintf "%-*s") maxWordLengths
+        let toLine removeMarkup prefix maxWordLengths =
+            Line.format removeMarkup (sprintf "%-*s") maxWordLengths
             >> fun words ->
                 match prefix, words with
                 | _, [] -> []
@@ -27,16 +27,16 @@ module internal Options =
 
     [<RequireQualifiedAccess>]
     module private Options =
-        let toRawLines (Options options) =
-            let maxWordLengths = options |> MaxWordLengths.perWordsInLine Markup.removeMarkup
+        let toRawLines removeMarkup (Options options) =
+            let maxWordLengths = options |> MaxWordLengths.perWordsInLine removeMarkup
 
             options, maxWordLengths
 
-        let toLines linePrefix options =
-            let options, maxWordLengths = options |> toRawLines
+        let toLines removeMarkup linePrefix options =
+            let options, maxWordLengths = options |> toRawLines removeMarkup
 
             options
-            |> List.map (OptionLine.toLine linePrefix maxWordLengths >> Line.concat "  ")
+            |> List.map (OptionLine.toLine removeMarkup linePrefix maxWordLengths >> Line.concat "  ")
 
     let private renderSubTitle verbosity (subTitle: string): unit =
         subTitle
@@ -46,23 +46,23 @@ module internal Options =
         message
         |> Render.block verbosity "" false (Some TextWithMarkup) None false
 
-    let optionsList renderLines verbosity linePrefix title (options: RawOptions) =
+    let optionsList removeMarkup renderLines verbosity linePrefix title (options: RawOptions) =
         renderSubTitle verbosity title
         options
         |> RawOptions.toOptions
-        |> Options.toLines linePrefix
+        |> Options.toLines removeMarkup linePrefix
         |> renderLines
 
-    let groupedOptionsList renderLines verbosity (separator: string) (title: string) (options: RawOptions): unit =
+    let groupedOptionsList removeMarkup renderLines verbosity (separator: string) (title: string) (options: RawOptions): unit =
         let groupName optionLine =
             match optionLine with
             | [] -> ""
-            | (Word groupName) :: _ -> groupName |> Markup.removeMarkup
+            | (Word groupName) :: _ -> groupName |> removeMarkup
 
         let options, maxWordLengths =
             options
             |> RawOptions.toOptions
-            |> Options.toRawLines
+            |> Options.toRawLines removeMarkup
 
         renderSubTitle verbosity title
 
@@ -81,7 +81,7 @@ module internal Options =
         |> List.iter (fun (group, options) ->
             group |> Option.iter (sprintf " <c:dark-yellow>%s</c>" >> renderMessage verbosity)
             options
-            |> List.map (snd >> (OptionLine.toLine "" maxWordLengths) >> Line.concat "  ")
-            |> List.sortBy Markup.removeMarkup
+            |> List.map (snd >> (OptionLine.toLine removeMarkup "" maxWordLengths) >> Line.concat "  ")
+            |> List.sortBy removeMarkup
             |> renderLines
         )

@@ -1,5 +1,8 @@
 namespace MF.ConsoleStyle
 
+/// MarkupString could contain either full markup representation "<c:FOREGROUND|bg:BACKGROUND|MODIFIER>" or just a markup ":FOREGROUND|bg:BACKGROUND|MODIFIER"
+type MarkupString = MarkupString of string
+
 /// See https://misc.flogisoft.com/bash/tip_colors_and_formatting
 type Markup = {
     /// Code: 1
@@ -83,6 +86,31 @@ module Markup =
         | Regex @"^:\|bg:\|(\w*)$" [ modificators ]
         | Regex @"^:\|{1,2}(\w*)$" [ modificators ] -> empty |> parseModificators modificators
         | _ -> empty
+
+    let asString: Markup -> string = fun markup ->
+        [
+            match markup.Foreground with
+            | Some foreground -> $":{foreground}"
+            | _ -> ":"
+
+            match markup.Background with
+            | Some background -> $"bg:{background}"
+            | _ -> ()
+
+            let modifiers = [
+                if markup.Bold then "b"
+                if markup.Dim then "d"
+                if markup.Italic then "i"
+                if markup.Underline then "u"
+                if markup.Reverse then "r"
+                if markup.Strikethrough then "s"
+            ]
+
+            match modifiers with
+            | [] -> ()
+            | modifiers -> modifiers |> String.concat ""
+        ]
+        |> String.concat "|"
 
     [<RequireQualifiedAccess>]
     module private MessagePart =
@@ -207,13 +235,13 @@ module Markup =
         |> parseMarkup
         |> renderMarkup ""
 
-    [<RequireQualifiedAccess>]
-    module internal Message =
-        let ofString message =
-            let hasMarkup = message |> hasMarkup
-            {
-                Text = message
-                Length = message.Length
-                HasMarkup = hasMarkup
-                LengthWithoutMarkup = if hasMarkup then (message |> removeMarkup).Length else message.Length
-            }
+[<RequireQualifiedAccess>]
+module MarkupString =
+    let create: string -> MarkupString = function
+        | markup when markup.StartsWith ":" -> MarkupString markup
+        | markup when markup.StartsWith "<c:" -> MarkupString markup
+        | markup -> MarkupString $":{markup}"
+
+    let internal value (MarkupString markup) =
+        if markup.StartsWith "<c:" then markup
+        else $"<c{markup}>"

@@ -100,12 +100,11 @@ module private Table =
             |> renderLine
 
     let render
+        removeMarkup
         (renderHeaderLine: string -> unit)
         (renderRowLine: string -> unit)
         (header: string list)
         (rows: (string list) list) =
-
-        let removeMarkup = Markup.removeMarkup
 
         let formatRow maxWordLengths = Row.format removeMarkup maxWordLengths >> RowLine.value
 

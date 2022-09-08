@@ -17,9 +17,6 @@ module internal Render =
         WithMarkup: unit -> unit
     }
 
-    [<Obsolete("Dont have default")>]
-    let [<Literal>] DefaultIndentation = "    "
-
     let private eprintfn format =
         format |>
         Printf.kprintf (fun message ->
@@ -146,16 +143,16 @@ module internal Render =
                     Error = fun _ -> SystemConsole.Error.WriteLine()
                 }
 
-    let message verbosity (style: Style) outputType ({ Text = text } as message: Message): RenderedMessage =
+    let message verbosity (style: Style) outputType message: RenderedMessage =
         if verbosity |> Verbosity.isNormal then
+            let ({ Text = text } as message: Message) = message |> Style.Message.applyCustomTags style
+
             let indentation =
                 match style with
                 | Style.IsIndentated indentation -> indentation
-                | _ -> DefaultIndentation
+                | _ -> Style.DefaultIndentation
 
             let mutable dateTimeLength = 0
-
-            // todo handle outputType (probably with some markings before/after messages/parts)
 
             let parts: string list =
                 [

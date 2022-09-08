@@ -137,9 +137,9 @@ module internal OutputType =
         | TextWithMarkup -> Color.White
         | OnLine -> Color.White
 
-    let formatTitle = sprintf "<c:cyan>%s</c>"
-    let formatSubTitle = sprintf "<c:yellow>%s</c>"
-    let formatSection = sprintf "<c:dark-yellow>%s</c>"
+    let formatTitle = sprintf "<c:cyan|b>%s</c>"
+    let formatSubTitle = sprintf "<c:yellow|u>%s</c>"
+    let formatSection = sprintf "<c:dark-yellow|b>%s</c>"
     let formatTableHeader = sprintf "<c:dark-yellow>%s</c>"
     let formatSuccess = sprintf "<c:black|bg:green>%s</c>"
 
@@ -235,49 +235,3 @@ module internal Words =
             maxWordLengths
             |> Map.map (fun _ -> f)
             |> MaxWordLengths
-
-type Underline = Underline of string
-type Indentation = Indentation of string
-type ShowDateTime =
-    | ShowDateTime
-    | ShowDateTimeAs of format: string
-    | ShowDateTimeFrom of Verbosity.Level
-    | ShowDateTimeFromAs of Verbosity.Level * format: string
-
-type AddNewLine =
-    | NewLine
-    | NewLines of int
-
-type Style = {
-    Underline: Underline option
-    Indentation: Indentation option
-    ShowDateTime: ShowDateTime option
-    NewLine: AddNewLine option
-    DateTimeFormat: string option
-}
-
-[<RequireQualifiedAccess>]
-module internal Style =
-    let empty = {
-        Underline = None
-        Indentation = None
-        ShowDateTime = None
-        NewLine = None
-        DateTimeFormat = None
-    }
-
-    let (|IsIndentated|_|) = function
-        | { Indentation = Some (Indentation value) } -> Some value
-        | _ -> None
-
-    let (|HasShowDateTime|_|) = function
-        | { ShowDateTime = Some showDateTime } -> Some showDateTime
-        | _ -> None
-
-    let (|ShowUnderline|_|) = function
-        | { Underline = Some (Underline style) } -> Some style
-        | _ -> None
-
-    let (|HasNewLine|_|) = function
-        | { NewLine = Some newLine } -> Some newLine
-        | _ -> None

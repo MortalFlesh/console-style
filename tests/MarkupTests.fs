@@ -6,7 +6,7 @@ open MF.ConsoleStyle
 
 [<Tests>]
 let parseColorsForMarkupTest =
-    testList "Parse color markup" [
+    testList "Parse markup" [
         yield!
             [
                 // Empty
@@ -41,7 +41,6 @@ let parseColorsForMarkupTest =
                 {| Markup = ":red||r"; Expected = { Markup.empty with Foreground = Some "red"; Reverse = true }; Description = "Foreground color and modifier" |}
                 {| Markup = ":red|bg:|r"; Expected = { Markup.empty with Foreground = Some "red"; Reverse = true }; Description = "Foreground color and modifier with empty bg" |}
                 {| Markup = ":|bg:red|r"; Expected = { Markup.empty with Background = Some "red"; Reverse = true }; Description = "Background color and modifier" |}
-                {| Markup = ":|bg:red|r"; Expected = { Markup.empty with Background = Some "red"; Reverse = true }; Description = "Background color and modifier with empty bg" |}
 
                 // Full
                 {| Markup = ":red|bg:white|r"; Expected = { Markup.empty with Foreground = Some "red"; Background = Some "white"; Reverse = true }; Description = "Colors and modifier" |}
@@ -63,6 +62,58 @@ let parseColorsForMarkupTest =
             |> List.map (fun case ->
                 testCase $"should parse {case.Description}" <| fun _ ->
                     let actual = Markup.parse case.Markup
+                    Expect.equal actual case.Expected case.Description
+            )
+    ]
+
+[<Tests>]
+let formatMarkupAsStringTest =
+    testList "Markup as string" [
+        yield!
+            [
+                // Empty
+                {| Markup = Markup.empty; Expected = ":"; Description = "Empty markup" |}
+
+                // Foreground only
+                {| Markup = { Markup.empty with Foreground = Some "red" }; Expected = ":red"; Description = "Foreground only - red" |}
+                {| Markup = { Markup.empty with Foreground = Some "#D20000" }; Expected = ":#D20000"; Description = "Foreground only - red as RGB" |}
+                {| Markup = { Markup.empty with Foreground = Some "#D20000FF" }; Expected = ":#D20000FF"; Description = "Foreground only - red as RGBA" |}
+
+                // Background only
+                {| Markup = { Markup.empty with Background = Some "dark-green" }; Expected = ":|bg:dark-green"; Description = "No foreground with green background" |}
+
+                // Foreground and background
+                {| Markup = { Markup.empty with Foreground = Some "white"; Background = Some "green" }; Expected = ":white|bg:green"; Description = "White text with green background" |}
+                {| Markup = { Markup.empty with Foreground = Some "#000000"; Background = Some "#00FF00" }; Expected = ":#000000|bg:#00FF00"; Description = "White text with green background by hash" |}
+
+                // Modifiers only
+                {| Markup = { Markup.empty with Underline = true; Italic = true }; Expected = ":|iu"; Description = "No colors just underline and italic" |}
+                {| Markup = { Markup.empty with Strikethrough = true }; Expected = ":|s"; Description = "No colors just modifier" |}
+
+                // Colors + modifiers
+                {| Markup = { Markup.empty with Foreground = Some "red"; Reverse = true }; Expected = ":red|r"; Description = "Foreground color and modifier without background" |}
+                {| Markup = { Markup.empty with Background = Some "red"; Reverse = true }; Expected = ":|bg:red|r"; Description = "Background color and modifier" |}
+
+                // Full
+                {| Markup = { Markup.empty with Foreground = Some "red"; Background = Some "white"; Reverse = true }; Expected = ":red|bg:white|r"; Description = "Colors and modifier" |}
+                {|
+                    Markup = {
+                        Bold = true
+                        Dim = true
+                        Italic = true
+                        Underline = true
+                        Reverse = true
+                        Strikethrough = true
+                        Foreground = Some "red"
+                        Background = Some "green"
+                    }
+                    Expected = ":red|bg:green|bdiurs"
+                    Description = "Full markup"
+                |}
+            ]
+            |> List.map (fun case ->
+                testCase $"should format {case.Description}" <| fun _ ->
+                    let actual = Markup.asString case.Markup
                     Expect.equal actual case.Expected case.Description
             )
     ]

@@ -9,6 +9,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
     // todo - add additional constructors or default args or a builder
 
     let mutable style = style
+    let removeMarkup = Style.removeMarkup style
 
     (*
     let mutable verbosity: Verbosity.Level = verbosity |> Option.defaultValue Verbosity.Normal
@@ -51,7 +52,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
     //member _.Write (message: string): unit = message |> Render.block indentation false (Some OnLine) None false
     member _.Write (message: string) =
         message
-        |> Markup.Message.ofString
+        |> Style.Message.ofString
         |> Render.message output.Verbosity style TextWithMarkup
         |> RenderedMessage.value
         |> output.Write
@@ -65,7 +66,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
     /// It works as WriteLine
     member _.Message (message: string) =
         message
-        |> Markup.Message.ofString
+        |> Style.Message.ofString
         |> Render.message output.Verbosity style TextWithMarkup
         |> RenderedMessage.value
         |> output.WriteLine
@@ -78,7 +79,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
 
     member _.Title (title: string) =
         title
-        |> Markup.Message.ofString
+        |> Style.Message.ofString
         |> Render.message output.Verbosity style Title
         |> RenderedMessage.value
         |> sprintf "%s\n"
@@ -92,7 +93,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
 
     member _.SubTitle (subTitle: string) =
         subTitle
-        |> Markup.Message.ofString
+        |> Style.Message.ofString
         |> Render.message output.Verbosity style SubTitle
         |> RenderedMessage.value
         |> output.WriteLine
@@ -105,7 +106,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
 
     member _.Section (section: string) =
         section
-        |> Markup.Message.ofString
+        |> Style.Message.ofString
         |> Render.message output.Verbosity style Section
         |> RenderedMessage.value
         |> sprintf "%s\n"
@@ -158,7 +159,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
 
     member _.Success (success: string) =
         success
-        |> Markup.Message.ofString
+        |> Style.Message.ofString
         |> Render.message output.Verbosity style Success
         |> RenderedMessage.value
         |> sprintf "%s\n"
@@ -173,7 +174,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
     // ..
     member _.Ask (question: string): string =
         question
-        |> Markup.Message.ofString
+        |> Style.Message.ofString
         |> Render.message output.Verbosity style SubTitle
         |> RenderedMessage.value
         |> output.Write
@@ -184,28 +185,18 @@ type ConsoleStyle (output: Output.IOutput, style) =
     // Complex components
     //
 
-    (* let table (header: list<string>) (rows: list<list<string>>): unit =
-        if isNormal() then
-            let renderHeaderLine (headerLine: string) =
-                Console.WriteLine(headerLine, TableHeader |> color)
-
-            let renderRowLine = blockWithMarkup false None false
-
-            Table.render renderHeaderLine renderRowLine header rows
-            newLine() *)
-
     member this.Table header rows =
         if this.IsNormal() then
             let renderHeaderLine (headerLine: string) =
                 headerLine
-                |> Markup.Message.ofString
+                |> Style.Message.ofString
                 |> Render.message output.Verbosity style TableHeader
                 |> RenderedMessage.value
                 |> output.WriteLine
 
             let renderRowLine = this.Message
 
-            Table.render renderHeaderLine renderRowLine
+            Table.render removeMarkup renderHeaderLine renderRowLine
                 header
                 rows
 
@@ -214,13 +205,13 @@ type ConsoleStyle (output: Output.IOutput, style) =
 
     member this.Tabs(tabs) =
         if this.IsNormal() then
-            Tabs.render this.Message tabs
+            Tabs.render removeMarkup this.Message tabs
             this.NewLine()
         else ()
 
     member this.Tabs(tabs, length) =
         if this.IsNormal() then
-            Tabs.renderInLength this.Message length tabs
+            Tabs.renderInLength removeMarkup this.Message length tabs
             this.NewLine()
         else ()
 
@@ -229,6 +220,8 @@ module Console =
     open System
     open Colorful
     open ShellProgressBar
+
+    let removeMarkup = Markup.removeMarkup
 
     //
     // Verbosity
@@ -245,7 +238,7 @@ module Console =
     //
     // Output style
     //
-    let indentation: string = Render.DefaultIndentation
+    let indentation: string = Style.DefaultIndentation
 
     let private block = Render.block verbosity indentation true
     let private blockWithMarkup allowDateTime = Render.block verbosity indentation allowDateTime (Some TextWithMarkup)
@@ -362,17 +355,17 @@ module Console =
 
     let options (title: string) (options: list<string list>): unit =
         options
-        |> Options.optionsList (messages indentation) verbosity "-" title
+        |> Options.optionsList removeMarkup (messages indentation) verbosity "-" title
         newLine()
 
     let simpleOptions (title: string) (options: list<string list>): unit =
         options
-        |> Options.optionsList (messages indentation) verbosity "" title
+        |> Options.optionsList removeMarkup (messages indentation) verbosity "" title
         newLine()
 
     let groupedOptions (separator: string) (title: string) (options: list<string list>): unit =
         options
-        |> Options.groupedOptionsList (messages indentation) verbosity separator title
+        |> Options.groupedOptionsList removeMarkup (messages indentation) verbosity separator title
         newLine()
 
     let list (messages: seq<string>): unit =
@@ -391,7 +384,7 @@ module Console =
 
             let renderRowLine = blockWithMarkup false None false
 
-            Table.render renderHeaderLine renderRowLine header rows
+            Table.render removeMarkup renderHeaderLine renderRowLine header rows
             newLine()
 
     type private ShellProgress = ShellProgressBar.ProgressBar
