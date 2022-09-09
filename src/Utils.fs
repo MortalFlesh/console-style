@@ -22,3 +22,9 @@ module internal Hex =
 
     let parse value =
         Convert.ToInt32(value, 16)
+
+[<AutoOpen>]
+module internal Utils =
+    let tee f a =
+        f a
+        a

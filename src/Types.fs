@@ -2,12 +2,6 @@ namespace MF.ConsoleStyle
 
 open System.Drawing
 
-[<AutoOpen>]
-module internal Utils =
-    let tee f a =
-        f a
-        a
-
 type Message = {
     Text: string
     Length: int
@@ -83,40 +77,45 @@ module internal Color =
         | Some (RGBA rgbColor)
         | Some (RGB rgbColor) -> Some rgbColor
 
-        | Some "lightyellow"
+        | Some "lightyellow" -> Some <| Color.FromArgb(0xFFFCBB)
         | Some "yellow" -> Some Color.Yellow
-        | Some "darkyellow" -> Some Color.DarkGoldenrod
+        | Some "darkyellow" -> Some <| Color.FromArgb(0xFFC20F)
 
-        | Some "lightorange" -> Some <| Color.FromArgb(0xFA, 0xA7, 0x27)
-        | Some "orange" -> Some <| Color.FromArgb(0xFF, 0x96, 0x03)
-        | Some "darkorange" -> Some <| Color.FromArgb(0xF7, 0x93, 0x33)
+        | Some "lightorange" -> Some <| Color.FromArgb(0xFAA727)
+        | Some "orange" -> Some <| Color.FromArgb(0xFF9603)
+        | Some "darkorange" -> Some <| Color.FromArgb(0xF79333)
 
-        | Some "lightred"
+        | Some "lightred" -> Some <| Color.FromArgb(0xFFCCCB)
         | Some "red" -> Some Color.Red
         | Some "darkred" -> Some Color.DarkRed
 
-        | Some "lightgreen"
+        | Some "lightgreen" -> Some <| Color.FromArgb(0xA5CF4F)
         | Some "green" -> Some Color.LimeGreen
         | Some "darkgreen" -> Some Color.DarkGreen
 
-        | Some "lightcyan"
-        | Some "cyan"
-        | Some "lightblue" -> Some Color.Cyan
-        | Some "darkcyan"
-        | Some "blue" -> Some Color.DarkCyan
-        | Some "darkblue" -> Some Color.MidnightBlue
+        | Some "lightcyan" -> Some Color.LightCyan
+        | Some "cyan" -> Some Color.Cyan
+        | Some "darkcyan" -> Some Color.DarkCyan
 
-        | Some "lightpink"
-        | Some "pink"
-        | Some "lightmagenta"
+        | Some "lightblue" -> Some <| Color.FromArgb(0x3FC8F4)
+        | Some "blue" -> Some <| Color.FromArgb(0x01A8DD)
+        | Some "darkblue" -> Some <| Color.FromArgb(0x0278BE)
+
+        | Some "lightmagenta" -> Some <| Color.FromArgb(0xFF80FF)
         | Some "magenta" -> Some Color.Magenta
-        | Some "darkpink"
-        | Some "darkmagenta"
-        | Some "purple" -> Some Color.Purple
+        | Some "darkmagenta" -> Some Color.DarkMagenta
+
+        | Some "lightpink" -> Some Color.LightPink
+        | Some "pink" -> Some Color.HotPink
+        | Some "darkpink" -> Some <| Color.FromArgb(0xCE4998)
+
+        | Some "lightpurple" -> Some Color.MediumPurple
+        | Some "purple" -> Some <| Color.FromArgb(0x804B9D)
+        | Some "darkpurple" -> Some <| Color.FromArgb(0x6A3390)
 
         | Some "lightgray" -> Some Color.LightGray
-        | Some "gray"
-        | Some "darkgray"-> Some Color.Silver
+        | Some "gray" -> Some <| Color.FromArgb(0x999999)
+        | Some "darkgray" -> Some <| Color.FromArgb(0x333333)
 
         | Some "black" -> Some Color.Black
 

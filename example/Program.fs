@@ -190,17 +190,34 @@ let showNewConsole (console: ConsoleStyle) =
             "darkgreen"
         ]
 
-        "blue", [
+        "cyan", [
             "Light-cyan"
+            "cyan"
+            "darkcyan"
+        ]
+
+        "blue", [
             "Light-Blue"
             "blue"
-            "darkcyan"
             "darkblue"
         ]
 
+        "magenta", [
+            "light-magenta"
+            "magenta"
+            "dark-magenta"
+        ]
+
         "pink", [
+            "light-pink"
             "pink"
             "dark-pink"
+        ]
+
+        "purple", [
+            "light-purple"
+            "purple"
+            "dark-purple"
         ]
 
         "gray", [
@@ -209,8 +226,10 @@ let showNewConsole (console: ConsoleStyle) =
             "darkGray"
         ]
 
-        "black", []
-        "white", []
+        "black & white", [
+            "black"
+            "white"
+        ]
     ]
     |> List.map (fun (colorGroup, colors) ->
         let colorize color = sprintf "<c:%s>%s</c>" color color
@@ -250,6 +269,7 @@ let showNewConsole (console: ConsoleStyle) =
         sprintf "<c:|bg:#%s>    </c>" color
 
     let colors = [
+    //     1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        16        17        18        19        20
         "ffc20f"; "faa727"; "f79333"; "f46f2c"; "f04d2d"; "cb3430"; "9e2e22"; "d71f43"; "ee2866"; "ef4b7e"; "ce1984"; "ad308c"; "ce4998"; "c8619e"; "bf71aa"; "c689a7"; "9a769c"; "976aad"; "804b9d"; "6a3390"
         "a5cf4f"; "8cc747"; "2faa4f"; "2d9848"; "087a3f"; "096232"; "037957"; "119b7a"; "23ae91"; "16baaf"; "00aea5"; "008886"; "07636e"; "0c4d77"; "0b6695"; "0278be"; "078dca"; "01a8dd"; "09b1e2"; "3fc8f4"
     ]
