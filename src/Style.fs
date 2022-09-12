@@ -2,15 +2,15 @@ namespace MF.ConsoleStyle
 
 type Underline = Underline of string
 type Indentation = Indentation of string
-type ShowDateTime =
-    | ShowDateTime
-    | ShowDateTimeAs of format: string
-    | ShowDateTimeFrom of Verbosity.Level
-    | ShowDateTimeFromAs of Verbosity.Level * format: string
 
-type AddNewLine =
-    | NewLine
-    | NewLines of int
+[<RequireQualifiedAccess>]
+module Indentation =
+    let value (Indentation indentation) = indentation
+
+type ShowDateTime =
+    | NoDateTime
+    | ShowDateTimeAs of format: string
+    | ShowDateTimeFor of Map<Verbosity.Level, string>
 
 type TagName = TagName of string
 
@@ -52,44 +52,32 @@ module CustomTag =
                 .Replace(tagEnd, "</c>")
 
 type Style = {
-    Underline: Underline option
-    Indentation: Indentation option
-    ShowDateTime: ShowDateTime option
-    NewLine: AddNewLine option
-    DateTimeFormat: string option
+    ShowDateTime: ShowDateTime
+    TitleUnderline: Underline
+    SubTitleUnderline: Underline
+    Indentation: Indentation
     CustomTags: CustomTag list
 }
 
 [<RequireQualifiedAccess>]
-module internal Style =
+module Style =
     let [<Literal>] DefaultIndentation = "    "
 
-    let empty = {
-        Underline = None
-        Indentation = None
-        ShowDateTime = None
-        NewLine = None
-        DateTimeFormat = None
+    let defaults = {
+        ShowDateTime =
+            [
+                Verbosity.VeryVerbose, "HH:mm:ss"
+                Verbosity.Debug, "yyyy-MM-dd HH:mm:ss"
+            ]
+            |> Map.ofList
+            |> ShowDateTimeFor
+        TitleUnderline = Underline "="
+        SubTitleUnderline = Underline "-"
+        Indentation = Indentation DefaultIndentation
         CustomTags = []
     }
 
-    let (|IsIndentated|_|) = function
-        | { Indentation = Some (Indentation value) } -> Some value
-        | _ -> None
-
-    let (|HasShowDateTime|_|) = function
-        | { ShowDateTime = Some showDateTime } -> Some showDateTime
-        | _ -> None
-
-    let (|ShowUnderline|_|): Style -> string option = function
-        | { Underline = Some (Underline style) } -> Some style
-        | _ -> None
-
-    let (|HasNewLine|_|) = function
-        | { NewLine = Some newLine } -> Some newLine
-        | _ -> None
-
-    let applyCustomTags style text =
+    let internal applyCustomTags style text =
         style.CustomTags
         |> List.fold CustomTag.apply text
 
@@ -98,7 +86,7 @@ module internal Style =
         |> Markup.removeMarkup
 
     [<RequireQualifiedAccess>]
-    module Message =
+    module internal Message =
         let ofString message =
             let hasMarkup = message |> Markup.hasMarkup
             {
@@ -113,3 +101,10 @@ module internal Style =
             |> applyCustomTags style
             |> ofString
 
+        let indent (Indentation indentation) (message: Message) =
+            {
+                message with
+                    Text = sprintf "%s%s" indentation message.Text
+                    Length = message.Length + indentation.Length
+                    LengthWithoutMarkup = message.LengthWithoutMarkup + indentation.Length
+            }

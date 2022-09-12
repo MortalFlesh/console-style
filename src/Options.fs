@@ -34,7 +34,7 @@ module internal Options =
 
             options, maxWordLengths
 
-        let toLines removeMarkup linePrefix options =
+        let toLines removeMarkup style linePrefix options =
             let options, maxWordLengths = options |> toRawLines removeMarkup
 
             options
@@ -50,6 +50,13 @@ module internal Options =
         |> Style.Message.ofString
         |> Render.message verbosity style TextWithMarkup
 
+    let private renderLines verbosity style options =
+        options
+        |> List.map (
+            Style.Message.indent style.Indentation
+            >> Render.message verbosity { style with ShowDateTime = NoDateTime } TextWithMarkup
+        )
+
     let optionsList removeMarkup verbosity style linePrefix title (options: RawOptions) =
         [
             yield renderSubTitle verbosity style title
@@ -57,12 +64,12 @@ module internal Options =
             yield!
                 options
                 |> RawOptions.toOptions
-                |> Options.toLines removeMarkup linePrefix
-                |> List.map (Render.message verbosity { style with ShowDateTime = None } TextWithMarkup)
+                |> Options.toLines removeMarkup style linePrefix
+                |> renderLines verbosity style
         ]
 
     let groupedOptionsList removeMarkup verbosity style (separator: string) (title: string) (options: RawOptions) =
-        let style = { style with ShowDateTime = None }
+        let style = { style with ShowDateTime = NoDateTime }
         let groupName optionLine =
             match optionLine with
             | [] -> ""
@@ -98,7 +105,7 @@ module internal Options =
                         options
                         |> List.map (snd >> (OptionLine.toLine removeMarkup "" maxWordLengths))
                         |> List.sortBy (fun message -> if message.HasMarkup then message.Text |> removeMarkup else message.Text)
-                        |> List.map (Render.message verbosity style TextWithMarkup)
+                        |> renderLines verbosity style
                 ]
             )
 

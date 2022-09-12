@@ -12,8 +12,9 @@ let showConsoleExample (console: ConsoleStyle) =
     console.MainTitleFigle "Console"
     console.MainTitleFigle "Style" *)
 
-    let answer = console.Ask "What is your name?"
-    console.Message("Thats <c:magenta>your</c> answer: <c:cyan>%A</c>", answer)
+    let answer = "World"
+    // let answer = console.Ask "What is your name?"
+    // console.Message("Thats <c:magenta>your</c> answer: <c:cyan>%A</c>", answer)
 
     console.Message("<c:|bg:yellow>Hello</c> <c:white|bg:#D20000>%s</c> <c:#DEB887FF>and</c> everyone <c:black|bg:#43ff64d9>else</c>.", answer)
     console.NewLine()
@@ -214,37 +215,38 @@ let showConsoleExample (console: ConsoleStyle) =
 
 [<EntryPoint>]
 let main argv =
-    let consoleOutput =
-        Output.ConsoleOutput(
-            Verbosity.Normal
-        )
+    let consoleOutput = Output.ConsoleOutput(Verbosity.Normal)
+    use bufferOutput = new Output.BufferOutput(Verbosity.Normal)
+
+    let output = bufferOutput
 
     let style = {
-        Underline = None    // todo - tohle musi byt zvlast pro kazdy nadpis
-        Indentation = Some (Indentation "  ")
-        ShowDateTime = None
-        NewLine = None
-        DateTimeFormat = None
-        CustomTags = [
-            CustomTag.createWithMarkup (TagName "customTag") {
-                Bold = true
-                Dim = true
-                Italic = true
-                Underline = true
-                Reverse = true
-                Strikethrough = true
-                Foreground = Some "black"
-                Background = Some "red"
-            }
-            CustomTag.createAndParseMarkup (TagName "service") ":#0b6695|bg:#f79333|u" |> orFail
-            {
-                Tag = TagName "name"
-                Markup = MarkupString.create "#23ae91"
-            }
-        ]
+        Style.defaults with
+            CustomTags = [
+                CustomTag.createWithMarkup (TagName "customTag") {
+                    Bold = true
+                    Dim = true
+                    Italic = true
+                    Underline = true
+                    Reverse = true
+                    Strikethrough = true
+                    Foreground = Some "black"
+                    Background = Some "red"
+                }
+                CustomTag.createAndParseMarkup (TagName "service") ":#0b6695|bg:#f79333|u" |> orFail
+                {
+                    Tag = TagName "name"
+                    Markup = MarkupString.create "#23ae91"
+                }
+            ]
     }
 
-    let console = ConsoleStyle(consoleOutput, style)
+    let console = ConsoleStyle(output, style)
     showConsoleExample console
+
+    let output = bufferOutput.Fetch()
+    printfn "%s" output
+
+    System.IO.File.WriteAllText("new.txt", (output |> console.RemoveMarkup))
 
     0

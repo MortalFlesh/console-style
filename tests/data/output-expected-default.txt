@@ -1,9 +1,15 @@
-Verbosity: Default
-Is quiet no
-Is normal yes
-Is verbose no
-Is very verbose no
-Is debug no
+ ! [NOTE] Verbosity: Default
+
+ ! [NOTE] Is quiet no
+
+ ! [NOTE] Is normal yes
+
+ ! [NOTE] Is verbose no
+
+ ! [NOTE] Is very verbose no
+
+ ! [NOTE] Is debug no
+ 
  ______   __    _              _                           _        ______   _   __    __        __
 /_  __/  / /   (_)  ___       (_)  ___       __ _  ___ _  (_)  ___ /_  __/  (_) / /_  / / ___   / /
  / /    / _ \ / /  (_-<      / /  (_-<      /  ' \/ _ `/ / /  / _ \ / /    / / / __/ / / / -_) /_/ 
@@ -68,13 +74,21 @@ This is message!
 Formatted message F#!
 Formatted message F# and 42!
 Formatted message foo with bar and 42!
-This is success!
+                                                                                                                        
+ [OK] This is success!                                                                                                  
+                                                                                                                        
 
-Formatted success F#!
+                                                                                                                        
+ [OK] Formatted success F#!                                                                                             
+                                                                                                                        
 
-Formatted success F# and 42!
+                                                                                                                        
+ [OK] Formatted success F# and 42!                                                                                      
+                                                                                                                        
 
-Formatted success foo with bar and 42!
+                                                                                                                        
+ [OK] Formatted success foo with bar and 42!                                                                            
+                                                                                                                        
 
     Indented message
 

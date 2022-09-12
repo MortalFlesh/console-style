@@ -32,9 +32,8 @@ type OutputType =
     | TableHeader
     | Success
     | Error
-    | Number
+    | Note
     | TextWithMarkup
-    | OnLine
 
 [<RequireQualifiedAccess>]
 module internal Color =
@@ -128,7 +127,9 @@ module internal OutputType =
     let formatSubTitle = sprintf "<c:yellow|u>%s</c>"
     let formatSection = sprintf "<c:dark-yellow|b>%s</c>"
     let formatTableHeader = sprintf "<c:dark-yellow>%s</c>"
+    let formatError = sprintf "<c:white|bg:red>%s</c>"
     let formatSuccess = sprintf "<c:black|bg:green>%s</c>"
+    let formatNote = sprintf "<c:dark-yellow|i> ! [NOTE] %s</c>"
 
 module internal Words =
     type WordLength = WordLength of int

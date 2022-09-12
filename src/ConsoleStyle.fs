@@ -5,13 +5,19 @@ open MF.ConsoleStyle
 // open ShellProgressBar
 
 type ConsoleStyle (output: Output.IOutput, style) =
-    // todo - add additional constructors or default args or a builder
-
     let mutable style = style
-    let removeMarkup = Style.removeMarkup style
+    let removeMarkup message =
+        message |> Style.removeMarkup style
+
+    // Constructors
+
+    new (style) = ConsoleStyle(Output.ConsoleOutput(Verbosity.Normal), style)
+    new (output) = ConsoleStyle(output, Style.defaults)
+    new (verbosity) = ConsoleStyle(Output.ConsoleOutput(verbosity))
+    new () = ConsoleStyle (Verbosity.Normal)
 
     // Verbosity
-    member _.SetVerbosity(level) = output.Verbosity <- level
+    member _.Verbosity = output.Verbosity
     member _.IsQuiet() = output.IsQuiet()
     member _.IsNormal() = output.IsNormal()
     member _.IsVerbose() = output.IsVerbose()
@@ -21,6 +27,8 @@ type ConsoleStyle (output: Output.IOutput, style) =
     // Style
     member _.ChangeStyle(newStyle) = style <- newStyle
     member _.UpdateStyle(f) = style <- f style
+    member _.Indent message = sprintf "%s%s" (style.Indentation |> Indentation.value) message
+    member _.RemoveMarkup(message) = removeMarkup message
 
     // Output
     (* member _.Message(message: string): unit =
@@ -100,16 +108,15 @@ type ConsoleStyle (output: Output.IOutput, style) =
 
     // todo
     member _.MainTitle (title: string): unit =
+        (* Message title
+        |> output.WriteBig { style with NewLine = Some (NewLines 2) } *)
         ()
-    (*
-        Message title
-        |> output.WriteBig { style with NewLine = Some (NewLines 2) }
 
-    member this.MainTitle (format, a) = sprintf format, a |> this.MainTitle
+    member this.MainTitle (format, a) = sprintf format a |> this.MainTitle
     member this.MainTitle (format, a, b) = sprintf format a b |> this.MainTitle
     member this.MainTitle (format, a, b, c) = sprintf format a b c |> this.MainTitle
     member this.MainTitle (format, a, b, c, d) = sprintf format a b c d |> this.MainTitle
-    member this.MainTitle (format, a, b, c, d, e) = sprintf format a b c d e |> this.MainTitle *)
+    member this.MainTitle (format, a, b, c, d, e) = sprintf format a b c d e |> this.MainTitle
 
     member this.MainTitleFigle (title: string): unit =
         // todo
@@ -129,11 +136,27 @@ type ConsoleStyle (output: Output.IOutput, style) =
             this.NewLine() *)
         ()
 
-    member this.MainTitleFigle (format, a) = sprintf format, a |> this.MainTitleFigle
+    member this.MainTitleFigle (format, a) = sprintf format a |> this.MainTitleFigle
     member this.MainTitleFigle (format, a, b) = sprintf format a b |> this.MainTitleFigle
     member this.MainTitleFigle (format, a, b, c) = sprintf format a b c |> this.MainTitleFigle
     member this.MainTitleFigle (format, a, b, c, d) = sprintf format a b c d |> this.MainTitleFigle
     member this.MainTitleFigle (format, a, b, c, d, e) = sprintf format a b c d e |> this.MainTitleFigle
+
+    member _.Error (error: string) =
+        error
+        |> Style.Message.ofString
+        |> Render.message output.Verbosity style Error
+        |> RenderedMessage.value
+        |> sprintf "%s\n"
+        |> output.WriteErrorLine
+
+    member this.Error (format, a) = sprintf format a |> this.Error
+    member this.Error (format, a, b) = sprintf format a b |> this.Error
+    member this.Error (format, a, b, c) = sprintf format a b c |> this.Error
+    member this.Error (format, a, b, c, d) = sprintf format a b c d |> this.Error
+    member this.Error (format, a, b, c, d, e) = sprintf format a b c d e |> this.Error
+
+    // todo - add Warning
 
     member _.Success (success: string) =
         success
@@ -149,15 +172,19 @@ type ConsoleStyle (output: Output.IOutput, style) =
     member this.Success (format, a, b, c, d) = sprintf format a b c d |> this.Success
     member this.Success (format, a, b, c, d, e) = sprintf format a b c d e |> this.Success
 
-    // ..
-    member _.Ask (question: string): string =
-        question
+    member _.Note (note: string) =
+        note
         |> Style.Message.ofString
-        |> Render.message output.Verbosity style SubTitle
+        |> Render.message output.Verbosity style Note
         |> RenderedMessage.value
-        |> output.Write
+        |> sprintf "%s\n"
+        |> output.WriteLine
 
-        Console.ReadLine()
+    member this.Note (format, a) = sprintf format a |> this.Note
+    member this.Note (format, a, b) = sprintf format a b |> this.Note
+    member this.Note (format, a, b, c) = sprintf format a b c |> this.Note
+    member this.Note (format, a, b, c, d) = sprintf format a b c d |> this.Note
+    member this.Note (format, a, b, c, d, e) = sprintf format a b c d e |> this.Note
 
     //
     // Output many
@@ -168,26 +195,31 @@ type ConsoleStyle (output: Output.IOutput, style) =
             messages
             |> Seq.iter (sprintf "%s%s" prefix >> this.Message)
 
-    member this.Options (title: string) (options: list<string list>): unit =
-        options
-        |> Options.optionsList removeMarkup output.Verbosity style "-" title
-        |> List.iter (RenderedMessage.value >> output.WriteLine)
-        |> this.NewLine
-
-    member this.SimpleOptions (title: string) (options: list<string list>): unit =
-        options
-        |> Options.optionsList removeMarkup output.Verbosity style "" title
-        |> List.iter (RenderedMessage.value >> output.WriteLine)
-        |> this.NewLine
-
-    member this.GroupedOptions (separator: string) (title: string) (options: list<string list>): unit =
-        options
-        |> Options.groupedOptionsList removeMarkup output.Verbosity style separator title
-        |> List.iter (RenderedMessage.value >> output.WriteLine)
-        |> this.NewLine
-
     member this.List (messages: seq<string>): unit =
         this.Messages " - " messages
+
+    member private this.RenderOptions messages =
+        messages
+        |> List.iter (RenderedMessage.value >> output.WriteLine)
+        |> this.NewLine
+
+    member this.Options (title: string) (options: list<string list>): unit =
+        if this.IsNormal() then
+            options
+            |> Options.optionsList removeMarkup output.Verbosity style "-" title
+            |> this.RenderOptions
+
+    member this.SimpleOptions (title: string) (options: list<string list>): unit =
+        if this.IsNormal() then
+            options
+            |> Options.optionsList removeMarkup output.Verbosity style "" title
+            |> this.RenderOptions
+
+    member this.GroupedOptions (separator: string) (title: string) (options: list<string list>): unit =
+        if this.IsNormal() then
+            options
+            |> Options.groupedOptionsList removeMarkup output.Verbosity style separator title
+            |> this.RenderOptions
 
     //
     // Complex components
@@ -222,6 +254,26 @@ type ConsoleStyle (output: Output.IOutput, style) =
             Tabs.renderInLength removeMarkup this.Message length tabs
             this.NewLine()
         else ()
+
+    //
+    // User input
+    //
+
+    member _.Ask (question: string): string =
+        question
+        |> Style.Message.ofString
+        |> Render.message output.Verbosity style SubTitle
+        |> RenderedMessage.value
+        |> sprintf "%s "
+        |> output.Write
+
+        Console.ReadLine()
+
+    member this.Ask (format, a) = sprintf format a |> this.Ask
+    member this.Ask (format, a, b) = sprintf format a b |> this.Ask
+    member this.Ask (format, a, b, c) = sprintf format a b c |> this.Ask
+    member this.Ask (format, a, b, c, d) = sprintf format a b c d |> this.Ask
+    member this.Ask (format, a, b, c, d, e) = sprintf format a b c d e |> this.Ask
 (*
 [<RequireQualifiedAccess>]
 module Console =
@@ -452,3 +504,12 @@ module Console =
     let askf2 format = format2 ask format
     let askf3 format = format3 ask format
  *)
+
+[<RequireQualifiedAccess>]
+module ConsoleStyle =
+    let createWithVerbosity verbosity =
+        let consoleOutput = Output.ConsoleOutput(verbosity)
+        ConsoleStyle(consoleOutput, Style.defaults)
+
+    let create () =
+        createWithVerbosity Verbosity.Normal

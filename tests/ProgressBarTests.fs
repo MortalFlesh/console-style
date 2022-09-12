@@ -4,7 +4,8 @@ module ProgressBarTest =
     open MF.ConsoleStyle
 
     let prepare verbosity = 
-        match verbosity with
+        // todo 
+        (* match verbosity with
         | Some verbosity ->
             printfn "Verbosity: %A" verbosity
             verbosity |> Console.setVerbosity
@@ -23,6 +24,6 @@ module ProgressBarTest =
         let progressBar = Console.progressStart "Starting..." total
         for _ in 1 .. total do
             progressBar |> Console.progressAdvance
-        Console.progressFinish progressBar
+        Console.progressFinish progressBar *)
 
         0

@@ -12,14 +12,10 @@ let bufferedOutputTests =
             )
 
         let style = {
-            Underline = None
-            Indentation = Some (Indentation "  ")
-            ShowDateTime = None
-            NewLine = None
-            DateTimeFormat = None
-            CustomTags = [
-                { Tag = TagName "error"; Markup = MarkupString ":red|bg:black|r" }
-            ]
+            Style.defaults with
+                CustomTags = [
+                    { Tag = TagName "error"; Markup = MarkupString ":red|bg:black|r" }
+                ]
         }
 
         let console = ConsoleStyle(consoleOutput, style)

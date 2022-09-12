@@ -187,7 +187,7 @@ module Markup =
                 | [| before; withMarkup |] ->
                     let parts = before |> MessagePart.ofText |> addNotEmptyPart parts
 
-                    let part =
+                    let ({ Text = message }: MessagePart as part) =
                         match withMarkup.Split(">", 2) with
                         | [| markupValue; text |] ->
                             let markup = markupValue |> parse
@@ -196,7 +196,7 @@ module Markup =
                             { Text = text; Markup = markup }
                         | _ -> message |> MessagePart.ofText
 
-                    match part.Text.Split("</c>", 2) with
+                    match message.Split("</c>", 2) with
                     | [| text; rest |] ->
                         let texts = { part with Text = text } |> addNotEmptyPart parts
 
@@ -215,9 +215,9 @@ module Markup =
         | message when message |> hasMarkup -> message |> parseMarkup |> Some
         | _ -> None
 
-    let removeMarkup = function
+    let removeMarkup = Bash.removeMarkup << function
         | HasMarkup texts -> texts |> List.map MessagePart.text |> String.concat ""
-        | text -> text |> Bash.removeMarkup
+        | text -> text
 
     //
     // Just render as string
