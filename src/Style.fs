@@ -81,7 +81,7 @@ module internal Style =
         | { ShowDateTime = Some showDateTime } -> Some showDateTime
         | _ -> None
 
-    let (|ShowUnderline|_|) = function
+    let (|ShowUnderline|_|): Style -> string option = function
         | { Underline = Some (Underline style) } -> Some style
         | _ -> None
 

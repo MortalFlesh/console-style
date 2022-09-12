@@ -2,38 +2,6 @@ namespace MF.ConsoleStyle
 
 module internal Render =
     open System
-    open System.Drawing
-    open Colorful
-
-    type private SystemConsole = System.Console
-    type private ColorfulConsole = Colorful.Console
-    type [<Obsolete("use expclicit console")>] private Console = Console
-
-    type private Render = {
-        [<Obsolete("Is it necessary?")>] OnLine: unit -> unit
-        Normal: unit -> unit
-        WithType: OutputType -> unit
-        Error: unit -> unit
-        WithMarkup: unit -> unit
-    }
-
-    let private eprintfn format =
-        format |>
-        Printf.kprintf (fun message ->
-            let old = SystemConsole.ForegroundColor
-            try
-                SystemConsole.ForegroundColor <- ConsoleColor.Red
-                SystemConsole.Error.WriteLine message
-            finally
-                SystemConsole.ForegroundColor <- old
-        )
-
-    let private render configuration = function
-        | Some Error -> configuration.Error()
-        | Some (TextWithMarkup _) -> configuration.WithMarkup()
-        | Some OnLine -> configuration.OnLine()
-        | Some t -> configuration.WithType t
-        | _ -> configuration.Normal()
 
     let private renderDateTimeValue verbosity showDateTime: string option =
         let format =
@@ -47,46 +15,8 @@ module internal Render =
         format
         |> Option.map (fun format -> DateTime.Now.ToString(format) |> sprintf "[%s]")
 
-    [<Obsolete("Use a renderDateTimeValue")>]
-    let private renderDateTime verbosity indentation outputType =
-        // todo - allow to set a verbosity for a date time to show (or use a default)
-        if Verbosity.isVeryVerbose verbosity then
-            let renderNormalDateTime _ =
-                SystemConsole.Write("[")
-                SystemConsole.Write(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Number |> OutputType.color)
-                SystemConsole.Write(sprintf "]%s" indentation)
-
-            outputType
-            |> render {
-                OnLine = renderNormalDateTime
-                Normal = renderNormalDateTime
-                WithType = renderNormalDateTime
-                WithMarkup = renderNormalDateTime
-                Error = (fun _ ->
-                    SystemConsole.Error.Write("[")
-                    SystemConsole.Error.Write(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Number |> OutputType.color)
-                    SystemConsole.Error.Write(sprintf "]%s" indentation)
-                )
-            }
-
     let private renderUnderlineValue underline length =
         underline |> String.replicate length
-
-    [<Obsolete("Use a renderUnderlineValue")>]
-    let private renderUnderline verbosity underline length outputType =
-        match Verbosity.isNormal verbosity, underline with
-        | true, Some char ->
-            let underline = char |> String.replicate length
-
-            outputType
-            |> render {
-                OnLine = ignore
-                Normal = fun _ -> SystemConsole.WriteLine underline
-                WithMarkup = fun _ -> SystemConsole.WriteLine underline
-                WithType = fun t -> ColorfulConsole.WriteLine(underline, t |> OutputType.color)
-                Error = fun _ -> SystemConsole.Error.WriteLine underline
-            }
-        | _ -> ()
 
     let private renderSuccess message =
         let prefix = " [OK] "
@@ -106,42 +36,6 @@ module internal Render =
         ]
         |> List.map render
         |> String.concat "\n"
-
-    let internal block verbosity indentation allowDateTime outputType underline withNewLine (message: string) =
-        if allowDateTime then
-            outputType
-            |> renderDateTime verbosity indentation
-
-        if Verbosity.isNormal verbosity then
-            outputType
-            |> render {
-                OnLine = fun _ -> SystemConsole.Write message
-                Normal = fun _ -> SystemConsole.WriteLine message
-                WithType = fun t -> SystemConsole.WriteLine(message, t |> OutputType.color)
-                Error = fun _ -> SystemConsole.Error.WriteLine message
-                WithMarkup = fun _ -> message |> Markup.render |> SystemConsole.WriteLine
-            }
-
-            let underlineLength =
-                /// 21 is length of time string in [DD/MM/YYYY HH:MM:SS]
-                let dateTimeLength = 21
-
-                if Verbosity.isVerbose verbosity && allowDateTime
-                    then message.Length + indentation.Length + dateTimeLength
-                    else message.Length
-
-            outputType
-            |> renderUnderline verbosity underline underlineLength
-
-            if withNewLine then
-                outputType
-                |> render {
-                    OnLine = ignore
-                    Normal = fun _ -> SystemConsole.WriteLine()
-                    WithMarkup = fun _ -> SystemConsole.WriteLine()
-                    WithType = fun _ -> SystemConsole.WriteLine()
-                    Error = fun _ -> SystemConsole.Error.WriteLine()
-                }
 
     let message verbosity (style: Style) outputType message: RenderedMessage =
         if verbosity |> Verbosity.isNormal then

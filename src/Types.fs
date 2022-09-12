@@ -124,18 +124,6 @@ module internal Color =
 
 [<RequireQualifiedAccess>]
 module internal OutputType =
-    [<System.Obsolete("It should not be necessary anymore and color is defined elsewhere")>]
-    let color = function
-        | Title -> Color.Cyan
-        | SubTitle -> Color.Yellow
-        | Section -> Color.DarkGoldenrod
-        | TableHeader -> Color.DarkGoldenrod
-        | Success -> Color.LimeGreen
-        | Error -> Color.Red
-        | Number -> Color.Magenta
-        | TextWithMarkup -> Color.White
-        | OnLine -> Color.White
-
     let formatTitle = sprintf "<c:cyan|b>%s</c>"
     let formatSubTitle = sprintf "<c:yellow|u>%s</c>"
     let formatSection = sprintf "<c:dark-yellow|b>%s</c>"

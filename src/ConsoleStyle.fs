@@ -2,7 +2,6 @@ namespace MF.ConsoleStyle
 
 open System
 open MF.ConsoleStyle
-// open Colorful
 // open ShellProgressBar
 
 type ConsoleStyle (output: Output.IOutput, style) =
@@ -10,27 +9,6 @@ type ConsoleStyle (output: Output.IOutput, style) =
 
     let mutable style = style
     let removeMarkup = Style.removeMarkup style
-
-    (*
-    let mutable verbosity: Verbosity.Level = verbosity |> Option.defaultValue Verbosity.Normal
-
-    let mutable showDateTimeFrom: Verbosity.Level = showDateTimeFrom |> Option.defaultValue Verbosity.VeryVerbose
-    let mutable dateTimeFormat: string option = dateTimeFormat *)
-
-    (* let block = Render.block verbosity indentation true
-    let blockWithMarkup allowDateTime = Render.block verbosity indentation allowDateTime (Some TextWithMarkup)
-    let color = OutputType.color *)
-
-    (* let render outputType style =
-        // todo - handle verbosity
-        Render.message verbosity [
-            Render.Indentation indentation
-
-            if showDateTimeFrom <> Verbosity.Quiet && showDateTimeFrom |> Verbosity.isSameOrAbove verbosity then
-                Render.Style.WithDateTime dateTimeFormat
-
-            yield! style
-        ] outputType *)
 
     // Verbosity
     member _.SetVerbosity(level) = output.Verbosity <- level
@@ -182,6 +160,36 @@ type ConsoleStyle (output: Output.IOutput, style) =
         Console.ReadLine()
 
     //
+    // Output many
+    //
+
+    member this.Messages (prefix: string) (messages: seq<string>): unit =
+        if this.IsNormal() then
+            messages
+            |> Seq.iter (sprintf "%s%s" prefix >> this.Message)
+
+    member this.Options (title: string) (options: list<string list>): unit =
+        options
+        |> Options.optionsList removeMarkup output.Verbosity style "-" title
+        |> List.iter (RenderedMessage.value >> output.WriteLine)
+        |> this.NewLine
+
+    member this.SimpleOptions (title: string) (options: list<string list>): unit =
+        options
+        |> Options.optionsList removeMarkup output.Verbosity style "" title
+        |> List.iter (RenderedMessage.value >> output.WriteLine)
+        |> this.NewLine
+
+    member this.GroupedOptions (separator: string) (title: string) (options: list<string list>): unit =
+        options
+        |> Options.groupedOptionsList removeMarkup output.Verbosity style separator title
+        |> List.iter (RenderedMessage.value >> output.WriteLine)
+        |> this.NewLine
+
+    member this.List (messages: seq<string>): unit =
+        this.Messages " - " messages
+
+    //
     // Complex components
     //
 
@@ -214,7 +222,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
             Tabs.renderInLength removeMarkup this.Message length tabs
             this.NewLine()
         else ()
-
+(*
 [<RequireQualifiedAccess>]
 module Console =
     open System
@@ -443,3 +451,4 @@ module Console =
     let askf format = format1 ask format
     let askf2 format = format2 ask format
     let askf3 format = format3 ask format
+ *)

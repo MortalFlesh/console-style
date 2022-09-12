@@ -6,30 +6,32 @@ let orFail = function
 
 open MF.ConsoleStyle
 
-let showOldConsole() =
-    (* Console.mainTitle "Serverless"
-    Console.mainTitleX "DoIt"
-    Console.mainTitleX "Backup" *)
+let showConsoleExample (console: ConsoleStyle) =
+    console.Title "Simple output"
+    (* console.MainTitle "ConsoleStyle"
+    console.MainTitleFigle "Console"
+    console.MainTitleFigle "Style" *)
 
-    //let answer = Console.ask "What is your answer?"
-    //Console.messagef "Thats <c:magenta>your</c> answer: <c:cyan>%A</c>" answer
+    let answer = console.Ask "What is your name?"
+    console.Message("Thats <c:magenta>your</c> answer: <c:cyan>%A</c>", answer)
 
-    Console.messagef "Hello <c:red>%s</c>" "world"
+    console.Message("<c:|bg:yellow>Hello</c> <c:white|bg:#D20000>%s</c> <c:#DEB887FF>and</c> everyone <c:black|bg:#43ff64d9>else</c>.", answer)
+    console.NewLine()
 
-    (* Console.title "Example" *)
+    console.Title("Multiple messages output")
 
-    (* Console.groupedOptions ":" "Available commands:" [
+    console.GroupedOptions ":" "Available commands:" [
         [ "list"; "Lists commands" ]
         [ "<c:blue>deployment:list</c>"; "Lists environment" ]
-        [ "deployment:list"; "Release a package" ]
+        [ "deployment:release"; "Release a package" ]
         [ "<c:blue>debug</c>:<c:dark-pink>configuration</c>"; "Dumps configuration" ]
         [ "<c:red>test</c>:<c:pink>d</c>"; "D" ]
         [ "<c:dark-red>test</c>:<c:yellow>c</c>"; "C" ]
         [ "<c:gray>test</c>:<c:purple>a</c>"; "a" ]
-        [ "<c:white>test</c>:<c:black>b</c>"; "B" ]
-    ] *)
+        [ "<c:white>test</c>:<c:black|bg:gray>b</c>"; "B" ]
+    ]
 
-    (* Console.simpleOptions "Options:" [
+    console.SimpleOptions "Options:" [
         [ "-c, --config=CONFIG"; "Path to deploy <c:dark-blue>config</c> <c:yellow>[default: \"./config.yaml\"]</c>" ]
         [ "-c, --config=CONFIG"; "Path to deploy <c:dark-blue>config</c> <c:yellow>[default: \"./config.yaml\"] (missing end tag)" ]
         [ "-c, --config=CONFIG"; "Path to deploy <c:dark-blue>config</c> <c>[default: \"./config.yaml\"] (undefined color)" ]
@@ -37,78 +39,14 @@ let showOldConsole() =
         [ "-c, --config=CONFIG"; "Path to deploy <c:dark-blue>config</c> <c[default: \"./config.yaml\"] (incomplete tag)" ]
         [ "    --message";       "Some message" ]
         [ "    --parts";         "Required parts <c:yellow>[default: [\"foo\"; \"bar\"]]</c> <c:blue>(multiple values allowed)</c>" ]
-    ] *)
+    ]
 
     (* let total = 10
-    let progressBar = Console.progressStart "Starting..." total
+    let progressBar = console.ProgressStart "Starting..." total
     for _ in 1 .. total do
         System.Threading.Thread.Sleep 200
-        progressBar |> Console.progressAdvance
-    Console.progressFinish progressBar *)
-
-    (* [
-            "yellow", [
-                "lightyellow"
-                "yellow"
-                "darkyellow"
-            ]
-
-            "red", [
-                "lightred"
-                "red"
-                "darkred"
-            ]
-
-            "green", [
-                "lightgreen"
-                "green"
-                "darkgreen"
-            ]
-
-            "blue", [
-                "Light-cyan"
-                "Light-Blue"
-                "blue"
-                "darkcyan"
-                "darkblue"
-            ]
-
-            "pink", [
-                "pink"
-                "dark-pink"
-            ]
-
-            "gray", [
-                "lightgray"
-                "gray"
-                "darkGray"
-            ]
-
-            "black", []
-            "white", []
-        ]
-        |> List.map (fun (colorGroup, colors) ->
-            let colorize color = sprintf "<c:%s>%s</c>" color color
-
-            [
-                colorize colorGroup
-                colors |> List.map colorize |> String.concat ", "
-            ]
-        )
-        |> Console.table [ "Color Group"; "Colors" ] *)
-
-    Console.newLine()
-
-let showNewConsole (console: ConsoleStyle) =
-    (* console.MainTitle "ConsoleStyle"
-    console.MainTitleFigle "Console"
-    console.MainTitleFigle "Style" *)
-
-    // let answer = console.Ask "What is your answer?"
-    // console.Message("Thats <c:magenta>your</c> answer: <c:cyan>%A</c>", answer)
-
-    console.Message("<c:|bg:yellow>Hello</c> <c:white|bg:#D20000>%s</c> <c:#DEB887FF>and</c> everyone <c:black|bg:#43ff64d9>else</c>.", "world")
-    console.NewLine()
+        progressBar |> console.ProgressAdvance
+    console.ProgressFinish progressBar *)
 
     console.Title "Color Example"
 
@@ -136,34 +74,6 @@ let showNewConsole (console: ConsoleStyle) =
     |> List.iter (fun (color, letter) -> console.Write("<c:black|bg:%s>%s</c>", color, letter))
     |> console.NewLine
     |> console.NewLine
-
-    (* console.GroupedOptions ":" "Available commands:" [
-        [ "list"; "Lists commands" ]
-        [ "<c:blue>deployment:list</c>"; "Lists environment" ]
-        [ "deployment:list"; "Release a package" ]
-        [ "<c:blue>debug</c>:<c:dark-pink>configuration</c>"; "Dumps configuration" ]
-        [ "<c:red>test</c>:<c:pink>d</c>"; "D" ]
-        [ "<c:dark-red>test</c>:<c:yellow>c</c>"; "C" ]
-        [ "<c:gray>test</c>:<c:purple>a</c>"; "a" ]
-        [ "<c:white>test</c>:<c:black>b</c>"; "B" ]
-    ] *)
-
-    (* console.SimpleOptions "Options:" [
-        [ "-c, --config=CONFIG"; "Path to deploy <c:dark-blue>config</c> <c:yellow>[default: \"./config.yaml\"]</c>" ]
-        [ "-c, --config=CONFIG"; "Path to deploy <c:dark-blue>config</c> <c:yellow>[default: \"./config.yaml\"] (missing end tag)" ]
-        [ "-c, --config=CONFIG"; "Path to deploy <c:dark-blue>config</c> <c>[default: \"./config.yaml\"] (undefined color)" ]
-        [ "-c, --config=CONFIG"; "Path to deploy <c:dark-blue>config</c> <c:>[default: \"./config.yaml\"] (undefined color)" ]
-        [ "-c, --config=CONFIG"; "Path to deploy <c:dark-blue>config</c> <c[default: \"./config.yaml\"] (incomplete tag)" ]
-        [ "    --message";       "Some message" ]
-        [ "    --parts";         "Required parts <c:yellow>[default: [\"foo\"; \"bar\"]]</c> <c:blue>(multiple values allowed)</c>" ]
-    ] *)
-
-    (* let total = 10
-    let progressBar = console.ProgressStart "Starting..." total
-    for _ in 1 .. total do
-        System.Threading.Thread.Sleep 200
-        progressBar |> console.ProgressAdvance
-    console.ProgressFinish progressBar *)
 
     [
         "yellow", [
@@ -304,8 +214,6 @@ let showNewConsole (console: ConsoleStyle) =
 
 [<EntryPoint>]
 let main argv =
-    //showOldConsole()
-
     let consoleOutput =
         Output.ConsoleOutput(
             Verbosity.Normal
@@ -337,6 +245,6 @@ let main argv =
     }
 
     let console = ConsoleStyle(consoleOutput, style)
-    showNewConsole console
+    showConsoleExample console
 
     0

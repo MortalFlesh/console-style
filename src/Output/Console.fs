@@ -3,7 +3,6 @@ namespace MF.ConsoleStyle.Output
 open MF.ConsoleStyle
 
 type private SystemConsole = System.Console
-type private ColorfulConsole = Colorful.Console
 
 type ConsoleOutput (verbosity) =
     let mutable verbosity: Verbosity.Level = verbosity
@@ -22,14 +21,10 @@ type ConsoleOutput (verbosity) =
 
         // Output
         member _.Write(message) =
-            //ColorfulConsole.Write($"Clr:{message}")
-            //SystemConsole.Write($"Sys:{message}")
             SystemConsole.Write(message)
 
         member _.WriteLine(message) =
-            //ColorfulConsole.WriteLine($"Clr:{message}")
-            //ColorfulConsole.WriteLine($"Sys:{message}")
-            ColorfulConsole.WriteLine(message)
+            SystemConsole.WriteLine(message)
 
         member _.WriteError(message) =
             SystemConsole.Error.Write(message)
