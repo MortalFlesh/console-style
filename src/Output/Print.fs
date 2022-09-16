@@ -1,9 +1,10 @@
 namespace MF.ConsoleStyle.Output
 
-open System
 open MF.ConsoleStyle
 
-type ConsoleOutput (verbosity) =
+type private SystemConsole = System.Console
+
+type PrintOutput (verbosity) =
     let mutable verbosity: Verbosity.Level = verbosity
 
     interface IOutput with
@@ -20,16 +21,16 @@ type ConsoleOutput (verbosity) =
 
         // Output
         member _.Write(message) =
-            Console.Write(message)
+            printf "%s" message
 
         member _.WriteLine(message) =
-            Console.WriteLine(message)
+            printfn "%s" message
 
         member _.WriteError(message) =
-            Console.Error.Write(message)
+            eprintf "%s" message
 
         member _.WriteErrorLine(message) =
-            Console.Error.WriteLine(message)
+            eprintfn "%s" message
 
         (* member this.WriteBig style (Message message) =
             let output = this :> IOutput

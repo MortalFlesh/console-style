@@ -29,6 +29,7 @@
   <ItemGroup>
     <Compile Include="src/Output/Output.fs" />
     <Compile Include="src/Output/Console.fs" />
+    <Compile Include="src/Output/Print.fs" />
     <Compile Include="src/Output/Buffer.fs" />
   </ItemGroup>
 
