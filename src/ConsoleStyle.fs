@@ -5,24 +5,29 @@ open MF.ConsoleStyle
 // open ShellProgressBar
 
 type ConsoleStyle (output: Output.IOutput, style) =
+    let mutable output = output
     let mutable style = style
-    let removeMarkup message =
-        message |> Style.removeMarkup style
+    let removeMarkup = Style.removeMarkup style
 
     // Constructors
-
     new (style) = ConsoleStyle(Output.ConsoleOutput(Verbosity.Normal), style)
     new (output) = ConsoleStyle(output, Style.defaults)
     new (verbosity) = ConsoleStyle(Output.ConsoleOutput(verbosity))
     new () = ConsoleStyle (Verbosity.Normal)
 
     // Verbosity
-    member _.Verbosity = output.Verbosity
+    member _.Verbosity
+        with get() = output.Verbosity
+        and set(value) = output.Verbosity <- value
+
     member _.IsQuiet() = output.IsQuiet()
     member _.IsNormal() = output.IsNormal()
     member _.IsVerbose() = output.IsVerbose()
     member _.IsVeryVerbose() = output.IsVeryVerbose()
     member _.IsDebug() = output.IsDebug()
+
+    // Output
+    member _.ChangeOutput(newOutput) = output <- newOutput
 
     // Style
     member _.ChangeStyle(newStyle) = style <- newStyle
@@ -31,17 +36,15 @@ type ConsoleStyle (output: Output.IOutput, style) =
     member _.RemoveMarkup(message) = removeMarkup message
 
     // Output
-    (* member _.Message(message: string): unit =
-        message
-        |> blockWithMarkup true None false *)
 
-    //member _.Write (message: string): unit = message |> Render.block indentation false (Some OnLine) None false
-    member _.Write (message: string) =
-        message
-        |> Style.Message.ofString
-        |> Render.message output.Verbosity style TextWithMarkup
-        |> RenderedMessage.value
-        |> output.Write
+    /// It will never show a date time
+    member this.Write (message: string) =
+        if this.IsNormal() then
+            message
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity { style with ShowDateTime = NoDateTime } TextWithMarkup
+            |> RenderedMessage.value
+            |> output.Write
 
     member this.Write (format, a) = sprintf format a |> this.Write
     member this.Write (format, a, b) = sprintf format a b |> this.Write
@@ -49,13 +52,29 @@ type ConsoleStyle (output: Output.IOutput, style) =
     member this.Write (format, a, b, c, d) = sprintf format a b c d |> this.Write
     member this.Write (format, a, b, c, d, e) = sprintf format a b c d e |> this.Write
 
-    /// It works as WriteLine
-    member _.Message (message: string) =
-        message
-        |> Style.Message.ofString
-        |> Render.message output.Verbosity style TextWithMarkup
-        |> RenderedMessage.value
-        |> output.WriteLine
+    /// It will never show a date time
+    member this.WriteLine (message: string) =
+        if this.IsNormal() then
+            message
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity { style with ShowDateTime = NoDateTime } TextWithMarkup
+            |> RenderedMessage.value
+            |> output.WriteLine
+
+    member this.WriteLine (format, a) = sprintf format a |> this.WriteLine
+    member this.WriteLine (format, a, b) = sprintf format a b |> this.WriteLine
+    member this.WriteLine (format, a, b, c) = sprintf format a b c |> this.WriteLine
+    member this.WriteLine (format, a, b, c, d) = sprintf format a b c d |> this.WriteLine
+    member this.WriteLine (format, a, b, c, d, e) = sprintf format a b c d e |> this.WriteLine
+
+    /// It works as WriteLine but adds a date time when style allows it
+    member this.Message (message: string) =
+        if this.IsNormal() then
+            message
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style TextWithMarkup
+            |> RenderedMessage.value
+            |> output.WriteLine
 
     member this.Message (format, a) = sprintf format a |> this.Message
     member this.Message (format, a, b) = sprintf format a b |> this.Message
@@ -63,13 +82,14 @@ type ConsoleStyle (output: Output.IOutput, style) =
     member this.Message (format, a, b, c, d) = sprintf format a b c d |> this.Message
     member this.Message (format, a, b, c, d, e) = sprintf format a b c d e |> this.Message
 
-    member _.Title (title: string) =
-        title
-        |> Style.Message.ofString
-        |> Render.message output.Verbosity style Title
-        |> RenderedMessage.value
-        |> sprintf "%s\n"
-        |> output.WriteLine
+    member this.Title (title: string) =
+        if this.IsNormal() then
+            title
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style Title
+            |> RenderedMessage.value
+            |> sprintf "%s\n"
+            |> output.WriteLine
 
     member this.Title (format, a) = sprintf format a |> this.Title
     member this.Title (format, a, b) = sprintf format a b |> this.Title
@@ -77,12 +97,13 @@ type ConsoleStyle (output: Output.IOutput, style) =
     member this.Title (format, a, b, c, d) = sprintf format a b c d |> this.Title
     member this.Title (format, a, b, c, d, e) = sprintf format a b c d e |> this.Title
 
-    member _.SubTitle (subTitle: string) =
-        subTitle
-        |> Style.Message.ofString
-        |> Render.message output.Verbosity style SubTitle
-        |> RenderedMessage.value
-        |> output.WriteLine
+    member this.SubTitle (subTitle: string) =
+        if this.IsNormal() then
+            subTitle
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style SubTitle
+            |> RenderedMessage.value
+            |> output.WriteLine
 
     member this.SubTitle (format, a) = sprintf format a |> this.SubTitle
     member this.SubTitle (format, a, b) = sprintf format a b |> this.SubTitle
@@ -90,13 +111,14 @@ type ConsoleStyle (output: Output.IOutput, style) =
     member this.SubTitle (format, a, b, c, d) = sprintf format a b c d |> this.SubTitle
     member this.SubTitle (format, a, b, c, d, e) = sprintf format a b c d e |> this.SubTitle
 
-    member _.Section (section: string) =
-        section
-        |> Style.Message.ofString
-        |> Render.message output.Verbosity style Section
-        |> RenderedMessage.value
-        |> sprintf "%s\n"
-        |> output.WriteLine
+    member this.Section (section: string) =
+        if this.IsNormal() then
+            section
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style Section
+            |> RenderedMessage.value
+            |> sprintf "%s\n"
+            |> output.WriteLine
 
     member this.Section (format, a) = sprintf format a |> this.Section
     member this.Section (format, a, b) = sprintf format a b |> this.Section
@@ -104,7 +126,9 @@ type ConsoleStyle (output: Output.IOutput, style) =
     member this.Section (format, a, b, c, d) = sprintf format a b c d |> this.Section
     member this.Section (format, a, b, c, d, e) = sprintf format a b c d e |> this.Section
 
-    member _.NewLine (): unit = output.WriteLine("")
+    member this.NewLine (): unit =
+        if this.IsNormal() then
+            output.WriteLine("")
 
     member this.MainTitle (title: string, figlet: Colorful.Figlet): unit =
         if this.IsNormal() then
@@ -121,27 +145,29 @@ type ConsoleStyle (output: Output.IOutput, style) =
     member this.MainTitle (title: string): unit =
         this.MainTitle(title, Colorful.Figlet())
 
-    member _.Error (error: string) =
-        error
-        |> Style.Message.ofString
-        |> Render.message output.Verbosity style Error
-        |> RenderedMessage.value
-        |> sprintf "%s\n"
-        |> output.WriteErrorLine
+    member this.Error (error: string) =
+        if this.IsNormal() then
+            error
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style Error
+            |> RenderedMessage.value
+            |> sprintf "%s\n"
+            |> output.WriteErrorLine
 
     member this.Error (format, a) = sprintf format a |> this.Error
     member this.Error (format, a, b) = sprintf format a b |> this.Error
     member this.Error (format, a, b, c) = sprintf format a b c |> this.Error
     member this.Error (format, a, b, c, d) = sprintf format a b c d |> this.Error
     member this.Error (format, a, b, c, d, e) = sprintf format a b c d e |> this.Error
-    
-    member _.Warning (warning: string) =
-        warning
-        |> Style.Message.ofString
-        |> Render.message output.Verbosity style Warning
-        |> RenderedMessage.value
-        |> sprintf "%s\n"
-        |> output.WriteLine
+
+    member this.Warning (warning: string) =
+        if this.IsNormal() then
+            warning
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style Warning
+            |> RenderedMessage.value
+            |> sprintf "%s\n"
+            |> output.WriteLine
 
     member this.Warning (format, a) = sprintf format a |> this.Warning
     member this.Warning (format, a, b) = sprintf format a b |> this.Warning
@@ -149,13 +175,14 @@ type ConsoleStyle (output: Output.IOutput, style) =
     member this.Warning (format, a, b, c, d) = sprintf format a b c d |> this.Warning
     member this.Warning (format, a, b, c, d, e) = sprintf format a b c d e |> this.Warning
 
-    member _.Success (success: string) =
-        success
-        |> Style.Message.ofString
-        |> Render.message output.Verbosity style Success
-        |> RenderedMessage.value
-        |> sprintf "%s\n"
-        |> output.WriteLine
+    member this.Success (success: string) =
+        if this.IsNormal() then
+            success
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style Success
+            |> RenderedMessage.value
+            |> sprintf "%s\n"
+            |> output.WriteLine
 
     member this.Success (format, a) = sprintf format a |> this.Success
     member this.Success (format, a, b) = sprintf format a b |> this.Success
@@ -163,13 +190,14 @@ type ConsoleStyle (output: Output.IOutput, style) =
     member this.Success (format, a, b, c, d) = sprintf format a b c d |> this.Success
     member this.Success (format, a, b, c, d, e) = sprintf format a b c d e |> this.Success
 
-    member _.Note (note: string) =
-        note
-        |> Style.Message.ofString
-        |> Render.message output.Verbosity style Note
-        |> RenderedMessage.value
-        |> sprintf "%s\n"
-        |> output.WriteLine
+    member this.Note (note: string) =
+        if this.IsNormal() then
+            note
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style Note
+            |> RenderedMessage.value
+            |> sprintf "%s\n"
+            |> output.WriteLine
 
     member this.Note (format, a) = sprintf format a |> this.Note
     member this.Note (format, a, b) = sprintf format a b |> this.Note
@@ -184,7 +212,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
     member this.Messages (prefix: string) (messages: seq<string>): unit =
         if this.IsNormal() then
             messages
-            |> Seq.iter (sprintf "%s%s" prefix >> this.Message)
+            |> Seq.iter (sprintf "%s%s" prefix >> this.WriteLine)
 
     member this.List (messages: seq<string>): unit =
         this.Messages " - " messages
@@ -225,26 +253,23 @@ type ConsoleStyle (output: Output.IOutput, style) =
                 |> RenderedMessage.value
                 |> output.WriteLine
 
-            let renderRowLine = this.Message
+            let renderRowLine = this.WriteLine
 
             Table.render removeMarkup renderHeaderLine renderRowLine
                 header
                 rows
 
             this.NewLine()
-        else ()
 
     member this.Tabs(tabs) =
         if this.IsNormal() then
-            Tabs.render removeMarkup this.Message tabs
+            Tabs.render removeMarkup this.WriteLine tabs
             this.NewLine()
-        else ()
 
     member this.Tabs(tabs, length) =
         if this.IsNormal() then
-            Tabs.renderInLength removeMarkup this.Message length tabs
+            Tabs.renderInLength removeMarkup this.WriteLine length tabs
             this.NewLine()
-        else ()
 
     //
     // User input

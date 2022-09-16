@@ -125,6 +125,7 @@ module internal Color =
 
 [<RequireQualifiedAccess>]
 module internal OutputType =
+    let formatDateTime = sprintf "<c:gray>%s</c>"
     let formatMainTitle = sprintf "<c:cyan>%s</c>"
     let formatTitle = sprintf "<c:cyan|b>%s</c>"
     let formatSubTitle = sprintf "<c:yellow|u>%s</c>"
@@ -174,7 +175,7 @@ module internal Words =
         let concat separator (words: Line) =
             words
             |> List.map Word.value
-            |> String.concat separator  // todo - tohle se pouziva jen v options, tam by chtela ale cusstom, ktera prvni da jednu mezeru a pak mezi vsechno krom prefixu 2 mezery
+            |> String.concat separator
 
         let format removeMarkup formatWord (MaxWordLengths maxWordLengths) (words: Line) =
             words

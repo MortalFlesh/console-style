@@ -1,6 +1,1 @@
- ! [NOTE] Verbosity: Quiet
- ! [NOTE] Is quiet yes
- ! [NOTE] Is normal no
- ! [NOTE] Is verbose no
- ! [NOTE] Is very verbose no
- ! [NOTE] Is debug no
+

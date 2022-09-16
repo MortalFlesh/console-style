@@ -7,6 +7,7 @@ let orFail = function
 open MF.ConsoleStyle
 
 let showConsoleExample (console: ConsoleStyle) =
+    // console.Verbosity <- Verbosity.Level.VeryVerbose
     console.Title "Simple output"
     console.MainTitle "ConsoleStyle"
 
@@ -193,7 +194,7 @@ let showConsoleExample (console: ConsoleStyle) =
     |> List.map colorSquare
     |> List.splitInto 2
     |> List.collect (fun line -> [ line; line ])
-    |> List.iter (String.concat "" >> console.Message)
+    |> List.iter (String.concat "" >> console.WriteLine)
     |> console.NewLine
 
     let colorLetter (i: int) color =
@@ -202,7 +203,7 @@ let showConsoleExample (console: ConsoleStyle) =
     colors
     |> List.splitInto 2
     |> List.map (List.mapi colorLetter)
-    |> List.iter (String.concat "" >> console.Message)
+    |> List.iter (String.concat "" >> console.WriteLine)
     |> console.NewLine
 
     console.Section "Custom tags"

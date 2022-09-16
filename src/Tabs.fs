@@ -37,22 +37,6 @@ module private Tabs =
     /// 2 spaces at each side
     let private padding = WordLength 4
 
-    let samples colors =
-        let sample = "  sample  "
-
-        let line (color: string) = sprintf "<c:black|bg:%s>%s</c>" (color.Trim()) (String.replicate sample.Length " ")
-        let text (color: string) = sprintf "<c:black|bg:%s>%s</c>" (color.Trim()) sample
-        let color (color: string) = sprintf "<c:black|bg:%s>%s</c>" (color.Trim()) color
-
-        [
-            colors |> List.map line
-            colors |> List.map text     // todo - Tab.texts
-            colors |> List.map color    // todo - Tab.values
-            colors |> List.map line
-        ]
-        |> List.map (String.concat "  ")
-        |> List.iter (printfn "%s")
-
     let private line wordLength (color: string) =
         sprintf "<c:black|bg:%s>%s</c>" color (String.replicate wordLength " ")
 
@@ -63,7 +47,7 @@ module private Tabs =
 
         let spacesBefore, word, spacesAfter =
             if textWithoutMarkup.Length > tabLength then
-                // todo - for now the markup is stripped off when text is too long, so I don't need to solve markup cutting
+                // todo<later> - for now the markup is stripped off when text is too long, so I don't need to solve markup cutting
                 1, textWithoutMarkup[0 .. (tabLength - 2)], 1
             else
                 let spacesBefore = (float tabLength - float textWithoutMarkup.Length) / 2. |> floor |> int

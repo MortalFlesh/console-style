@@ -47,7 +47,7 @@ What's your name? {stdin}
 | Function | example | color | note |
 | ---      | ---     | ---   | ---      |
 | `mainTitle` | `Console.mainTitle "ConsoleStyle"` | cyan | _see output_ 👇 |
-| `mainTitlef` | `Console.mainTitlef "Console%s" "Style"` | cyan | _see output_ 👇 |
+todo - add figlet/font
 ```
   _____                        __        ____  __           __
  / ___/ ___   ___   ___ ___   / / ___   / __/ / /_  __ __  / / ___

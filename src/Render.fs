@@ -32,8 +32,13 @@ module internal Render =
         |> List.map render
         |> String.concat "\n"
 
-    let private renderBlock format (prefix: string) maxLength prefixLengthFixer (message: Message) =
+    let private renderBlock dateTime format (prefix: string) maxLength prefixLengthFixer (message: Message) =
+        let prefix =
+            match dateTime with
+            | Some dateTime -> sprintf "%s%s" dateTime prefix
+            | _ -> prefix
         let prefixLength = prefix.Length
+
         let trailingSpace = 1
         let render = format >> Markup.render
 
@@ -92,48 +97,47 @@ module internal Render =
         |> List.map render
         |> String.concat "\n"
 
-    let private renderError message =
+    let private renderError dateTime message =
         message
-        |> renderBlock OutputType.formatError " ☠️  " message.LengthWithoutMarkup +1
+        |> renderBlock dateTime OutputType.formatError " ☠️  " message.LengthWithoutMarkup +1
 
-    let private renderSuccess =
-        renderBlock OutputType.formatSuccess " ✅ " 120 -1
+    let private renderSuccess dateTime =
+        renderBlock dateTime OutputType.formatSuccess " ✅ " 120 -1
 
-    let private renderWarning =
-        renderBlock OutputType.formatWarning " ⚠️  " 120 +1
+    let private renderWarning dateTime =
+        renderBlock dateTime OutputType.formatWarning " ⚠️  " 120 +1
 
-    let private renderNote =
-        renderBlock OutputType.formatSuccess " !Note " 120 0
+    (* let private renderNote =
+        renderBlock OutputType.formatSuccess " !Note " 120 0 *)
 
     let message verbosity (style: Style) outputType message: RenderedMessage =
         if verbosity |> Verbosity.isNormal then
             let ({ Text = text } as message: Message) = message |> Style.Message.applyCustomTags style
-            let (Indentation indentation) = style.Indentation
 
-            let mutable dateTimeLength = 0
+            let dateTime =
+                style.ShowDateTime
+                |> renderDateTimeValue verbosity
+                |> Option.map (fun dateTime -> dateTime + (style.Indentation |> Indentation.value))
 
             let parts: string list =
                 [
-                    match style.ShowDateTime |> renderDateTimeValue verbosity with
-                    | Some dateTime ->
-                        yield sprintf "<c:gray%s</c>" dateTime
-                        dateTimeLength <- dateTimeLength + dateTime.Length
-
-                        yield indentation
-                        dateTimeLength <- dateTimeLength + indentation.Length
+                    match outputType, dateTime with
+                    | SubTitle, Some dateTime
+                    | Note, Some dateTime
+                    | TextWithMarkup, Some dateTime -> yield dateTime |> OutputType.formatDateTime |> Markup.render
                     | _ -> ()
 
                     match outputType, message.HasMarkup with
-                    | OutputType.MainTitle, _ -> yield text |> OutputType.formatMainTitle |> Markup.render
-                    | OutputType.Title, false -> yield text |> OutputType.formatTitle |> Markup.render
-                    | OutputType.SubTitle, false -> yield text |> OutputType.formatSubTitle |> Markup.render
-                    | OutputType.Section, false -> yield text |> OutputType.formatSection |> Markup.render
-                    | OutputType.TableHeader, false -> yield text |> OutputType.formatTableHeader |> Markup.render
-                    | OutputType.Note, false -> yield text |> OutputType.formatNote |> Markup.render
+                    | MainTitle, _ -> yield text |> OutputType.formatMainTitle |> Markup.render
+                    | Title, false -> yield text |> OutputType.formatTitle |> Markup.render
+                    | SubTitle, false -> yield text |> OutputType.formatSubTitle |> Markup.render
+                    | Section, false -> yield text |> OutputType.formatSection |> Markup.render
+                    | TableHeader, false -> yield text |> OutputType.formatTableHeader |> Markup.render
+                    | Note, false -> yield text |> OutputType.formatNote |> Markup.render
 
-                    | OutputType.Error, _ -> yield renderError message
-                    | OutputType.Success, _ -> yield renderSuccess message
-                    | OutputType.Warning, _ -> yield renderWarning message
+                    | Error, _ -> yield message |> renderError dateTime
+                    | Success, _ -> yield message |> renderSuccess dateTime
+                    | Warning, _ -> yield message |> renderWarning dateTime
 
                     | _, true -> yield Markup.render text
                     | _, false -> yield text
@@ -145,10 +149,10 @@ module internal Render =
                         yield "\n" + (underline |> Underline.inLength length) |> OutputType.formatMainTitle |> Markup.render
 
                     | Title, { TitleUnderline = Underline.IsSet underline } ->
-                        yield "\n" + (underline |> Underline.inLength (message.LengthWithoutMarkup + dateTimeLength)) |> OutputType.formatTitle |> Markup.render
+                        yield "\n" + (underline |> Underline.inLength message.LengthWithoutMarkup) |> OutputType.formatTitle |> Markup.render
 
                     | Section, { SubTitleUnderline = Underline.IsSet underline } ->
-                        yield "\n" + (underline |> Underline.inLength (message.LengthWithoutMarkup + dateTimeLength)) |> OutputType.formatSection |> Markup.render
+                        yield "\n" + (underline |> Underline.inLength message.LengthWithoutMarkup) |> OutputType.formatSection |> Markup.render
 
                     | _ -> ()
                 ]
