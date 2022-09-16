@@ -1,4 +1,5 @@
 FSharp.Core
 ShellProgressBar
+Colorful.Console
 Microsoft.Extensions.Logging
 NReco.Logging.File

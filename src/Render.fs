@@ -13,9 +13,6 @@ module internal Render =
         format
         |> Option.map (fun format -> DateTime.Now.ToString(format) |> sprintf "[%s]")
 
-    let private renderUnderlineValue (Underline underline) length =
-        underline |> String.replicate length
-
     let private renderSuccess' message =
         let prefix = " [OK] "
         let prefixLength = prefix.Length
@@ -35,32 +32,78 @@ module internal Render =
         |> List.map render
         |> String.concat "\n"
 
-    let private renderBlock format (prefix: string) maxLength message =
+    let private renderBlock format (prefix: string) maxLength prefixLengthFixer (message: Message) =
         let prefixLength = prefix.Length
-        let length = max maxLength (prefixLength + message.LengthWithoutMarkup + 1)
-
-        let line = String.replicate length " "
+        let trailingSpace = 1
         let render = format >> Markup.render
 
-        [
-            line
+        let line length = String.replicate length " "
+        let firstMessageLine length message =
             sprintf "%s%s%s"
                 prefix
                 (if message.HasMarkup then message.Text |> Markup.render else message.Text)
-                (String.replicate (length - message.LengthWithoutMarkup - prefixLength) " " |> render)
-            line
-        ]
+                (String.replicate (length - message.LengthWithoutMarkup - prefixLength + prefixLengthFixer) " " |> render)
+
+        let lines =
+            if message.Text.Contains "\n" then
+                let lines = message.Text.Split("\n")
+                let messagesLines =
+                    lines
+                    |> Seq.map Style.Message.ofString
+                    |> List.ofSeq
+
+                let maxLineLength =
+                    messagesLines
+                    |> Seq.map (fun m -> m.LengthWithoutMarkup)
+                    |> Seq.max
+
+                let lineLength = max maxLength (prefixLength + maxLineLength + trailingSpace)
+                let line = line lineLength
+
+                let messageLine i message =
+                    if i = 0 then firstMessageLine lineLength message
+                    else
+                        let indentionLenght = prefixLength - prefixLengthFixer
+                        sprintf "%s%s%s"
+                            (String.replicate indentionLenght " ")
+                            (if message.HasMarkup then message.Text |> Markup.render else message.Text)
+                            (String.replicate (lineLength - message.LengthWithoutMarkup - indentionLenght) " " |> render)
+
+                [
+                    yield line
+
+                    yield!
+                        message.Text.Split("\n")
+                        |> Seq.mapi (fun i -> Style.Message.ofString >> messageLine i)
+
+                    yield line
+                ]
+            else
+                let lineLength = max maxLength (prefixLength + message.LengthWithoutMarkup + trailingSpace)
+                let line = line lineLength
+
+                [
+                    line
+                    firstMessageLine lineLength message
+                    line
+                ]
+
+        lines
         |> List.map render
         |> String.concat "\n"
 
     let private renderError message =
-        renderBlock OutputType.formatError " " message.LengthWithoutMarkup message
+        message
+        |> renderBlock OutputType.formatError " ☠️  " message.LengthWithoutMarkup +1
 
     let private renderSuccess =
-        renderBlock OutputType.formatSuccess " [OK] " 120
+        renderBlock OutputType.formatSuccess " ✅ " 120 -1
+
+    let private renderWarning =
+        renderBlock OutputType.formatWarning " ⚠️  " 120 +1
 
     let private renderNote =
-        renderBlock OutputType.formatSuccess " !Note " 120
+        renderBlock OutputType.formatSuccess " !Note " 120 0
 
     let message verbosity (style: Style) outputType message: RenderedMessage =
         if verbosity |> Verbosity.isNormal then
@@ -81,6 +124,7 @@ module internal Render =
                     | _ -> ()
 
                     match outputType, message.HasMarkup with
+                    | OutputType.MainTitle, _ -> yield text |> OutputType.formatMainTitle |> Markup.render
                     | OutputType.Title, false -> yield text |> OutputType.formatTitle |> Markup.render
                     | OutputType.SubTitle, false -> yield text |> OutputType.formatSubTitle |> Markup.render
                     | OutputType.Section, false -> yield text |> OutputType.formatSection |> Markup.render
@@ -89,14 +133,22 @@ module internal Render =
 
                     | OutputType.Error, _ -> yield renderError message
                     | OutputType.Success, _ -> yield renderSuccess message
+                    | OutputType.Warning, _ -> yield renderWarning message
 
                     | _, true -> yield Markup.render text
                     | _, false -> yield text
 
                     // Underline
                     match outputType, style with
-                    | Title, _ -> yield "\n" + renderUnderlineValue style.TitleUnderline (message.LengthWithoutMarkup + dateTimeLength) |> OutputType.formatTitle |> Markup.render
-                    | Section, _ -> yield "\n" + renderUnderlineValue style.SubTitleUnderline (message.LengthWithoutMarkup + dateTimeLength) |> OutputType.formatSection |> Markup.render
+                    | MainTitle, { MainTitleUnderline = Underline.IsSet underline } ->
+                        let length = message.Text.Split("\n") |> Seq.map Seq.length |> Seq.max
+                        yield "\n" + (underline |> Underline.inLength length) |> OutputType.formatMainTitle |> Markup.render
+
+                    | Title, { TitleUnderline = Underline.IsSet underline } ->
+                        yield "\n" + (underline |> Underline.inLength (message.LengthWithoutMarkup + dateTimeLength)) |> OutputType.formatTitle |> Markup.render
+
+                    | Section, { SubTitleUnderline = Underline.IsSet underline } ->
+                        yield "\n" + (underline |> Underline.inLength (message.LengthWithoutMarkup + dateTimeLength)) |> OutputType.formatSection |> Markup.render
 
                     | _ -> ()
                 ]

@@ -26,12 +26,14 @@ module internal RenderedMessage =
     let value (RenderedMessage value) = value
 
 type OutputType =
+    | MainTitle
     | Title
     | SubTitle
     | Section
     | TableHeader
     | Success
     | Error
+    | Warning
     | Note
     | TextWithMarkup
 
@@ -123,12 +125,14 @@ module internal Color =
 
 [<RequireQualifiedAccess>]
 module internal OutputType =
+    let formatMainTitle = sprintf "<c:cyan>%s</c>"
     let formatTitle = sprintf "<c:cyan|b>%s</c>"
     let formatSubTitle = sprintf "<c:yellow|u>%s</c>"
     let formatSection = sprintf "<c:dark-yellow|b>%s</c>"
     let formatTableHeader = sprintf "<c:dark-yellow>%s</c>"
     let formatError = sprintf "<c:white|bg:red>%s</c>"
     let formatSuccess = sprintf "<c:black|bg:green>%s</c>"
+    let formatWarning = sprintf "<c:black|bg:light-orange>%s</c>"
     let formatNote = sprintf "<c:dark-yellow|i> ! [NOTE] %s</c>"
 
 module internal Words =

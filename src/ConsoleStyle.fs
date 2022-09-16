@@ -106,41 +106,20 @@ type ConsoleStyle (output: Output.IOutput, style) =
 
     member _.NewLine (): unit = output.WriteLine("")
 
-    // todo
-    member _.MainTitle (title: string): unit =
-        (* Message title
-        |> output.WriteBig { style with NewLine = Some (NewLines 2) } *)
-        ()
+    member this.MainTitle (title: string, figlet: Colorful.Figlet): unit =
+        if this.IsNormal() then
+            figlet.ToAscii(title |> removeMarkup).ConcreteValue
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style MainTitle
+            |> RenderedMessage.value
+            |> sprintf "%s\n"
+            |> output.WriteLine
 
-    member this.MainTitle (format, a) = sprintf format a |> this.MainTitle
-    member this.MainTitle (format, a, b) = sprintf format a b |> this.MainTitle
-    member this.MainTitle (format, a, b, c) = sprintf format a b c |> this.MainTitle
-    member this.MainTitle (format, a, b, c, d) = sprintf format a b c d |> this.MainTitle
-    member this.MainTitle (format, a, b, c, d, e) = sprintf format a b c d e |> this.MainTitle
+    member this.MainTitle (title: string, font: Colorful.FigletFont): unit =
+        this.MainTitle(title, Colorful.Figlet(font))
 
-    member this.MainTitleFigle (title: string): unit =
-        // todo
-        (* if Verbosity.isNormal verbosity then
-            let font = FigletFont.Load("chunky.flf")
-            let figlet = Figlet(font)
-            let figletString = figlet.ToAscii(title)
-
-            let linelength =
-                match figletString.ConcreteValue.Split("\n") |> Seq.toList with
-                | [] -> figletString.ConcreteValue.Length
-                | lines -> lines |> List.map String.length |> List.maxBy id
-
-            //Console.WriteLine(figlet.ToAscii(title), Drawing.ColorTranslator.FromHtml("#D2000"))
-            Console.Write(figletString, color Title)
-            Console.WriteLine(String.replicate linelength "=", color Title)
-            this.NewLine() *)
-        ()
-
-    member this.MainTitleFigle (format, a) = sprintf format a |> this.MainTitleFigle
-    member this.MainTitleFigle (format, a, b) = sprintf format a b |> this.MainTitleFigle
-    member this.MainTitleFigle (format, a, b, c) = sprintf format a b c |> this.MainTitleFigle
-    member this.MainTitleFigle (format, a, b, c, d) = sprintf format a b c d |> this.MainTitleFigle
-    member this.MainTitleFigle (format, a, b, c, d, e) = sprintf format a b c d e |> this.MainTitleFigle
+    member this.MainTitle (title: string): unit =
+        this.MainTitle(title, Colorful.Figlet())
 
     member _.Error (error: string) =
         error
@@ -155,8 +134,20 @@ type ConsoleStyle (output: Output.IOutput, style) =
     member this.Error (format, a, b, c) = sprintf format a b c |> this.Error
     member this.Error (format, a, b, c, d) = sprintf format a b c d |> this.Error
     member this.Error (format, a, b, c, d, e) = sprintf format a b c d e |> this.Error
+    
+    member _.Warning (warning: string) =
+        warning
+        |> Style.Message.ofString
+        |> Render.message output.Verbosity style Warning
+        |> RenderedMessage.value
+        |> sprintf "%s\n"
+        |> output.WriteLine
 
-    // todo - add Warning
+    member this.Warning (format, a) = sprintf format a |> this.Warning
+    member this.Warning (format, a, b) = sprintf format a b |> this.Warning
+    member this.Warning (format, a, b, c) = sprintf format a b c |> this.Warning
+    member this.Warning (format, a, b, c, d) = sprintf format a b c d |> this.Warning
+    member this.Warning (format, a, b, c, d, e) = sprintf format a b c d e |> this.Warning
 
     member _.Success (success: string) =
         success

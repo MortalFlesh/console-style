@@ -1,7 +1,18 @@
 namespace MF.ConsoleStyle
 
+open System
+
 type Underline = Underline of string
 type Indentation = Indentation of string
+
+[<RequireQualifiedAccess>]
+module Underline =
+    let internal (|IsSet|_|) = function
+        | Underline empty when empty |> String.IsNullOrWhiteSpace -> None
+        | underline -> Some underline
+
+    let internal inLength length (Underline underline) =
+        (underline |> String.replicate length).Substring(0, length)
 
 [<RequireQualifiedAccess>]
 module Indentation =
@@ -53,6 +64,7 @@ module CustomTag =
 
 type Style = {
     ShowDateTime: ShowDateTime
+    MainTitleUnderline: Underline
     TitleUnderline: Underline
     SubTitleUnderline: Underline
     Indentation: Indentation
@@ -71,6 +83,7 @@ module Style =
             ]
             |> Map.ofList
             |> ShowDateTimeFor
+        MainTitleUnderline = Underline "-="
         TitleUnderline = Underline "="
         SubTitleUnderline = Underline "-"
         Indentation = Indentation DefaultIndentation

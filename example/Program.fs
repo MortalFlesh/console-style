@@ -8,9 +8,13 @@ open MF.ConsoleStyle
 
 let showConsoleExample (console: ConsoleStyle) =
     console.Title "Simple output"
-    (* console.MainTitle "ConsoleStyle"
-    console.MainTitleFigle "Console"
-    console.MainTitleFigle "Style" *)
+    console.MainTitle "ConsoleStyle"
+
+    let font = Colorful.FigletFont.Load("chunky.flf")
+    console.MainTitle("Title with font", font)
+
+    let figlet = Colorful.Figlet(font)
+    console.MainTitle("Figlet title", figlet)
 
     let answer = "World"
     // let answer = console.Ask "What is your name?"
@@ -208,7 +212,16 @@ let showConsoleExample (console: ConsoleStyle) =
         [ "name"; "<name>Jon Snow</name>" ]
     ]
 
+    console.Error "Error message"
+    console.Error "Error\nmessage"
+    console.Error("Error %s", "<c:black|bg:magenta>in</c>-<c:white|bg:dark-cyan>style</c>")
+
+    console.Warning "Warning message"
+    console.Warning "Warning\nmessage"
+    console.Warning("Warning %s", "<c:black|bg:magenta>in</c>-<c:white|bg:dark-cyan>style</c>")
+
     console.Success "Done"
+    console.Success "Done\non more lines"
     console.Success("Done %s", "<c:black|bg:magenta>in</c>-<c:white|bg:dark-cyan>style</c>")
 
     console.NewLine()
@@ -218,7 +231,7 @@ let main argv =
     let consoleOutput = Output.ConsoleOutput(Verbosity.Normal)
     use bufferOutput = new Output.BufferOutput(Verbosity.Normal)
 
-    let output = bufferOutput
+    let output = consoleOutput
 
     let style = {
         Style.defaults with
