@@ -24,6 +24,7 @@
     <Compile Include="src/Markup.fs" />
     <Compile Include="src/Style.fs" />
     <Compile Include="src/Render.fs" />
+    <Compile Include="src/Progress.fs" />
   </ItemGroup>
 
   <ItemGroup>

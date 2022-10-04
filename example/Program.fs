@@ -47,12 +47,21 @@ let showConsoleExample (console: ConsoleStyle) =
         [ "    --parts";         "Required parts <c:yellow>[default: [\"foo\"; \"bar\"]]</c> <c:blue>(multiple values allowed)</c>" ]
     ]
 
-    (* let total = 10
-    let progressBar = console.ProgressStart "Starting..." total
-    for _ in 1 .. total do
-        System.Threading.Thread.Sleep 200
+    let subTask progressBar i start =
+        let partial = 5
+        use subTaskProgress = partial |> start progressBar $"Subtask {i} ..."
+        for _ in 1 .. partial do
+            System.Threading.Thread.Sleep 200
+            subTaskProgress |> console.ProgressAdvance
+
+    let total = 10
+    let progressBar = console.ProgressStart "Starting ..." total
+    for i in 1 .. total do
+        subTask progressBar i console.ProgressStartChild
+        subTask progressBar i console.ProgressStartChildAndKeepIt
+
         progressBar |> console.ProgressAdvance
-    console.ProgressFinish progressBar *)
+    console.ProgressFinish progressBar
 
     console.Title "Color Example"
 

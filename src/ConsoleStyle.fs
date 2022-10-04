@@ -290,236 +290,28 @@ type ConsoleStyle (output: Output.IOutput, style) =
     member this.Ask (format, a, b, c) = sprintf format a b c |> this.Ask
     member this.Ask (format, a, b, c, d) = sprintf format a b c d |> this.Ask
     member this.Ask (format, a, b, c, d, e) = sprintf format a b c d e |> this.Ask
-(*
-[<RequireQualifiedAccess>]
-module Console =
-    open System
-    open Colorful
-    open ShellProgressBar
-
-    let removeMarkup = Markup.removeMarkup
 
     //
-    // Verbosity
-    //
-    let mutable private verbosity = Verbosity.Normal
-
-    let setVerbosity level = verbosity <- level
-    let isQuiet () = Verbosity.isQuiet verbosity
-    let isNormal () = Verbosity.isNormal verbosity
-    let isVerbose () = Verbosity.isVerbose verbosity
-    let isVeryVerbose () = Verbosity.isVeryVerbose verbosity
-    let isDebug () = Verbosity.isDebug verbosity
-
-    //
-    // Output style
-    //
-    let indentation: string = Style.DefaultIndentation
-
-    let private block = Render.block verbosity indentation true
-    let private blockWithMarkup allowDateTime = Render.block verbosity indentation allowDateTime (Some TextWithMarkup)
-    let private color = OutputType.color
-
-    let private format1 render (format: Printf.StringFormat<'a -> string>) (valueA: 'a) =
-        valueA
-        |> sprintf format
-        |> render
-
-    let private format2 render (format: Printf.StringFormat<('a -> 'b -> string)>) (valueA: 'a) (valueB: 'b) =
-        (valueA, valueB)
-        ||> sprintf format
-        |> render
-
-    let private format3 render (format: Printf.StringFormat<('a -> 'b -> 'c -> string)>) (valueA: 'a) (valueB: 'b) (valueC: 'c) =
-        (valueA, valueB, valueC)
-        |||> sprintf format
-        |> render
-
-    let message (message: string): unit =
-        message
-        |> blockWithMarkup true None false
-
-    let write (message: string): unit =
-        message
-        |> Render.block verbosity indentation false (Some OnLine) None false
-
-    let messagef format = format1 message format
-    let messagef2 format = format2 message format
-    let messagef3 format = format3 message format
-
-    let newLine (): unit =
-        if isNormal() then
-            printfn ""
-
-    let mainTitle (title: string): unit =
-        if isNormal() then
-            Console.WriteAscii(title, color Title)
-            Console.WriteLine(String.replicate (title.Length * 6) "=", color Title)
-            newLine()
-
-    let mainTitleX (title: string): unit =
-        if isNormal() then
-            let font = FigletFont.Load("chunky.flf")
-            let figlet = Figlet(font)
-            let figletString = figlet.ToAscii(title)
-
-            let linelength =
-                match figletString.ConcreteValue.Split("\n") |> Seq.toList with
-                | [] -> figletString.ConcreteValue.Length
-                | lines -> lines |> List.map String.length |> List.maxBy id
-
-            //Console.WriteLine(figlet.ToAscii(title), Drawing.ColorTranslator.FromHtml("#D2000"))
-            Console.Write(figletString, color Title)
-            Console.WriteLine(String.replicate linelength "=", color Title)
-            newLine()
-
-    let mainTitlef format = format1 mainTitle format
-    let mainTitlef2 format = format2 mainTitle format
-    let mainTitlef3 format = format3 mainTitle format
-
-    let title (title: string): unit =
-        title
-        |> block (Some Title) (Some "=") true
-
-    let titlef format = format1 title format
-    let titlef2 format = format2 title format
-    let titlef3 format = format3 title format
-
-    let section (section: string): unit =
-        section
-        |> block (Some SubTitle) (Some "-") true
-
-    let sectionf format = format1 section format
-    let sectionf2 format = format2 section format
-    let sectionf3 format = format3 section format
-
-    let subTitle (subTitle: string): unit =
-        subTitle
-        |> block (Some SubTitle) None false
-
-    let subTitlef format = format1 subTitle format
-    let subTitlef2 format = format2 subTitle format
-    let subTitlef3 format = format3 subTitle format
-
-    let error (message: string): unit =
-        message
-        |> block (Some Error) None false
-
-    let errorf format = format1 error format
-    let errorf2 format = format2 error format
-    let errorf3 format = format3 error format
-
-    let success (message: string): unit =
-        message
-        |> block (Some Success) None true
-
-    let successf format = format1 success format
-    let successf2 format = format2 success format
-    let successf3 format = format3 success format
-
-    let indent (value: string): string =
-        indentation + value
-
-    //
-    // Output many
+    // Progress bar
     //
 
-    let messages (prefix: string) (messages: seq<string>): unit =
-        if isNormal() then
-            messages
-            |> Seq.iter (sprintf "%s%s" prefix >> blockWithMarkup false None false)
-
-    let options (title: string) (options: list<string list>): unit =
-        options
-        |> Options.optionsList removeMarkup (messages indentation) verbosity "-" title
-        newLine()
-
-    let simpleOptions (title: string) (options: list<string list>): unit =
-        options
-        |> Options.optionsList removeMarkup (messages indentation) verbosity "" title
-        newLine()
-
-    let groupedOptions (separator: string) (title: string) (options: list<string list>): unit =
-        options
-        |> Options.groupedOptionsList removeMarkup (messages indentation) verbosity separator title
-        newLine()
-
-    let list (messages: seq<string>): unit =
-        if isNormal() then
-            messages
-            |> Seq.iter (sprintf " - %s" >> blockWithMarkup false None false)
-
-    //
-    // Complex components
-    //
-
-    let table (header: list<string>) (rows: list<list<string>>): unit =
-        if isNormal() then
-            let renderHeaderLine (headerLine: string) =
-                Console.WriteLine(headerLine, TableHeader |> color)
-
-            let renderRowLine = blockWithMarkup false None false
-
-            Table.render removeMarkup renderHeaderLine renderRowLine header rows
-            newLine()
-
-    type private ShellProgress = ShellProgressBar.ProgressBar
-
-    type ProgressBar =
-        private
-        | Active of ShellProgress
-        | Inactive
-
-        with
-            member this.Advance() =
-                match this with
-                | Active progressBar -> progressBar.Tick()
-                | _ -> ()
-
-            member this.Finish() =
-                match this with
-                | Active progressBar ->
-                    progressBar.Message <- "Finished"
-                    progressBar.Dispose()
-                | _ -> ()
-
-            interface IDisposable with
-                member this.Dispose() = this.Finish()
-
-    let progressStart (initialMessage: string) (total: int): ProgressBar =
-        if isNormal() && Console.WindowWidth > 0 then
-            let options =
-                ProgressBarOptions (
-                    ForegroundColor = ConsoleColor.Yellow,
-                    ForegroundColorDone = Nullable<ConsoleColor>(ConsoleColor.DarkGreen),
-
-                    BackgroundColor = Nullable<ConsoleColor>(ConsoleColor.DarkGray),
-
-                    DisplayTimeInRealTime = true,
-                    ProgressBarOnBottom = true
-                )
-
-            new ShellProgress(total, initialMessage, options) |> Active
+    member this.ProgressStart (initialMessage: string) (total: int): ProgressBar =
+        if this.IsNormal() then ProgressBar.start initialMessage total
         else Inactive
 
-    let progressAdvance (progress: ProgressBar): unit =
+    member this.ProgressStartChild (progress: ProgressBar) (initialMessage: string) (total: int): ProgressBar =
+        if this.IsNormal() then ProgressBar.startAsChild progress initialMessage total
+        else Inactive
+
+    member this.ProgressStartChildAndKeepIt (progress: ProgressBar) (initialMessage: string) (total: int): ProgressBar =
+        if this.IsNormal() then ProgressBar.startAsChildAndKeepIt progress initialMessage total
+        else Inactive
+
+    member _.ProgressAdvance (progress: ProgressBar): unit =
         progress.Advance()
 
-    let progressFinish (progress: ProgressBar): unit =
+    member _.ProgressFinish (progress: ProgressBar): unit =
         progress.Finish()
-
-    //
-    // Inputs
-    //
-
-    let ask (question: string): string =
-        Console.Write(question + " ", SubTitle |> color)
-        Console.ReadLine()
-
-    let askf format = format1 ask format
-    let askf2 format = format2 ask format
-    let askf3 format = format3 ask format
- *)
 
 [<RequireQualifiedAccess>]
 module ConsoleStyle =
