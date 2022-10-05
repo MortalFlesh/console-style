@@ -1,7 +1,7 @@
 #load ".fake/build.fsx/intellisense.fsx"
 
 // ========================================================================================================
-// === F# / Library fake build ==================================================================== 2.0.1 =
+// === F# / Public Library fake build ============================================================= 2.0.1 =
 // --------------------------------------------------------------------------------------------------------
 // Options:
 //  - no-clean   - disables clean of dirs in the first step (required on CI)
@@ -165,12 +165,29 @@ Target.create "Tests" (fun _ ->
 )
 
 Target.create "Release" (fun _ ->
-    Dotnet.runInRootOrFail "pack"
+    match UserInput.getUserInput "Are you sure - is it tagged yet? [y|n]: " with
+    | "y"
+    | "yes" ->
+        match UserInput.getUserPassword "Nuget ApiKey: " with
+        | "" -> failwithf "You have to provide an api key for nuget."
+        | apiKey ->
+            !! "*.*proj"
+            |> Seq.iter (DotNet.pack id)
 
-    Directory.ensure "release"
+            Directory.ensure "release"
 
-    !! "**/bin/**/*.nupkg"
-    |> Seq.iter (Shell.moveFile "release")
+            !! "bin/**/*.nupkg"
+            |> Seq.map (tee (DotNet.nugetPush (fun defaults ->
+                { defaults with
+                    PushParams = {
+                        defaults.PushParams with
+                            ApiKey = Some apiKey
+                            Source = Some "https://api.nuget.org/v3/index.json"
+                    }
+                }
+            )))
+            |> Seq.iter (Shell.moveFile "release")
+    | _ -> ()
 )
 
 // --------------------------------------------------------------------------------------------------------
