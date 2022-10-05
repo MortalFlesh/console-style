@@ -2,11 +2,6 @@ namespace MF.ConsoleStyle.Output
 
 open MF.ConsoleStyle
 
-type Options = {
-    Style: Style
-    OutputType: OutputType
-}
-
 type IOutput =
     // Verbosity
     abstract member Verbosity: Verbosity.Level with get, set

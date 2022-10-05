@@ -308,3 +308,35 @@ module OutputTest =
         cases
         |> testCases ErrorOutput
         |> testList "Check error output file"
+
+    open Output.CombinedOutput.Operators
+
+    [<Tests>]
+    let combinedOutputTest =
+        testList "Combined output" [
+            testCase "should output to all outputs" <| fun _ ->
+                let verbosity = Verbosity.Normal
+
+                use buffer1 = new Output.BufferOutput(verbosity)
+                use buffer2 = new Output.BufferOutput(verbosity)
+                use buffer3 = new Output.BufferOutput(verbosity)
+
+                let combined = buffer1 <+> buffer2 <+> buffer3
+                let console = ConsoleStyle(combined)
+
+                console.Write "Message"
+
+                let outputs = [
+                    buffer1.Fetch()
+                    buffer2.Fetch()
+                    buffer3.Fetch()
+                ]
+
+                let expected = [
+                    "Message"
+                    "Message"
+                    "Message"
+                ]
+
+                Expect.equal outputs expected "Combined Buffered outputs should all have a message."
+        ]

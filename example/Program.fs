@@ -4,6 +4,8 @@ let orFail = function
     | Ok value -> value
     | Error error -> failwithf "Error: %A" error
 
+open System
+open System.IO
 open MF.ConsoleStyle
 
 let showConsoleExample (console: ConsoleStyle) =
@@ -236,12 +238,20 @@ let showConsoleExample (console: ConsoleStyle) =
 
     console.NewLine()
 
+open Output.CombinedOutput.Operators
+
 [<EntryPoint>]
 let main argv =
-    let consoleOutput = Output.ConsoleOutput(Verbosity.Normal)
-    use bufferOutput = new Output.BufferOutput(Verbosity.Normal)
+    let verbosity = Verbosity.Normal
+    let consoleOutput = Output.ConsoleOutput(verbosity)
+    use bufferOutput = new Output.BufferOutput(verbosity)
 
-    let output = consoleOutput
+    use fileStream = new FileStream("outputStream.txt", System.IO.FileMode.Create)
+    use fileStreamOutput = new Output.StreamOutput(verbosity, fileStream)
+
+    use memoryStream = new MemoryStream()
+    use buffer = new BufferedStream(memoryStream)
+    use bufferStreamOutput = new Output.StreamOutput(verbosity, buffer)
 
     let style = {
         Style.defaults with
@@ -252,7 +262,7 @@ let main argv =
                     Italic = true
                     Underline = true
                     Reverse = true
-                    Strikethrough = true
+                    StrikeThrough = true
                     Foreground = Some "black"
                     Background = Some "red"
                 }
@@ -264,12 +274,15 @@ let main argv =
             ]
     }
 
+    let output = consoleOutput <+> bufferOutput <+> fileStreamOutput <+> bufferStreamOutput
+
     let console = ConsoleStyle(output, style)
     showConsoleExample console
 
     let output = bufferOutput.Fetch()
-    printfn "%s" output
+    System.IO.File.WriteAllText("output.txt", (output |> console.RemoveMarkup))
 
-    System.IO.File.WriteAllText("new.txt", (output |> console.RemoveMarkup))
-
+    printf "---\nOutput buffer stream\n---\n"
+    use r = new StreamReader(buffer)
+    printfn "%s" <| r.ReadToEnd()
     0

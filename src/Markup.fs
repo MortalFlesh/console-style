@@ -18,7 +18,7 @@ type Markup = {
     Reverse: bool
     // Code: 8 Hidden: bool
     /// Code: 9
-    Strikethrough: bool
+    StrikeThrough: bool
 
     /// Could contain a RGB or RGBA hash starting with # or a color name
     Foreground: string option
@@ -43,7 +43,7 @@ module Markup =
         Italic = false
         Underline = false
         Reverse = false
-        Strikethrough = false
+        StrikeThrough = false
         Foreground = None
         Background = None
     }
@@ -60,7 +60,7 @@ module Markup =
             Italic = modificators.Contains "i"
             Underline = modificators.Contains "u"
             Reverse = modificators.Contains "r"
-            Strikethrough = modificators.Contains "s"
+            StrikeThrough = modificators.Contains "s"
         }
 
     let parse: string -> Markup = function
@@ -99,7 +99,7 @@ module Markup =
                 if markup.Italic then "i"
                 if markup.Underline then "u"
                 if markup.Reverse then "r"
-                if markup.Strikethrough then "s"
+                if markup.StrikeThrough then "s"
             ]
 
             match modifiers with
@@ -139,7 +139,7 @@ module Markup =
                 if markup.Italic then "3"
                 if markup.Underline then "4"
                 if markup.Reverse then "7"
-                if markup.Strikethrough then "9"
+                if markup.StrikeThrough then "9"
 
                 match markup.Foreground |> Color.parse with
                 | Some foreground -> foreground |> parseColor ForegroundPrefix

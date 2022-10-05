@@ -14,10 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="src/Debug.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Include="src/Utils.fs" />
     <Compile Include="src/Verbosity.fs" />
     <Compile Include="src/Types.fs" />
@@ -29,7 +25,9 @@
 
   <ItemGroup>
     <Compile Include="src/Output/Output.fs" />
+    <Compile Include="src/Output/Combined.fs" />
     <Compile Include="src/Output/Console.fs" />
+    <Compile Include="src/Output/Stream.fs" />
     <Compile Include="src/Output/Print.fs" />
     <Compile Include="src/Output/Buffer.fs" />
   </ItemGroup>

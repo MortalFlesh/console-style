@@ -34,7 +34,7 @@ let parseColorsForMarkupTest =
                 // Modifiers only
                 {| Markup = ":|ui"; Expected = { Markup.empty with Underline = true; Italic = true }; Description = "Short - No colors just underline and italic" |}
                 {| Markup = ":||ui"; Expected = { Markup.empty with Underline = true; Italic = true }; Description = "No colors just underline and italic" |}
-                {| Markup = ":|bg:|s"; Expected = { Markup.empty with Strikethrough = true }; Description = "No colors just modifiers" |}
+                {| Markup = ":|bg:|s"; Expected = { Markup.empty with StrikeThrough = true }; Description = "No colors just modifiers" |}
 
                 // Colors + modifiers
                 {| Markup = ":red|r"; Expected = { Markup.empty with Foreground = Some "red"; Reverse = true }; Description = "Foreground color and modifier without background" |}
@@ -52,7 +52,7 @@ let parseColorsForMarkupTest =
                         Italic = true
                         Underline = true
                         Reverse = true
-                        Strikethrough = true
+                        StrikeThrough = true
                         Foreground = Some "red"
                         Background = Some "green"
                     }
@@ -88,7 +88,7 @@ let formatMarkupAsStringTest =
 
                 // Modifiers only
                 {| Markup = { Markup.empty with Underline = true; Italic = true }; Expected = ":|iu"; Description = "No colors just underline and italic" |}
-                {| Markup = { Markup.empty with Strikethrough = true }; Expected = ":|s"; Description = "No colors just modifier" |}
+                {| Markup = { Markup.empty with StrikeThrough = true }; Expected = ":|s"; Description = "No colors just modifier" |}
 
                 // Colors + modifiers
                 {| Markup = { Markup.empty with Foreground = Some "red"; Reverse = true }; Expected = ":red|r"; Description = "Foreground color and modifier without background" |}
@@ -103,7 +103,7 @@ let formatMarkupAsStringTest =
                         Italic = true
                         Underline = true
                         Reverse = true
-                        Strikethrough = true
+                        StrikeThrough = true
                         Foreground = Some "red"
                         Background = Some "green"
                     }

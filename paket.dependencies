@@ -3,13 +3,8 @@ framework: net6.0
 storage: none
 
 nuget FSharp.Core ~> 6.0
-nuget ShellProgressBar ~> 5.1
+nuget ShellProgressBar ~> 5.2
 nuget Colorful.Console ~> 1.2
-
-# debugging only
-nuget Microsoft.Extensions.Logging
-nuget NReco.Logging.File ~> 1.1
-# /debugging only
 
 nuget Expecto
 nuget YoloDev.Expecto.TestSdk
