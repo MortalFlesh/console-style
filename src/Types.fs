@@ -2,13 +2,13 @@ namespace MF.ConsoleStyle
 
 open System.Drawing
 
-type Message = {
+type internal Message = {
     Text: string
     Length: int
     LengthWithoutMarkup: int
     HasMarkup: bool
 }
-type RenderedMessage = RenderedMessage of string
+type internal RenderedMessage = RenderedMessage of string
 
 [<RequireQualifiedAccess>]
 module internal Message =

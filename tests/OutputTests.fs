@@ -10,7 +10,6 @@ module OutputTest =
     type OutputTest =
         | Output
         | ErrorOutput
-        | Progress
 
     let prepare (console: ConsoleStyle) =
         console.Note("Verbosity: %A", console.Verbosity)
@@ -247,21 +246,10 @@ module OutputTest =
             match testType with
             | Output -> "output"
             | ErrorOutput -> "error"
-            | Progress -> "progress"
 
         sprintf "data/%s-%s-%s.txt" prefix fileType verbosity
 
     let expected testType = fileName "expected" testType >> readFile
-
-    (* let files prefix case =
-        let result =
-            case
-            |> sprintf "data/%s-actual-%s.txt" prefix
-            |> readFile
-            |> List.map (fun line ->
-                Regex.Replace(line, @"^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\]", "[_____DATE_TIME_____]")
-            )
-        (expected, result) *)
 
     let normalizeTime line =
         let line = Regex.Replace(line, @"^\[\d{2}:\d{2}:\d{2}\]", "[__TIME__]")
@@ -284,7 +272,12 @@ module OutputTest =
                 let console = ConsoleStyle(bufferdOutput)
                 prepare console |> ignore
 
-                let actual = bufferdOutput.Fetch() |> console.RemoveMarkup
+                let bufferContent =
+                    match testType with
+                    | Output -> bufferdOutput.Fetch()
+                    | ErrorOutput -> bufferdOutput.FetchError()
+
+                let actual = bufferContent |> console.RemoveMarkup
                 let lines =
                     actual.Split "\n"
                     |> Seq.map normalizeTime
@@ -310,29 +303,8 @@ module OutputTest =
         |> testCases Output
         |> testList "Check output file"
 
-    (* [<Tests>]
+    [<Tests>]
     let errorOutputTest =
         cases
         |> testCases ErrorOutput
-        |> testList "Check error output file" *)
-
-    (* [<Tests>]
-    let progressBarTest =
-        cases
-        |> List.filter (fun case -> case = "default" || case = "quiet")
-        |> List.map (fun case ->
-            testCase case <| fun _ ->
-                Tests.skiptest "Progress bar test is skipped since it has no visible output"
-
-                if Console.WindowWidth <= 0 then Tests.skiptest "Progress bar is not displayed here"
-
-                let (expected, result) = case |> files "progress"
-
-                Expect.equal (result |> List.length) (expected |> List.length) ""
-
-                expected
-                |> List.iteri (fun i expectedLine ->
-                    Expect.equal result.[i] expectedLine ""
-                )
-        )
-        |> testList "Check progress bar file" *)
+        |> testList "Check error output file"

@@ -47,12 +47,3 @@ type BufferOutput (verbosity) =
 
         member _.WriteErrorLine(message) =
             errorBuffer <- errorBuffer + message + "\n"
-
-        (* member this.WriteBig style (Message message) =
-            buffer <- buffer + message
-
-            match style with
-            | Style.HasNewLine NewLine -> buffer <- buffer + "\n"
-            | Style.HasNewLine (NewLines i) -> for _ in 0 .. (i - 1) do buffer <- buffer + "\n"
-            | _ -> ()
-            () *)

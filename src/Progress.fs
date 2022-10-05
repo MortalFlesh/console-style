@@ -1,15 +1,12 @@
 namespace MF.ConsoleStyle
 
 open System
-open System.Threading.Tasks
 open ShellProgressBar
 
 type private ShellProgress = ShellProgressBar.ProgressBar
 
 [<RequireQualifiedAccess>]
 module private ProgressOption =
-    // options.DenseProgressBar <- true    // one-line progress bar
-
     let options =
         ProgressBarOptions (
             ForegroundColor = ConsoleColor.Yellow,

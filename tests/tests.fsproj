@@ -15,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="ProgressBarTests.fs" />
     <Compile Include="OutputTests.fs" />
     <Compile Include="BufferedOutput.fs" />
     <Compile Include="MarkupTests.fs" />

@@ -1,7 +1,6 @@
 namespace MF.ConsoleStyle.Output
 
 open MF.ConsoleStyle
-open System.Drawing
 
 type Options = {
     Style: Style
@@ -23,5 +22,3 @@ type IOutput =
 
     abstract member WriteError: string -> unit
     abstract member WriteErrorLine: string -> unit
-
-    // abstract member WriteBig: Style -> string -> unit

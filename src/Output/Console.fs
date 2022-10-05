@@ -30,19 +30,3 @@ type ConsoleOutput (verbosity) =
 
         member _.WriteErrorLine(message) =
             Console.Error.WriteLine(message)
-
-        (* member this.WriteBig style (Message message) =
-            let output = this :> IOutput
-            if output.IsNormal() then
-                let underline =
-                    match style with
-                    | Style.ShowUnderline underline -> underline
-                    | _ -> "="
-
-                Console.WriteAscii(message, OutputType.color Title)
-                Console.WriteLine(String.replicate (message.Length * 6) underline, OutputType.color Title)
-
-                match style with
-                | Style.HasNewLine NewLine -> Console.WriteLine()
-                | Style.HasNewLine (NewLines i) -> for _ in 0 .. (i - 1) do Console.WriteLine()
-                | _ -> () *)

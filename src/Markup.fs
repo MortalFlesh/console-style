@@ -48,10 +48,6 @@ module Markup =
         Background = None
     }
 
-    (* open Microsoft.Extensions.Logging
-    open MF.ConsoleStyle.Logging
-    let private logger = LoggerFactory.loggerFactory.CreateLogger("Markup") *)
-
     let hasMarkup (message: string) =
         message.Contains "<c:"
 
@@ -173,7 +169,6 @@ module Markup =
                         (set |> String.concat ";" |> formatWithMarkup)
                         part.Text
                         FormatEnd
-                    //|> tee (makeMarkupVisible >> logger.LogInformation)
 
     let private addNotEmptyPart (parts: MessageParts) part =
         if part.Text <> ""
@@ -191,7 +186,6 @@ module Markup =
                         match withMarkup.Split(">", 2) with
                         | [| markupValue; text |] ->
                             let markup = markupValue |> parse
-                            // logger.LogDebug("Text: {text} | Markup: {markup} -> {parsed}", text, markupValue, markup)
 
                             { Text = text; Markup = markup }
                         | _ -> message |> MessagePart.ofText

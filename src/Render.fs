@@ -13,102 +13,82 @@ module internal Render =
         format
         |> Option.map (fun format -> DateTime.Now.ToString(format) |> sprintf "[%s]")
 
-    let private renderSuccess' message =
-        let prefix = " [OK] "
-        let prefixLength = prefix.Length
-        let length = max 120 (prefixLength + message.LengthWithoutMarkup + 1)
+    [<RequireQualifiedAccess>]
+    module private Block =
+        let private renderBlock dateTime format (prefix: string) maxLength prefixLengthFixer (message: Message) =
+            let prefix =
+                match dateTime with
+                | Some dateTime -> sprintf "%s%s" dateTime prefix
+                | _ -> prefix
+            let prefixLength = prefix.Length
 
-        let line = String.replicate length " "
-        let render = OutputType.formatSuccess >> Markup.render
+            let trailingSpace = 1
+            let render = format >> Markup.render
 
-        [
-            line
-            sprintf "%s%s%s"
-                prefix
-                (if message.HasMarkup then message.Text |> Markup.render else message.Text)
-                (String.replicate (length - message.LengthWithoutMarkup - prefixLength) " " |> render)
-            line
-        ]
-        |> List.map render
-        |> String.concat "\n"
+            let line length = String.replicate length " "
+            let firstMessageLine length message =
+                sprintf "%s%s%s"
+                    prefix
+                    (if message.HasMarkup then message.Text |> Markup.render else message.Text)
+                    (String.replicate (length - message.LengthWithoutMarkup - prefixLength + prefixLengthFixer) " " |> render)
 
-    let private renderBlock dateTime format (prefix: string) maxLength prefixLengthFixer (message: Message) =
-        let prefix =
-            match dateTime with
-            | Some dateTime -> sprintf "%s%s" dateTime prefix
-            | _ -> prefix
-        let prefixLength = prefix.Length
+            let lines =
+                if message.Text.Contains "\n" then
+                    let lines = message.Text.Split("\n")
+                    let messagesLines =
+                        lines
+                        |> Seq.map Style.Message.ofString
+                        |> List.ofSeq
 
-        let trailingSpace = 1
-        let render = format >> Markup.render
+                    let maxLineLength =
+                        messagesLines
+                        |> Seq.map (fun m -> m.LengthWithoutMarkup)
+                        |> Seq.max
 
-        let line length = String.replicate length " "
-        let firstMessageLine length message =
-            sprintf "%s%s%s"
-                prefix
-                (if message.HasMarkup then message.Text |> Markup.render else message.Text)
-                (String.replicate (length - message.LengthWithoutMarkup - prefixLength + prefixLengthFixer) " " |> render)
+                    let lineLength = max maxLength (prefixLength + maxLineLength + trailingSpace)
+                    let line = line lineLength
 
-        let lines =
-            if message.Text.Contains "\n" then
-                let lines = message.Text.Split("\n")
-                let messagesLines =
-                    lines
-                    |> Seq.map Style.Message.ofString
-                    |> List.ofSeq
+                    let messageLine i message =
+                        if i = 0 then firstMessageLine lineLength message
+                        else
+                            let indentionLenght = prefixLength - prefixLengthFixer
+                            sprintf "%s%s%s"
+                                (String.replicate indentionLenght " ")
+                                (if message.HasMarkup then message.Text |> Markup.render else message.Text)
+                                (String.replicate (lineLength - message.LengthWithoutMarkup - indentionLenght) " " |> render)
 
-                let maxLineLength =
-                    messagesLines
-                    |> Seq.map (fun m -> m.LengthWithoutMarkup)
-                    |> Seq.max
+                    [
+                        yield line
 
-                let lineLength = max maxLength (prefixLength + maxLineLength + trailingSpace)
-                let line = line lineLength
+                        yield!
+                            message.Text.Split("\n")
+                            |> Seq.mapi (fun i -> Style.Message.ofString >> messageLine i)
 
-                let messageLine i message =
-                    if i = 0 then firstMessageLine lineLength message
-                    else
-                        let indentionLenght = prefixLength - prefixLengthFixer
-                        sprintf "%s%s%s"
-                            (String.replicate indentionLenght " ")
-                            (if message.HasMarkup then message.Text |> Markup.render else message.Text)
-                            (String.replicate (lineLength - message.LengthWithoutMarkup - indentionLenght) " " |> render)
+                        yield line
+                    ]
+                else
+                    let lineLength = max maxLength (prefixLength + message.LengthWithoutMarkup + trailingSpace)
+                    let line = line lineLength
 
-                [
-                    yield line
+                    [
+                        line
+                        firstMessageLine lineLength message
+                        line
+                    ]
 
-                    yield!
-                        message.Text.Split("\n")
-                        |> Seq.mapi (fun i -> Style.Message.ofString >> messageLine i)
+            lines
+            |> List.map render
+            |> String.concat "\n"
 
-                    yield line
-                ]
-            else
-                let lineLength = max maxLength (prefixLength + message.LengthWithoutMarkup + trailingSpace)
-                let line = line lineLength
+        let renderError dateTime message =
+            message
+            |> renderBlock dateTime OutputType.formatError " ☠️  " message.LengthWithoutMarkup +1
 
-                [
-                    line
-                    firstMessageLine lineLength message
-                    line
-                ]
+        let renderSuccess dateTime =
+            renderBlock dateTime OutputType.formatSuccess " ✅ " 120 -1
 
-        lines
-        |> List.map render
-        |> String.concat "\n"
-
-    let private renderError dateTime message =
-        message
-        |> renderBlock dateTime OutputType.formatError " ☠️  " message.LengthWithoutMarkup +1
-
-    let private renderSuccess dateTime =
-        renderBlock dateTime OutputType.formatSuccess " ✅ " 120 -1
-
-    let private renderWarning dateTime =
-        renderBlock dateTime OutputType.formatWarning " ⚠️  " 120 +1
-
-    (* let private renderNote =
-        renderBlock OutputType.formatSuccess " !Note " 120 0 *)
+        let renderWarning dateTime =
+            renderBlock dateTime OutputType.formatWarning " ⚠️  " 120 +1
 
     let message verbosity (style: Style) outputType message: RenderedMessage =
         if verbosity |> Verbosity.isNormal then
@@ -135,9 +115,9 @@ module internal Render =
                     | TableHeader, false -> yield text |> OutputType.formatTableHeader |> Markup.render
                     | Note, false -> yield text |> OutputType.formatNote |> Markup.render
 
-                    | Error, _ -> yield message |> renderError dateTime
-                    | Success, _ -> yield message |> renderSuccess dateTime
-                    | Warning, _ -> yield message |> renderWarning dateTime
+                    | Error, _ -> yield message |> Block.renderError dateTime
+                    | Success, _ -> yield message |> Block.renderSuccess dateTime
+                    | Warning, _ -> yield message |> Block.renderWarning dateTime
 
                     | _, true -> yield Markup.render text
                     | _, false -> yield text

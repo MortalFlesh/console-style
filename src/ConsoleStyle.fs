@@ -1,8 +1,6 @@
 namespace MF.ConsoleStyle
 
 open System
-open MF.ConsoleStyle
-// open ShellProgressBar
 
 type ConsoleStyle (output: Output.IOutput, style) =
     let mutable output = output
