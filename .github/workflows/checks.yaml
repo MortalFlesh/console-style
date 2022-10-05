@@ -22,8 +22,11 @@ jobs:
                 with:
                     dotnet-version: ${{ matrix.dotnet }}
 
-            -   name: Build library
-                run: ./build
+            -   name: Restore tools
+                run: dotnet tool restore
+
+            -   name: Run tests
+                run: ./build.sh
 
     tests:
         runs-on: macos-latest
@@ -36,5 +39,8 @@ jobs:
                 with:
                     dotnet-version: 6.0.300
 
+            -   name: Restore tools
+                run: dotnet tool restore
+
             -   name: Run tests
-                run: ./build -t tests
+                run: ./build.sh -t tests no-clean
