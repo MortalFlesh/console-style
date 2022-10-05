@@ -310,12 +310,3 @@ type ConsoleStyle (output: Output.IOutput, style) =
 
     member _.ProgressFinish (progress: ProgressBar): unit =
         progress.Finish()
-
-[<RequireQualifiedAccess>]
-module ConsoleStyle =
-    let createWithVerbosity verbosity =
-        let consoleOutput = Output.ConsoleOutput(verbosity)
-        ConsoleStyle(consoleOutput, Style.defaults)
-
-    let create () =
-        createWithVerbosity Verbosity.Normal

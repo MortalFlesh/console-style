@@ -84,11 +84,11 @@ module internal Render =
             message
             |> renderBlock dateTime OutputType.formatError " ☠️  " message.LengthWithoutMarkup +1
 
-        let renderSuccess dateTime =
-            renderBlock dateTime OutputType.formatSuccess " ✅ " 120 -1
+        let renderSuccess style dateTime =
+            renderBlock dateTime OutputType.formatSuccess " ✅ " style.BlockLength -1
 
-        let renderWarning dateTime =
-            renderBlock dateTime OutputType.formatWarning " ⚠️  " 120 +1
+        let renderWarning style dateTime =
+            renderBlock dateTime OutputType.formatWarning " ⚠️  " style.BlockLength +1
 
     let message verbosity (style: Style) outputType message: RenderedMessage =
         if verbosity |> Verbosity.isNormal then
@@ -116,8 +116,8 @@ module internal Render =
                     | Note, false -> yield text |> OutputType.formatNote |> Markup.render
 
                     | Error, _ -> yield message |> Block.renderError dateTime
-                    | Success, _ -> yield message |> Block.renderSuccess dateTime
-                    | Warning, _ -> yield message |> Block.renderWarning dateTime
+                    | Success, _ -> yield message |> Block.renderSuccess style dateTime
+                    | Warning, _ -> yield message |> Block.renderWarning style dateTime
 
                     | _, true -> yield Markup.render text
                     | _, false -> yield text
@@ -131,7 +131,7 @@ module internal Render =
                     | Title, { TitleUnderline = Underline.IsSet underline } ->
                         yield "\n" + (underline |> Underline.inLength message.LengthWithoutMarkup) |> OutputType.formatTitle |> Markup.render
 
-                    | Section, { SubTitleUnderline = Underline.IsSet underline } ->
+                    | Section, { SectionUnderline = Underline.IsSet underline } ->
                         yield "\n" + (underline |> Underline.inLength message.LengthWithoutMarkup) |> OutputType.formatSection |> Markup.render
 
                     | _ -> ()

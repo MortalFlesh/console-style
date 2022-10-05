@@ -63,11 +63,25 @@ module CustomTag =
                 .Replace(tagEnd, "</c>")
 
 type Style = {
+    /// Whether and how to show a date time
     ShowDateTime: ShowDateTime
+
+    /// Underline used for main title
     MainTitleUnderline: Underline
+
+    /// Underline used for title
     TitleUnderline: Underline
-    SubTitleUnderline: Underline
+
+    /// Underline used for section
+    SectionUnderline: Underline
+
+    /// Indentation used in many places (options, date time, ...)
     Indentation: Indentation
+
+    /// Block length is shared for all blocks (success, warning, ...)
+    BlockLength: int
+
+    /// Custom tags, available in the markup
     CustomTags: CustomTag list
 }
 
@@ -85,8 +99,9 @@ module Style =
             |> ShowDateTimeFor
         MainTitleUnderline = Underline "-="
         TitleUnderline = Underline "="
-        SubTitleUnderline = Underline "-"
+        SectionUnderline = Underline "-"
         Indentation = Indentation DefaultIndentation
+        BlockLength = 120
         CustomTags = []
     }
 

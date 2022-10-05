@@ -18,6 +18,7 @@
     <Compile Include="OutputTests.fs" />
     <Compile Include="BufferedOutput.fs" />
     <Compile Include="MarkupTests.fs" />
+    <Compile Include="StyleTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
 

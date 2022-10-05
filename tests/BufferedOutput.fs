@@ -25,6 +25,23 @@ let bufferedOutputTests =
             let output = consoleOutput.Fetch()
             Expect.equal output "Hello World" "Fetched hello world."
 
+        testCase "should buffer the output and fetch multiple times" <| fun _ ->
+            let output = [
+                for i in 1 .. 5 do
+                    console.Write("Loop %d", i)
+                    yield consoleOutput.Fetch()
+            ]
+
+            let expected = [
+                "Loop 1"
+                "Loop 2"
+                "Loop 3"
+                "Loop 4"
+                "Loop 5"
+            ]
+
+            Expect.equal output expected "Fetched buffer loops."
+
         testCase "should buffer the output with colors" <| fun _ ->
             console.Write("Jon <c:%s>%s</c>", "cyan", "Snow")
             let output = consoleOutput.Fetch()
