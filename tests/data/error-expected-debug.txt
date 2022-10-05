@@ -1,4 +1,14 @@
-[_____DATE_TIME_____]    This is error!
-[_____DATE_TIME_____]    Formatted error F#!
-[_____DATE_TIME_____]    Formatted error F# and 42!
-[_____DATE_TIME_____]    Formatted error foo with bar and 42!
+                                            
+[_____DATE_TIME_____]     ☠️  Error message  
+                                            
+
+                                      
+[_____DATE_TIME_____]     ☠️  Error    
+                             message  
+                                      
+
+                                             
+[_____DATE_TIME_____]     ☠️  Error in-style  
+                                             
+
+

@@ -1,16 +1,13 @@
-framework: netcoreapp3.1
+source https://api.nuget.org/v3/index.json
+framework: net6.0
 storage: none
 
-source https://api.nuget.org/v3/index.json
-nuget FSharp.Core
-nuget Colorful.Console >= 1.2
-nuget ShellProgressBar >= 4.2
+nuget FSharp.Core ~> 6.0
+nuget ShellProgressBar ~> 5.2
+nuget Colorful.Console ~> 1.2
 
-group Tests
-    storage: none
-    source https://api.nuget.org/v3/index.json
-    nuget Expecto
-    nuget YoloDev.Expecto.TestSdk
+nuget Expecto
+nuget YoloDev.Expecto.TestSdk
 
 // [ FAKE GROUP ]
 group Build

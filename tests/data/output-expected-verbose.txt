@@ -1,134 +1,154 @@
-Verbosity: Verbose
-Is quiet no
-Is normal yes
-Is verbose yes
-Is very verbose no
-Is debug no
- ______   __    _              _                           _        ______   _   __    __        __
-/_  __/  / /   (_)  ___       (_)  ___       __ _  ___ _  (_)  ___ /_  __/  (_) / /_  / / ___   / /
- / /    / _ \ / /  (_-<      / /  (_-<      /  ' \/ _ `/ / /  / _ \ / /    / / / __/ / / / -_) /_/ 
-/_/    /_//_//_/  /___/     /_/  /___/     /_/_/_/\_,_/ /_/  /_//_//_/    /_/  \__/ /_/  \__/ (_)  
-                                                                                                   
+ ! [NOTE] Verbosity: Verbose
 
-============================================================================================================
+ ! [NOTE] Is quiet no
 
-   ____                          __   __           __                     _        ______   _   __    __             ____     ____    __
-  / __/ ___   ____  __ _  ___ _ / /_ / /_ ___  ___/ /       __ _  ___ _  (_)  ___ /_  __/  (_) / /_  / / ___        / __/  __/ / /_  / /
- / _/  / _ \ / __/ /  ' \/ _ `// __// __// -_)/ _  /       /  ' \/ _ `/ / /  / _ \ / /    / / / __/ / / / -_)      / _/   /_  . __/ /_/ 
-/_/    \___//_/   /_/_/_/\_,_/ \__/ \__/ \__/ \_,_/       /_/_/_/\_,_/ /_/  /_//_//_/    /_/  \__/ /_/  \__/      /_/    /_    __/ (_)  
-                                                                                                                          /_/_/         
+ ! [NOTE] Is normal yes
 
-==========================================================================================================================================
+ ! [NOTE] Is verbose yes
 
-   ____                          __   __           __                     _        ______   _   __    __             ____     ____                       __       ____   ___    __
-  / __/ ___   ____  __ _  ___ _ / /_ / /_ ___  ___/ /       __ _  ___ _  (_)  ___ /_  __/  (_) / /_  / / ___        / __/  __/ / /_      ___ _  ___  ___/ /      / / /  |_  |  / /
- / _/  / _ \ / __/ /  ' \/ _ `// __// __// -_)/ _  /       /  ' \/ _ `/ / /  / _ \ / /    / / / __/ / / / -_)      / _/   /_  . __/     / _ `/ / _ \/ _  /      /_  _/ / __/  /_/ 
-/_/    \___//_/   /_/_/_/\_,_/ \__/ \__/ \__/ \_,_/       /_/_/_/\_,_/ /_/  /_//_//_/    /_/  \__/ /_/  \__/      /_/    /_    __/      \_,_/ /_//_/\_,_/        /_/  /____/ (_)  
-                                                                                                                          /_/_/                                                   
+ ! [NOTE] Is very verbose no
 
-====================================================================================================================================================================================
+ ! [NOTE] Is debug no
 
-   ____                          __   __           __                     _        ______   _   __    __             ___                          _   __    __         __                                   __       ____   ___    __
-  / __/ ___   ____  __ _  ___ _ / /_ / /_ ___  ___/ /       __ _  ___ _  (_)  ___ /_  __/  (_) / /_  / / ___        / _/ ___  ___       _    __  (_) / /_  / /        / /  ___ _  ____      ___ _  ___  ___/ /      / / /  |_  |  / /
- / _/  / _ \ / __/ /  ' \/ _ `// __// __// -_)/ _  /       /  ' \/ _ `/ / /  / _ \ / /    / / / __/ / / / -_)      / _/ / _ \/ _ \     | |/|/ / / / / __/ / _ \      / _ \/ _ `/ / __/     / _ `/ / _ \/ _  /      /_  _/ / __/  /_/ 
-/_/    \___//_/   /_/_/_/\_,_/ \__/ \__/ \__/ \_,_/       /_/_/_/\_,_/ /_/  /_//_//_/    /_/  \__/ /_/  \__/      /_/   \___/\___/     |__,__/ /_/  \__/ /_//_/     /_.__/\_,_/ /_/        \_,_/ /_//_/\_,_/        /_/  /____/ (_)  
-                                                                                                                                                                                                                                     
+Simple output
+=============
 
-================================================================================================================================================================================================================================================
+  _____                        __        ____  __           __     
+ / ___/ ___   ___   ___ ___   / / ___   / __/ / /_  __ __  / / ___ 
+/ /__  / _ \ / _ \ (_-</ _ \ / / / -_) _\ \  / __/ / // / / / / -_)
+\___/  \___//_//_//___/\___//_/  \__/ /___/  \__/  \_, / /_/  \__/ 
+                                                  /___/            
 
-[_____DATE_TIME_____]    This is title!
-=======================================
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-[_____DATE_TIME_____]    Formatted title F#!
-============================================
+ _______  __  __    __                    __  __    __       ___                __   
+|_     _||__||  |_ |  |.-----. .--.--.--.|__||  |_ |  |--. .'  _|.-----..-----.|  |_ 
+  |   |  |  ||   _||  ||  -__| |  |  |  ||  ||   _||     | |   _||  _  ||     ||   _|
+  |___|  |__||____||__||_____| |________||__||____||__|__| |__|  |_____||__|__||____|
+                                                                                     
 
-[_____DATE_TIME_____]    Formatted title F# and 42!
-===================================================
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-[_____DATE_TIME_____]    Formatted title foo with bar and 42!
-=============================================================
+ _______  __         __         __     __    __  __    __        
+|    ___||__|.-----.|  |.-----.|  |_  |  |_ |__||  |_ |  |.-----.
+|    ___||  ||  _  ||  ||  -__||   _| |   _||  ||   _||  ||  -__|
+|___|    |__||___  ||__||_____||____| |____||__||____||__||_____|
+             |_____|                                             
 
-[_____DATE_TIME_____]    This is section!
------------------------------------------
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-[_____DATE_TIME_____]    Formatted section F#!
+Multiple messages output
+========================
+
+Available commands:
+    list                 Lists commands     
+ debug
+    debug:configuration  Dumps configuration
+ deployment
+    deployment:list      Lists environment  
+    deployment:release   Release a package  
+ test
+    test:a               a                  
+    test:b               B                  
+    test:c               C                  
+    test:d               D                  
+
+Options:
+    -c, --config=CONFIG  Path to deploy config [default: "./config.yaml"]                     
+    -c, --config=CONFIG  Path to deploy config [default: "./config.yaml"] (missing end tag)   
+    -c, --config=CONFIG  Path to deploy config <c>[default: "./config.yaml"] (undefined color)
+    -c, --config=CONFIG  Path to deploy config [default: "./config.yaml"] (undefined color)   
+    -c, --config=CONFIG  Path to deploy config <c[default: "./config.yaml"] (incomplete tag)  
+        --message        Some message                                                         
+        --parts          Required parts [default: ["foo"; "bar"]] (multiple values allowed)   
+
+Color Example
+=============
+
+Spectrum with foreground and background colors
 ----------------------------------------------
 
-[_____DATE_TIME_____]    Formatted section F# and 42!
------------------------------------------------------
+Spectrum with foreground
+abcdefgijk
 
-[_____DATE_TIME_____]    Formatted section foo with bar and 42!
----------------------------------------------------------------
+Spectrum with background
+abcdefgijk
 
-[_____DATE_TIME_____]    This is subTitle!
-[_____DATE_TIME_____]    Formatted subTitle F#!
-[_____DATE_TIME_____]    Formatted subTitle F# and 42!
-[_____DATE_TIME_____]    Formatted subTitle foo with bar and 42!
-[_____DATE_TIME_____]    This is message!
-[_____DATE_TIME_____]    Formatted message F#!
-[_____DATE_TIME_____]    Formatted message F# and 42!
-[_____DATE_TIME_____]    Formatted message foo with bar and 42!
-[_____DATE_TIME_____]    This is success!
+--------------- --------------------------------------
+ Color Group     Colors                               
+--------------- --------------------------------------
+ yellow          light-yellow, yellow, dark-yellow    
+ orange          light-orange, orange, dark-orange    
+ red             lightred, red, darkred               
+ green           lightgreen, green, darkgreen         
+ cyan            Light-cyan, cyan, darkcyan           
+ blue            Light-Blue, blue, darkblue           
+ magenta         light-magenta, magenta, dark-magenta 
+ pink            light-pink, pink, dark-pink          
+ purple          light-purple, purple, dark-purple    
+ gray            lightgray, gray, darkGray            
+ black & white   black, white                         
+--------------- --------------------------------------
 
-[_____DATE_TIME_____]    Formatted success F#!
+                                                                                  
+  Sample      Sample      Sample      Sample      Sample      Sample      Sample  
+   red        green       yellow       blue       purple      orange       gray   
+                                                                                  
 
-[_____DATE_TIME_____]    Formatted success F# and 42!
+                                                                                  
+  Sample      Sample      Sample      Sample      Sample      Sample      Sample  
+ #ed1017     #67c355     #f3d22b     #1996f0     #9064cb     #ff9603     #babab8  
+                                                                                  
 
-[_____DATE_TIME_____]    Formatted success foo with bar and 42!
+                                                                                  
+  Metric      Metric      Metric      Metric      Metric      Metric      Metric  
+   00 %        10 %        20 %        30 %        40 %        50 %        60 %   
+                                                                                  
 
-[_____DATE_TIME_____]        Indented message
+                                                                                
+                                                                                
+                                                                                
+                                                                                
 
-prefixline 1
-prefixline 2
-Foo options
-    - first   Description of the 1st
-    - second  Description of the 2nd
+ Aa  Bb  Cc  Dd  Ee  Ff  Gg  Hh  Ii  Jj  Kk  Ll  Mm  Nn  Oo  Pp  Qq  Rr  Ss  Tt 
+ Aa  Bb  Cc  Dd  Ee  Ff  Gg  Hh  Ii  Jj  Kk  Ll  Mm  Nn  Oo  Pp  Qq  Rr  Ss  Tt 
 
-Different options
-    - first   Description of the 1st
-    - second  Description of the 2nd
-    - third   Description             of the 3rd
+Custom tags
+-----------
 
-Foo simple options
-    first   Description of the 1st
-    second  Description of the 2nd
+Now the <customTag>custom tags</customTag> example
+--------- -----------------------------------
+ Tag       Value                             
+--------- -----------------------------------
+ service   <service>domain-context</service> 
+ name      <name>Jon Snow</name>             
+--------- -----------------------------------
 
-Grouped options
-    first         desc 1      
-    second        desc 2      
- group
-    group:first   desc group 1
-    group:second  desc group 2
+                                                                                                                        
+ ⚠️  Warning message                                                                                                     
+                                                                                                                        
 
- - line 1
- - line 2
------------ ---------
- FirstName   Surname 
------------ ---------
- Jon         Snow    
- Peter       Parker  
------------ ---------
+                                                                                                                        
+ ⚠️  Warning                                                                                                             
+    message                                                                                                             
+                                                                                                                        
 
-------- --------
- Jon     Snow   
- Peter   Parker 
-------- --------
+                                                                                                                        
+ ⚠️  Warning in-style                                                                                                    
+                                                                                                                        
 
------------ ---------
- FirstName   Surname 
------------ ---------
+                                                                                                                        
+ ✅ Done                                                                                                                
+                                                                                                                        
+
+                                                                                                                        
+ ✅ Done                                                                                                                
+    on more lines                                                                                                       
+                                                                                                                        
+
+                                                                                                                        
+ ✅ Done in-style                                                                                                       
+                                                                                                                        
 
 
-------------- --------------------------------------------------
- Color Group   Colors                                           
-------------- --------------------------------------------------
- yellow        lightyellow, yellow, darkyellow                  
- red           lightred, red, darkred                           
- green         lightgreen, green, darkgreen                     
- blue          Light-cyan, Light-Blue, blue, darkcyan, darkblue 
- pink          pink, dark-pink                                  
- gray          lightgray, gray, darkGray                        
- black                                                          
- white                                                          
-------------- --------------------------------------------------
 

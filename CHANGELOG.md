@@ -2,6 +2,29 @@
 
 <!-- There is always Unreleased section on the top. Subsections (Add, Changed, Fix, Removed) should be Add as needed. -->
 ## Unreleased
+- [**BC**] Use net 6.0
+- Update dependencies
+- [**BC**] Remove `CompiledName` attribute
+- Add Outputs
+    - `Buffer`
+    - `Console`
+    - `Print`
+- [**BC**] Make `ConsoleStyle` as instance, not as a global functions
+- Add `Font` to `MainTitle`
+- Add `Style` settings
+- Add output functions
+    - `Note`
+    - `Tabs`
+    - `Warning`
+    - `WriteLine`
+- Enhance markup (colors, underline, bold, italic, ...)
+- Progress bar
+    - Add `ProgressBar` type to implement `IDisposable` instead of using `option`
+    - [**BC**] Change `ProgressBar` functions to use `ProgressBar` type
+        - `Console.progressStart`
+        - `Console.progressAdvance`
+        - `Console.progressFinish`
+    - Add `ProgressBar` children
 
 ## 2.0.0 - 2020-01-13
 - Update dependencies

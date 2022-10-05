@@ -3,7 +3,6 @@ namespace MF.ConsoleStyle
 [<RequireQualifiedAccess>]
 module internal Options =
     open Words
-    open Render.Markup
 
     type private RawOptions = (string list) list
     type private Options = Options of Line list
@@ -17,7 +16,7 @@ module internal Options =
 
     [<RequireQualifiedAccess>]
     module private OptionLine =
-        let toLine prefix maxWordLengths =
+        let toLine removeMarkup prefix maxWordLengths =
             Line.format removeMarkup (sprintf "%-*s") maxWordLengths
             >> fun words ->
                 match prefix, words with
@@ -25,36 +24,52 @@ module internal Options =
                 | null, words
                 | "", words -> words
                 | prefix, (Word firstWord) :: words -> Word (sprintf "%s %s" prefix firstWord) :: words
+            >> Line.concat "  "
+            >> Style.Message.ofString
 
     [<RequireQualifiedAccess>]
     module private Options =
-        let toRawLines (Options options) =
+        let toRawLines removeMarkup (Options options) =
             let maxWordLengths = options |> MaxWordLengths.perWordsInLine removeMarkup
 
             options, maxWordLengths
 
-        let toLines linePrefix options =
-            let options, maxWordLengths = options |> toRawLines
+        let toLines removeMarkup style linePrefix options =
+            let options, maxWordLengths = options |> toRawLines removeMarkup
 
             options
-            |> List.map (OptionLine.toLine linePrefix maxWordLengths >> Line.concat "  ")
+            |> List.map (OptionLine.toLine removeMarkup linePrefix maxWordLengths)
 
-    let private renderSubTitle (subTitle: string): unit =
+    let private renderSubTitle verbosity style (subTitle: string) =
         subTitle
-        |> Render.block "" false (Some SubTitle) None false
+        |> Style.Message.ofString
+        |> Render.message verbosity style SubTitle
 
-    let private renderMessage (message: string): unit =
+    let private renderMessage verbosity style (message: string) =
         message
-        |> Render.block "" false (Some (TextWithMarkup None)) None false
+        |> Style.Message.ofString
+        |> Render.message verbosity style TextWithMarkup
 
-    let optionsList renderLines linePrefix title (options: RawOptions) =
-        renderSubTitle title
+    let private renderLines verbosity style options =
         options
-        |> RawOptions.toOptions
-        |> Options.toLines linePrefix
-        |> renderLines
+        |> List.map (
+            Style.Message.indent style.Indentation
+            >> Render.message verbosity { style with ShowDateTime = NoDateTime } TextWithMarkup
+        )
 
-    let groupedOptionsList renderLines (separator: string) (title: string) (options: RawOptions): unit =
+    let optionsList removeMarkup verbosity style linePrefix title (options: RawOptions) =
+        [
+            yield renderSubTitle verbosity style title
+
+            yield!
+                options
+                |> RawOptions.toOptions
+                |> Options.toLines removeMarkup style linePrefix
+                |> renderLines verbosity style
+        ]
+
+    let groupedOptionsList removeMarkup verbosity style (separator: string) (title: string) (options: RawOptions) =
+        let style = { style with ShowDateTime = NoDateTime }
         let groupName optionLine =
             match optionLine with
             | [] -> ""
@@ -63,26 +78,35 @@ module internal Options =
         let options, maxWordLengths =
             options
             |> RawOptions.toOptions
-            |> Options.toRawLines
+            |> Options.toRawLines removeMarkup
 
-        renderSubTitle title
+        let renderedSubTitle = renderSubTitle verbosity style title
 
-        options
-        |> List.map (fun words ->
-            let groupName = words |> groupName
-            let group =
-                if groupName.Contains separator
-                then Some (groupName.Split separator |> Array.head)
-                else None
-
-            (group, words)
-        )
-        |> List.sortBy fst
-        |> List.groupBy fst
-        |> List.iter (fun (group, options) ->
-            group |> Option.iter (sprintf " <c:dark-yellow>%s</c>" >> renderMessage)
+        let renderedOptions =
             options
-            |> List.map (snd >> (OptionLine.toLine "" maxWordLengths) >> Line.concat "  ")
-            |> List.sortBy removeMarkup
-            |> renderLines
-        )
+            |> List.map (fun words ->
+                let groupName = words |> groupName
+                let group =
+                    if groupName.Contains separator
+                    then Some (groupName.Split separator |> Array.head)
+                    else None
+
+                (group, words)
+            )
+            |> List.sortBy fst
+            |> List.groupBy fst
+            |> List.collect (fun (group, options) ->
+                [
+                    match group with
+                    | Some group -> yield group |> sprintf " <c:dark-yellow>%s</c>" |> renderMessage verbosity style
+                    | _ -> ()
+
+                    yield!
+                        options
+                        |> List.map (snd >> (OptionLine.toLine removeMarkup "" maxWordLengths))
+                        |> List.sortBy (fun message -> if message.HasMarkup then message.Text |> removeMarkup else message.Text)
+                        |> renderLines verbosity style
+                ]
+            )
+
+        renderedSubTitle :: renderedOptions

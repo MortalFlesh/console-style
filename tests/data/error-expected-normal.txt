@@ -1,4 +1,14 @@
-This is error!
-Formatted error F#!
-Formatted error F# and 42!
-Formatted error foo with bar and 42!
+                   
+ ☠️  Error message  
+                   
+
+             
+ ☠️  Error    
+    message  
+             
+
+                    
+ ☠️  Error in-style  
+                    
+
+

@@ -1,6 +1,1 @@
-Verbosity: Quiet
-Is quiet yes
-Is normal no
-Is verbose no
-Is very verbose no
-Is debug no
+

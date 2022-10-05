@@ -1,261 +1,312 @@
 namespace MF.ConsoleStyle
 
-[<RequireQualifiedAccess>]
-module Console =
-    open System
-    open Colorful
-    open ShellProgressBar
+open System
 
-    //
+type ConsoleStyle (output: Output.IOutput, style) =
+    let mutable output = output
+    let mutable style = style
+    let removeMarkup = Style.removeMarkup style
+
+    // Constructors
+    new (style) = ConsoleStyle(Output.ConsoleOutput(Verbosity.Normal), style)
+    new (output) = ConsoleStyle(output, Style.defaults)
+    new (verbosity) = ConsoleStyle(Output.ConsoleOutput(verbosity))
+    new () = ConsoleStyle (Verbosity.Normal)
+
     // Verbosity
-    //
+    member _.Verbosity
+        with get() = output.Verbosity
+        and set(value) = output.Verbosity <- value
 
-    [<CompiledName("SetVerbosity")>]
-    let setVerbosity = Verbosity.setVerbosity
+    member _.IsQuiet() = output.IsQuiet()
+    member _.IsNormal() = output.IsNormal()
+    member _.IsVerbose() = output.IsVerbose()
+    member _.IsVeryVerbose() = output.IsVeryVerbose()
+    member _.IsDebug() = output.IsDebug()
 
-    [<CompiledName("IsQuiet")>]
-    let isQuiet = Verbosity.isQuiet
+    // Output
+    member _.ChangeOutput(newOutput) = output <- newOutput
 
-    [<CompiledName("IsNormal")>]
-    let isNormal = Verbosity.isNormal
+    // Style
+    member _.ChangeStyle(newStyle) = style <- newStyle
+    member _.UpdateStyle(f) = style <- f style
+    member _.Indent message = sprintf "%s%s" (style.Indentation |> Indentation.value) message
+    member _.RemoveMarkup(message) = removeMarkup message
 
-    [<CompiledName("IsVerbose")>]
-    let isVerbose = Verbosity.isVerbose
+    // Output
 
-    [<CompiledName("IsVeryVerbose")>]
-    let isVeryVerbose = Verbosity.isVeryVerbose
+    /// It will never show a date time
+    member this.Write (message: string) =
+        if this.IsNormal() then
+            message
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity { style with ShowDateTime = NoDateTime } TextWithMarkup
+            |> RenderedMessage.value
+            |> output.Write
 
-    [<CompiledName("IsDebug")>]
-    let isDebug = Verbosity.isDebug
+    member this.Write (format, a) = sprintf format a |> this.Write
+    member this.Write (format, a, b) = sprintf format a b |> this.Write
+    member this.Write (format, a, b, c) = sprintf format a b c |> this.Write
+    member this.Write (format, a, b, c, d) = sprintf format a b c d |> this.Write
+    member this.Write (format, a, b, c, d, e) = sprintf format a b c d e |> this.Write
 
-    //
-    // Output style
-    //
-    [<CompiledName("Indentation")>]
-    let indentation: string = "    "
+    /// It will never show a date time
+    member this.WriteLine (message: string) =
+        if this.IsNormal() then
+            message
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity { style with ShowDateTime = NoDateTime } TextWithMarkup
+            |> RenderedMessage.value
+            |> output.WriteLine
 
-    let private block = Render.block indentation true
-    let private blockWithMarkup allowDateTime = Render.block indentation allowDateTime (Some (TextWithMarkup None))
-    let private color = Render.color
+    member this.WriteLine (format, a) = sprintf format a |> this.WriteLine
+    member this.WriteLine (format, a, b) = sprintf format a b |> this.WriteLine
+    member this.WriteLine (format, a, b, c) = sprintf format a b c |> this.WriteLine
+    member this.WriteLine (format, a, b, c, d) = sprintf format a b c d |> this.WriteLine
+    member this.WriteLine (format, a, b, c, d, e) = sprintf format a b c d e |> this.WriteLine
 
-    let private format1 render (format: Printf.StringFormat<'a -> string>) (valueA: 'a) =
-        valueA
-        |> sprintf format
-        |> render
+    /// It works as WriteLine but adds a date time when style allows it
+    member this.Message (message: string) =
+        if this.IsNormal() then
+            message
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style TextWithMarkup
+            |> RenderedMessage.value
+            |> output.WriteLine
 
-    let private format2 render (format: Printf.StringFormat<('a -> 'b -> string)>) (valueA: 'a) (valueB: 'b) =
-        (valueA, valueB)
-        ||> sprintf format
-        |> render
+    member this.Message (format, a) = sprintf format a |> this.Message
+    member this.Message (format, a, b) = sprintf format a b |> this.Message
+    member this.Message (format, a, b, c) = sprintf format a b c |> this.Message
+    member this.Message (format, a, b, c, d) = sprintf format a b c d |> this.Message
+    member this.Message (format, a, b, c, d, e) = sprintf format a b c d e |> this.Message
 
-    let private format3 render (format: Printf.StringFormat<('a -> 'b -> 'c -> string)>) (valueA: 'a) (valueB: 'b) (valueC: 'c) =
-        (valueA, valueB, valueC)
-        |||> sprintf format
-        |> render
+    member this.Title (title: string) =
+        if this.IsNormal() then
+            title
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style Title
+            |> RenderedMessage.value
+            |> sprintf "%s\n"
+            |> output.WriteLine
 
-    [<CompiledName("Message")>]
-    let message (message: string): unit =
-        message
-        |> blockWithMarkup true None false
+    member this.Title (format, a) = sprintf format a |> this.Title
+    member this.Title (format, a, b) = sprintf format a b |> this.Title
+    member this.Title (format, a, b, c) = sprintf format a b c |> this.Title
+    member this.Title (format, a, b, c, d) = sprintf format a b c d |> this.Title
+    member this.Title (format, a, b, c, d, e) = sprintf format a b c d e |> this.Title
 
-    [<CompiledName("Messagef")>]
-    let messagef format = format1 message format
+    member this.SubTitle (subTitle: string) =
+        if this.IsNormal() then
+            subTitle
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style SubTitle
+            |> RenderedMessage.value
+            |> output.WriteLine
 
-    [<CompiledName("Messagef2")>]
-    let messagef2 format = format2 message format
+    member this.SubTitle (format, a) = sprintf format a |> this.SubTitle
+    member this.SubTitle (format, a, b) = sprintf format a b |> this.SubTitle
+    member this.SubTitle (format, a, b, c) = sprintf format a b c |> this.SubTitle
+    member this.SubTitle (format, a, b, c, d) = sprintf format a b c d |> this.SubTitle
+    member this.SubTitle (format, a, b, c, d, e) = sprintf format a b c d e |> this.SubTitle
 
-    [<CompiledName("Messagef3")>]
-    let messagef3 format = format3 message format
+    member this.Section (section: string) =
+        if this.IsNormal() then
+            section
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style Section
+            |> RenderedMessage.value
+            |> sprintf "%s\n"
+            |> output.WriteLine
 
-    [<CompiledName("NewLine")>]
-    let newLine (): unit =
-        if Verbosity.isNormal() then
-            printfn ""
+    member this.Section (format, a) = sprintf format a |> this.Section
+    member this.Section (format, a, b) = sprintf format a b |> this.Section
+    member this.Section (format, a, b, c) = sprintf format a b c |> this.Section
+    member this.Section (format, a, b, c, d) = sprintf format a b c d |> this.Section
+    member this.Section (format, a, b, c, d, e) = sprintf format a b c d e |> this.Section
 
-    [<CompiledName("MainTitle")>]
-    let mainTitle (title: string): unit =
-        if Verbosity.isNormal() then
-            Console.WriteAscii(title, color Title)
-            Console.WriteLine(String.replicate (title.Length * 6) "=", color Title)
-            newLine()
+    member this.NewLine (): unit =
+        if this.IsNormal() then
+            output.WriteLine("")
 
-    [<CompiledName("MainTitlef")>]
-    let mainTitlef format = format1 mainTitle format
+    member this.MainTitle (title: string, figlet: Colorful.Figlet): unit =
+        if this.IsNormal() then
+            figlet.ToAscii(title |> removeMarkup).ConcreteValue
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style MainTitle
+            |> RenderedMessage.value
+            |> sprintf "%s\n"
+            |> output.WriteLine
 
-    [<CompiledName("MainTitlef2")>]
-    let mainTitlef2 format = format2 mainTitle format
+    member this.MainTitle (title: string, font: Colorful.FigletFont): unit =
+        this.MainTitle(title, Colorful.Figlet(font))
 
-    [<CompiledName("MainTitlef3")>]
-    let mainTitlef3 format = format3 mainTitle format
+    member this.MainTitle (title: string): unit =
+        this.MainTitle(title, Colorful.Figlet())
 
-    [<CompiledName("Title")>]
-    let title (title: string): unit =
-        title
-        |> block (Some Title) (Some "=") true
+    member this.Error (error: string) =
+        if this.IsNormal() then
+            error
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style Error
+            |> RenderedMessage.value
+            |> sprintf "%s\n"
+            |> output.WriteErrorLine
 
-    [<CompiledName("Titlef")>]
-    let titlef format = format1 title format
+    member this.Error (format, a) = sprintf format a |> this.Error
+    member this.Error (format, a, b) = sprintf format a b |> this.Error
+    member this.Error (format, a, b, c) = sprintf format a b c |> this.Error
+    member this.Error (format, a, b, c, d) = sprintf format a b c d |> this.Error
+    member this.Error (format, a, b, c, d, e) = sprintf format a b c d e |> this.Error
 
-    [<CompiledName("Titlef2")>]
-    let titlef2 format = format2 title format
+    member this.Warning (warning: string) =
+        if this.IsNormal() then
+            warning
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style Warning
+            |> RenderedMessage.value
+            |> sprintf "%s\n"
+            |> output.WriteLine
 
-    [<CompiledName("Titlef3")>]
-    let titlef3 format = format3 title format
+    member this.Warning (format, a) = sprintf format a |> this.Warning
+    member this.Warning (format, a, b) = sprintf format a b |> this.Warning
+    member this.Warning (format, a, b, c) = sprintf format a b c |> this.Warning
+    member this.Warning (format, a, b, c, d) = sprintf format a b c d |> this.Warning
+    member this.Warning (format, a, b, c, d, e) = sprintf format a b c d e |> this.Warning
 
-    [<CompiledName("Section")>]
-    let section (section: string): unit =
-        section
-        |> block (Some SubTitle) (Some "-") true
+    member this.Success (success: string) =
+        if this.IsNormal() then
+            success
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style Success
+            |> RenderedMessage.value
+            |> sprintf "%s\n"
+            |> output.WriteLine
 
-    [<CompiledName("Sectionf")>]
-    let sectionf format = format1 section format
+    member this.Success (format, a) = sprintf format a |> this.Success
+    member this.Success (format, a, b) = sprintf format a b |> this.Success
+    member this.Success (format, a, b, c) = sprintf format a b c |> this.Success
+    member this.Success (format, a, b, c, d) = sprintf format a b c d |> this.Success
+    member this.Success (format, a, b, c, d, e) = sprintf format a b c d e |> this.Success
 
-    [<CompiledName("Sectionf2")>]
-    let sectionf2 format = format2 section format
+    member this.Note (note: string) =
+        if this.IsNormal() then
+            note
+            |> Style.Message.ofString
+            |> Render.message output.Verbosity style Note
+            |> RenderedMessage.value
+            |> sprintf "%s\n"
+            |> output.WriteLine
 
-    [<CompiledName("Sectionf3")>]
-    let sectionf3 format = format3 section format
-
-    [<CompiledName("SubTitle")>]
-    let subTitle (subTitle: string): unit =
-        subTitle
-        |> block (Some SubTitle) None false
-
-    [<CompiledName("SubTitlef")>]
-    let subTitlef format = format1 subTitle format
-
-    [<CompiledName("SubTitlef2")>]
-    let subTitlef2 format = format2 subTitle format
-
-    [<CompiledName("SubTitlef3")>]
-    let subTitlef3 format = format3 subTitle format
-
-    [<CompiledName("Error")>]
-    let error (message: string): unit =
-        message
-        |> block (Some Error) None false
-
-    [<CompiledName("Errorf")>]
-    let errorf format = format1 error format
-
-    [<CompiledName("Errorf2")>]
-    let errorf2 format = format2 error format
-
-    [<CompiledName("Errorf3")>]
-    let errorf3 format = format3 error format
-
-    [<CompiledName("Success")>]
-    let success (message: string): unit =
-        message
-        |> block (Some Success) None true
-
-    [<CompiledName("Successf")>]
-    let successf format = format1 success format
-
-    [<CompiledName("Successf2")>]
-    let successf2 format = format2 success format
-
-    [<CompiledName("Successf3")>]
-    let successf3 format = format3 success format
-
-    [<CompiledName("Indent")>]
-    let indent (value: string): string =
-        indentation + value
+    member this.Note (format, a) = sprintf format a |> this.Note
+    member this.Note (format, a, b) = sprintf format a b |> this.Note
+    member this.Note (format, a, b, c) = sprintf format a b c |> this.Note
+    member this.Note (format, a, b, c, d) = sprintf format a b c d |> this.Note
+    member this.Note (format, a, b, c, d, e) = sprintf format a b c d e |> this.Note
 
     //
     // Output many
     //
 
-    [<CompiledName("Messages")>]
-    let messages (prefix: string) (messages: seq<string>): unit =
-        if Verbosity.isNormal() then
+    member this.Messages (prefix: string) (messages: seq<string>): unit =
+        if this.IsNormal() then
             messages
-            |> Seq.iter (sprintf "%s%s" prefix >> blockWithMarkup false None false)
+            |> Seq.iter (sprintf "%s%s" prefix >> this.WriteLine)
 
-    [<CompiledName("Options")>]
-    let options (title: string) (options: list<string list>): unit =
-        options
-        |> Options.optionsList (messages indentation) "-" title
-        newLine()
+    member this.List (messages: seq<string>): unit =
+        this.Messages " - " messages
 
-    [<CompiledName("SimpleOptions")>]
-    let simpleOptions (title: string) (options: list<string list>): unit =
-        options
-        |> Options.optionsList (messages indentation) "" title
-        newLine()
+    member private this.RenderOptions messages =
+        messages
+        |> List.iter (RenderedMessage.value >> output.WriteLine)
+        |> this.NewLine
 
-    [<CompiledName("GroupedOptions")>]
-    let groupedOptions (separator: string) (title: string) (options: list<string list>): unit =
-        options
-        |> Options.groupedOptionsList (messages indentation) separator title
-        newLine()
+    member this.Options (title: string) (options: list<string list>): unit =
+        if this.IsNormal() then
+            options
+            |> Options.optionsList removeMarkup output.Verbosity style "-" title
+            |> this.RenderOptions
 
-    [<CompiledName("List")>]
-    let list (messages: seq<string>): unit =
-        if Verbosity.isNormal() then
-            messages
-            |> Seq.iter (sprintf " - %s" >> blockWithMarkup false None false)
+    member this.SimpleOptions (title: string) (options: list<string list>): unit =
+        if this.IsNormal() then
+            options
+            |> Options.optionsList removeMarkup output.Verbosity style "" title
+            |> this.RenderOptions
+
+    member this.GroupedOptions (separator: string) (title: string) (options: list<string list>): unit =
+        if this.IsNormal() then
+            options
+            |> Options.groupedOptionsList removeMarkup output.Verbosity style separator title
+            |> this.RenderOptions
 
     //
     // Complex components
     //
 
-    [<CompiledName("Table")>]
-    let table (header: list<string>) (rows: list<list<string>>): unit =
-        if Verbosity.isNormal() then
+    member this.Table header rows =
+        if this.IsNormal() then
             let renderHeaderLine (headerLine: string) =
-                Console.WriteLine(headerLine, TableHeader |> color)
+                headerLine
+                |> Style.Message.ofString
+                |> Render.message output.Verbosity style TableHeader
+                |> RenderedMessage.value
+                |> output.WriteLine
 
-            let renderRowLine = blockWithMarkup false None false
+            let renderRowLine = this.WriteLine
 
-            Table.render renderHeaderLine renderRowLine header rows
-            newLine()
+            Table.render removeMarkup renderHeaderLine renderRowLine
+                header
+                rows
 
-    [<CompiledName("ProgressStart")>]
-    let progressStart (initialMessage: string) (total: int): ProgressBar option =
-        if Verbosity.isNormal() && Console.WindowWidth > 0 then
-            let options =
-                ProgressBarOptions (
-                    ForegroundColor = ConsoleColor.Yellow,
-                    ForegroundColorDone = Nullable<ConsoleColor>(ConsoleColor.DarkGreen),
+            this.NewLine()
 
-                    BackgroundColor = Nullable<ConsoleColor>(ConsoleColor.DarkGray),
+    member this.Tabs(tabs) =
+        if this.IsNormal() then
+            Tabs.render removeMarkup this.WriteLine tabs
+            this.NewLine()
 
-                    DisplayTimeInRealTime = true,
-                    ProgressBarOnBottom = true
-                )
-
-            new ProgressBar(total, initialMessage, options) |> Some
-        else None
-
-    [<CompiledName("ProgressAdvance")>]
-    let progressAdvance (progress: ProgressBar option): unit =
-        match progress with
-        | Some progress -> progress.Tick()
-        | _ -> ()
-
-    [<CompiledName("ProgressFinish")>]
-    let progressFinish (progress: ProgressBar option): unit =
-        match progress with
-        | Some progress ->
-            progress.Message <- "Finished"
-            progress.Dispose()
-        | _ -> ()
+    member this.Tabs(tabs, length) =
+        if this.IsNormal() then
+            Tabs.renderInLength removeMarkup this.WriteLine length tabs
+            this.NewLine()
 
     //
-    // Inputs
+    // User input
     //
 
-    [<CompiledName("Ask")>]
-    let ask (question: string): string =
-        Console.Write(question + " ", SubTitle |> color)
+    member _.Ask (question: string): string =
+        question
+        |> Style.Message.ofString
+        |> Render.message output.Verbosity style SubTitle
+        |> RenderedMessage.value
+        |> sprintf "%s "
+        |> output.Write
+
         Console.ReadLine()
 
-    [<CompiledName("Askf")>]
-    let askf format = format1 ask format
+    member this.Ask (format, a) = sprintf format a |> this.Ask
+    member this.Ask (format, a, b) = sprintf format a b |> this.Ask
+    member this.Ask (format, a, b, c) = sprintf format a b c |> this.Ask
+    member this.Ask (format, a, b, c, d) = sprintf format a b c d |> this.Ask
+    member this.Ask (format, a, b, c, d, e) = sprintf format a b c d e |> this.Ask
 
-    [<CompiledName("Askf2")>]
-    let askf2 format = format2 ask format
+    //
+    // Progress bar
+    //
 
-    [<CompiledName("Askf3")>]
-    let askf3 format = format3 ask format
+    member this.ProgressStart (initialMessage: string) (total: int): ProgressBar =
+        if this.IsNormal() then ProgressBar.start initialMessage total
+        else Inactive
+
+    member this.ProgressStartChild (progress: ProgressBar) (initialMessage: string) (total: int): ProgressBar =
+        if this.IsNormal() then ProgressBar.startAsChild progress initialMessage total
+        else Inactive
+
+    member this.ProgressStartChildAndKeepIt (progress: ProgressBar) (initialMessage: string) (total: int): ProgressBar =
+        if this.IsNormal() then ProgressBar.startAsChildAndKeepIt progress initialMessage total
+        else Inactive
+
+    member _.ProgressAdvance (progress: ProgressBar): unit =
+        progress.Advance()
+
+    member _.ProgressFinish (progress: ProgressBar): unit =
+        progress.Finish()
