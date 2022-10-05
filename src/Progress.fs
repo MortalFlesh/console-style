@@ -7,6 +7,7 @@ type private ShellProgress = ShellProgressBar.ProgressBar
 
 [<RequireQualifiedAccess>]
 module private ProgressOption =
+    // fsharplint:disable
     let options =
         ProgressBarOptions (
             ForegroundColor = ConsoleColor.Yellow,
@@ -42,6 +43,7 @@ module private ProgressOption =
             DenseProgressBar = true,
             CollapseWhenFinished = false
         )
+    // fsharplint:enable
 
 type ProgressBar =
     private

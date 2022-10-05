@@ -11,7 +11,7 @@ module internal Render =
             | _ -> None
 
         format
-        |> Option.map (fun format -> DateTime.Now.ToString(format) |> sprintf "[%s]")
+        |> Option.map (DateTime.Now.ToString >> sprintf "[%s]")
 
     [<RequireQualifiedAccess>]
     module private Block =
