@@ -2,6 +2,8 @@
 
 <!-- There is always Unreleased section on the top. Subsections (Add, Changed, Fix, Removed) should be Add as needed. -->
 ## Unreleased
+
+## 4.0.0 - 2022-10-19
 - [**BC**] Require Fully Qualified access for `OutputType`
 
 ## 3.0.0 - 2022-10-05
