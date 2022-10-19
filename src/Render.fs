@@ -102,36 +102,36 @@ module internal Render =
             let parts: string list =
                 [
                     match outputType, dateTime with
-                    | SubTitle, Some dateTime
-                    | Note, Some dateTime
-                    | TextWithMarkup, Some dateTime -> yield dateTime |> OutputType.formatDateTime |> Markup.render
+                    | OutputType.SubTitle, Some dateTime
+                    | OutputType.Note, Some dateTime
+                    | OutputType.TextWithMarkup, Some dateTime -> yield dateTime |> OutputType.formatDateTime |> Markup.render
                     | _ -> ()
 
                     match outputType, message.HasMarkup with
-                    | MainTitle, _ -> yield text |> OutputType.formatMainTitle |> Markup.render
-                    | Title, false -> yield text |> OutputType.formatTitle |> Markup.render
-                    | SubTitle, false -> yield text |> OutputType.formatSubTitle |> Markup.render
-                    | Section, false -> yield text |> OutputType.formatSection |> Markup.render
-                    | TableHeader, false -> yield text |> OutputType.formatTableHeader |> Markup.render
-                    | Note, false -> yield text |> OutputType.formatNote |> Markup.render
+                    | OutputType.MainTitle, _ -> yield text |> OutputType.formatMainTitle |> Markup.render
+                    | OutputType.Title, false -> yield text |> OutputType.formatTitle |> Markup.render
+                    | OutputType.SubTitle, false -> yield text |> OutputType.formatSubTitle |> Markup.render
+                    | OutputType.Section, false -> yield text |> OutputType.formatSection |> Markup.render
+                    | OutputType.TableHeader, false -> yield text |> OutputType.formatTableHeader |> Markup.render
+                    | OutputType.Note, false -> yield text |> OutputType.formatNote |> Markup.render
 
-                    | Error, _ -> yield message |> Block.renderError dateTime
-                    | Success, _ -> yield message |> Block.renderSuccess style dateTime
-                    | Warning, _ -> yield message |> Block.renderWarning style dateTime
+                    | OutputType.Error, _ -> yield message |> Block.renderError dateTime
+                    | OutputType.Success, _ -> yield message |> Block.renderSuccess style dateTime
+                    | OutputType.Warning, _ -> yield message |> Block.renderWarning style dateTime
 
                     | _, true -> yield Markup.render text
                     | _, false -> yield text
 
                     // Underline
                     match outputType, style with
-                    | MainTitle, { MainTitleUnderline = Underline.IsSet underline } ->
+                    | OutputType.MainTitle, { MainTitleUnderline = Underline.IsSet underline } ->
                         let length = message.Text.Split("\n") |> Seq.map Seq.length |> Seq.max
                         yield "\n" + (underline |> Underline.inLength length) |> OutputType.formatMainTitle |> Markup.render
 
-                    | Title, { TitleUnderline = Underline.IsSet underline } ->
+                    | OutputType.Title, { TitleUnderline = Underline.IsSet underline } ->
                         yield "\n" + (underline |> Underline.inLength message.LengthWithoutMarkup) |> OutputType.formatTitle |> Markup.render
 
-                    | Section, { SectionUnderline = Underline.IsSet underline } ->
+                    | OutputType.Section, { SectionUnderline = Underline.IsSet underline } ->
                         yield "\n" + (underline |> Underline.inLength message.LengthWithoutMarkup) |> OutputType.formatSection |> Markup.render
 
                     | _ -> ()

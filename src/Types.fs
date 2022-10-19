@@ -25,6 +25,7 @@ module internal RenderedMessage =
     let empty = RenderedMessage ""
     let value (RenderedMessage value) = value
 
+[<RequireQualifiedAccess>]
 type OutputType =
     | MainTitle
     | Title
