@@ -216,6 +216,7 @@ module OutputTest =
         console.Error "Error message"
         console.Error "Error\nmessage"
         console.Error("Error %s", "<c:black|bg:magenta>in</c>-<c:white|bg:dark-cyan>style</c>")
+        console.Error(String.concat "\n\n" ["error"; "with"; "multiple"; "lines"])
 
         console.Warning "Warning message"
         console.Warning "Warning\nmessage"
