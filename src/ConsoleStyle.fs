@@ -40,7 +40,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
         if this.IsNormal() then
             message
             |> Style.Message.ofString
-            |> Render.message output.Verbosity { style with ShowDateTime = NoDateTime } TextWithMarkup
+            |> Render.message output.Verbosity { style with ShowDateTime = NoDateTime } OutputType.TextWithMarkup
             |> RenderedMessage.value
             |> output.Write
 
@@ -55,7 +55,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
         if this.IsNormal() then
             message
             |> Style.Message.ofString
-            |> Render.message output.Verbosity { style with ShowDateTime = NoDateTime } TextWithMarkup
+            |> Render.message output.Verbosity { style with ShowDateTime = NoDateTime } OutputType.TextWithMarkup
             |> RenderedMessage.value
             |> output.WriteLine
 
@@ -70,7 +70,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
         if this.IsNormal() then
             message
             |> Style.Message.ofString
-            |> Render.message output.Verbosity style TextWithMarkup
+            |> Render.message output.Verbosity style OutputType.TextWithMarkup
             |> RenderedMessage.value
             |> output.WriteLine
 
@@ -84,7 +84,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
         if this.IsNormal() then
             title
             |> Style.Message.ofString
-            |> Render.message output.Verbosity style Title
+            |> Render.message output.Verbosity style OutputType.Title
             |> RenderedMessage.value
             |> sprintf "%s\n"
             |> output.WriteLine
@@ -99,7 +99,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
         if this.IsNormal() then
             subTitle
             |> Style.Message.ofString
-            |> Render.message output.Verbosity style SubTitle
+            |> Render.message output.Verbosity style OutputType.SubTitle
             |> RenderedMessage.value
             |> output.WriteLine
 
@@ -113,7 +113,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
         if this.IsNormal() then
             section
             |> Style.Message.ofString
-            |> Render.message output.Verbosity style Section
+            |> Render.message output.Verbosity style OutputType.Section
             |> RenderedMessage.value
             |> sprintf "%s\n"
             |> output.WriteLine
@@ -132,7 +132,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
         if this.IsNormal() then
             figlet.ToAscii(title |> removeMarkup).ConcreteValue
             |> Style.Message.ofString
-            |> Render.message output.Verbosity style MainTitle
+            |> Render.message output.Verbosity style OutputType.MainTitle
             |> RenderedMessage.value
             |> sprintf "%s\n"
             |> output.WriteLine
@@ -147,7 +147,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
         if this.IsNormal() then
             error
             |> Style.Message.ofString
-            |> Render.message output.Verbosity style Error
+            |> Render.message output.Verbosity style OutputType.Error
             |> RenderedMessage.value
             |> sprintf "%s\n"
             |> output.WriteErrorLine
@@ -162,7 +162,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
         if this.IsNormal() then
             warning
             |> Style.Message.ofString
-            |> Render.message output.Verbosity style Warning
+            |> Render.message output.Verbosity style OutputType.Warning
             |> RenderedMessage.value
             |> sprintf "%s\n"
             |> output.WriteLine
@@ -177,7 +177,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
         if this.IsNormal() then
             success
             |> Style.Message.ofString
-            |> Render.message output.Verbosity style Success
+            |> Render.message output.Verbosity style OutputType.Success
             |> RenderedMessage.value
             |> sprintf "%s\n"
             |> output.WriteLine
@@ -192,7 +192,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
         if this.IsNormal() then
             note
             |> Style.Message.ofString
-            |> Render.message output.Verbosity style Note
+            |> Render.message output.Verbosity style OutputType.Note
             |> RenderedMessage.value
             |> sprintf "%s\n"
             |> output.WriteLine
@@ -247,7 +247,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
             let renderHeaderLine (headerLine: string) =
                 headerLine
                 |> Style.Message.ofString
-                |> Render.message output.Verbosity style TableHeader
+                |> Render.message output.Verbosity style OutputType.TableHeader
                 |> RenderedMessage.value
                 |> output.WriteLine
 
@@ -276,7 +276,7 @@ type ConsoleStyle (output: Output.IOutput, style) =
     member _.Ask (question: string): string =
         question
         |> Style.Message.ofString
-        |> Render.message output.Verbosity style SubTitle
+        |> Render.message output.Verbosity style OutputType.SubTitle
         |> RenderedMessage.value
         |> sprintf "%s "
         |> output.Write

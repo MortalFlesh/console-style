@@ -43,18 +43,18 @@ module internal Options =
     let private renderSubTitle verbosity style (subTitle: string) =
         subTitle
         |> Style.Message.ofString
-        |> Render.message verbosity style SubTitle
+        |> Render.message verbosity style OutputType.SubTitle
 
     let private renderMessage verbosity style (message: string) =
         message
         |> Style.Message.ofString
-        |> Render.message verbosity style TextWithMarkup
+        |> Render.message verbosity style OutputType.TextWithMarkup
 
     let private renderLines verbosity style options =
         options
         |> List.map (
             Style.Message.indent style.Indentation
-            >> Render.message verbosity { style with ShowDateTime = NoDateTime } TextWithMarkup
+            >> Render.message verbosity { style with ShowDateTime = NoDateTime } OutputType.TextWithMarkup
         )
 
     let optionsList removeMarkup verbosity style linePrefix title (options: RawOptions) =
