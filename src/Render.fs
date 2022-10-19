@@ -105,22 +105,24 @@ module internal Render =
                     | OutputType.SubTitle, Some dateTime
                     | OutputType.Note, Some dateTime
                     | OutputType.TextWithMarkup, Some dateTime -> yield dateTime |> OutputType.formatDateTime |> Markup.render
+                    | OutputType.Error, Some dateTime when message.Lines > 2 -> yield dateTime |> OutputType.formatDateTime |> Markup.render
                     | _ -> ()
 
-                    match outputType, message.HasMarkup with
+                    match outputType, message with
                     | OutputType.MainTitle, _ -> yield text |> OutputType.formatMainTitle |> Markup.render
-                    | OutputType.Title, false -> yield text |> OutputType.formatTitle |> Markup.render
-                    | OutputType.SubTitle, false -> yield text |> OutputType.formatSubTitle |> Markup.render
-                    | OutputType.Section, false -> yield text |> OutputType.formatSection |> Markup.render
-                    | OutputType.TableHeader, false -> yield text |> OutputType.formatTableHeader |> Markup.render
-                    | OutputType.Note, false -> yield text |> OutputType.formatNote |> Markup.render
+                    | OutputType.Title, { HasMarkup = false } -> yield text |> OutputType.formatTitle |> Markup.render
+                    | OutputType.SubTitle, { HasMarkup = false } -> yield text |> OutputType.formatSubTitle |> Markup.render
+                    | OutputType.Section, { HasMarkup = false } -> yield text |> OutputType.formatSection |> Markup.render
+                    | OutputType.TableHeader, { HasMarkup = false } -> yield text |> OutputType.formatTableHeader |> Markup.render
+                    | OutputType.Note, { HasMarkup = false } -> yield text |> OutputType.formatNote |> Markup.render
 
+                    | OutputType.Error, { Lines = lines } when lines > 2 -> yield text |> OutputType.formatSimpleError |> Markup.render
                     | OutputType.Error, _ -> yield message |> Block.renderError dateTime
                     | OutputType.Success, _ -> yield message |> Block.renderSuccess style dateTime
                     | OutputType.Warning, _ -> yield message |> Block.renderWarning style dateTime
 
-                    | _, true -> yield Markup.render text
-                    | _, false -> yield text
+                    | _, { HasMarkup = true } -> yield Markup.render text
+                    | _, { HasMarkup = false } -> yield text
 
                     // Underline
                     match outputType, style with

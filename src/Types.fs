@@ -5,6 +5,7 @@ open System.Drawing
 type internal Message = {
     Text: string
     Length: int
+    Lines: int
     LengthWithoutMarkup: int
     HasMarkup: bool
 }
@@ -16,6 +17,7 @@ module internal Message =
     let empty = {
         Text = ""
         Length = 0
+        Lines = 0
         HasMarkup = false
         LengthWithoutMarkup = 0
     }
@@ -133,6 +135,7 @@ module internal OutputType =
     let formatSection = sprintf "<c:dark-yellow|b>%s</c>"
     let formatTableHeader = sprintf "<c:dark-yellow>%s</c>"
     let formatError = sprintf "<c:white|bg:red>%s</c>"
+    let formatSimpleError = sprintf "<c:red>%s</c>"
     let formatSuccess = sprintf "<c:black|bg:green>%s</c>"
     let formatWarning = sprintf "<c:black|bg:light-orange>%s</c>"
     let formatNote = sprintf "<c:dark-yellow|i> ! [NOTE] %s</c>"

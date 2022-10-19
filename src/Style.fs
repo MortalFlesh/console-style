@@ -120,6 +120,7 @@ module Style =
             {
                 Text = message
                 Length = message.Length
+                Lines = message.Split("\n") |> Seq.length
                 HasMarkup = hasMarkup
                 LengthWithoutMarkup = if hasMarkup then (message |> Markup.removeMarkup).Length else message.Length
             }

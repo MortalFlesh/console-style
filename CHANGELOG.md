@@ -2,6 +2,7 @@
 
 <!-- There is always Unreleased section on the top. Subsections (Add, Changed, Fix, Removed) should be Add as needed. -->
 ## Unreleased
+- Show errors with more then 2 lines just in red foreground, without a block
 
 ## 4.0.0 - 2022-10-19
 - [**BC**] Require Fully Qualified access for `OutputType`
