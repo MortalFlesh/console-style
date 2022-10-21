@@ -247,6 +247,8 @@ for _ in 1 .. total do
 console.ProgressFinish progressBar
 ```
 
+**TIP**: For more examples (_async, with children, etc_) see the `example/Program.fs`
+
 ## Styling
 There is a `Style` settings where you can set up some attributes
 ```fs

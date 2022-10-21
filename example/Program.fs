@@ -8,6 +8,46 @@ open System
 open System.IO
 open MF.ConsoleStyle
 
+module Progress =
+    type Progress (isEnabled, output: ConsoleStyle, name: string) =
+        let mutable progressBar: ProgressBar option = None
+
+        member _.IsAvailable() = true
+
+        member _.Start(total: int) =
+            progressBar <-
+                if isEnabled && (not <| output.IsDebug())
+                    then
+                        output.ProgressStartDefault(name, total)
+                        |> Some
+                    else
+                        output.Message $"<c:dark-yellow>[Debug] Progress for \"{name}\" for (</c><c:magenta>{total}</c><c:dark-yellow>) is disabled</c>"
+                        None
+
+        member _.Advance() =
+            progressBar |> Option.iter output.ProgressAdvance
+            if output.IsDebug() then output.Message $"  ├──> <c:gray>[Debug] Progress advanced</c>"
+
+        member _.Finish() =
+            if output.IsDebug() then output.Message $"  └──> <c:dark-yellow>[Debug] Progress finished</c>\n"
+            progressBar |> Option.iter output.ProgressFinish
+            progressBar <- None
+
+        member _.SpawnChild(message, keep) =
+            match progressBar with
+            | Some progres -> progres.SpawnChild(message, keep)
+            | _ -> None
+
+        interface IProgress with
+            member this.Start(total) = this.Start(total)
+            member this.Advance() = this.Advance()
+            member this.Finish() = this.Finish()
+            member this.SpawnChild(message, keep) = this.SpawnChild(message, keep)
+            member this.IsAvailable() = this.IsAvailable()
+
+        interface IDisposable with
+            member this.Dispose() = this.Finish()
+
 let showConsoleExample (console: ConsoleStyle) =
     // console.Verbosity <- Verbosity.Level.VeryVerbose
     console.Title "Simple output"
@@ -49,21 +89,86 @@ let showConsoleExample (console: ConsoleStyle) =
         [ "    --parts";         "Required parts <c:yellow>[default: [\"foo\"; \"bar\"]]</c> <c:blue>(multiple values allowed)</c>" ]
     ]
 
-    let subTask progressBar i start =
-        let partial = 5
-        use subTaskProgress = partial |> start progressBar $"Subtask {i} ..."
-        for _ in 1 .. partial do
-            System.Threading.Thread.Sleep 200
-            subTaskProgress |> console.ProgressAdvance
+    let showProgress name (console: ConsoleStyle) =
+        console.Section $"Progress bar - {name}"
 
-    let total = 10
-    let progressBar = console.ProgressStart "Starting ..." total
-    for i in 1 .. total do
-        subTask progressBar i console.ProgressStartChild
-        subTask progressBar i console.ProgressStartChildAndKeepIt
+        let subTask progressBar i start =
+            let partial = 5
+            use subTaskProgress = partial |> start progressBar $"Subtask {i} ..."
+            for _ in 1 .. partial do
+                System.Threading.Thread.Sleep 200
+                subTaskProgress |> console.ProgressAdvance
 
-        progressBar |> console.ProgressAdvance
-    console.ProgressFinish progressBar
+        let total = 10
+        let progressBar = console.ProgressStart "Starting ..." total
+        for i in 1 .. total do
+            System.Threading.Thread.Sleep 100
+            subTask progressBar i console.ProgressStartChild
+            //subTask progressBar i console.ProgressStartChildAndKeepIt
+            System.Threading.Thread.Sleep 100
+
+            progressBar |> console.ProgressAdvance
+        console.ProgressFinish progressBar
+
+    let showAsyncProgress name (console: ConsoleStyle) =
+        console.Section $"Progress bar <Async> - {name}"
+
+        let debug i message =
+            if console.IsDebug() then console.Message("<c:cyan>[Async][</c><c:magenta>%02i</c><c:cyan>]</c> %s", i, message)
+
+        let jobs = [ 1 .. 10 ]
+        let main = console.ProgressStart "Main" jobs.Length
+
+        let jobs =
+            jobs
+            |> List.map (fun i -> async {
+                debug i "Start ..."
+                let subTasks = [ 1 .. 10 ]
+                use current = console.ProgressStartChild main $"Work [{i}]" subTasks.Length
+                do! Async.Sleep 200
+                let random = Random()
+
+                for j in subTasks do
+                    debug i $"A[{i}] - work [{j}]"
+                    do! Async.Sleep (200 * random.Next(0, 4))
+                    current |> console.ProgressAdvance
+
+                do! Async.Sleep 200
+                debug i "Done"
+                main |> console.ProgressAdvance
+            })
+
+        jobs
+        |> Async.Parallel
+        |> Async.Ignore
+        |> Async.RunSynchronously
+
+        main |> console.ProgressFinish
+
+        console.Success "Async progress done"
+
+    console |> showProgress "default"
+
+    console.CreateProgressWith (fun message -> new Progress.Progress(true, console, message))
+    console |> showProgress "custom - enabled"
+
+    console.CreateProgressWith (fun message -> new Progress.Progress(false, console, message))
+    console |> showProgress "custom - disbled"
+
+    let verbosity = console.Verbosity
+    console.Verbosity <- Verbosity.Debug
+    console.CreateProgressWith (fun message -> new Progress.Progress(true, console, message))
+    console |> showProgress "custom - enabled with debug"
+
+    console.CreateProgressWith (fun message -> new Progress.Progress(false, console, message))
+    console |> showProgress "custom - disbled with debug"
+    console.Verbosity <- verbosity
+
+    let verbosity = console.Verbosity
+    console.Verbosity <- Verbosity.Debug
+    console.CreateProgressWith (fun message -> new Progress.Progress(true, console, message))
+    console |> showAsyncProgress "default"
+    console.Verbosity <- verbosity
 
     console.Title "Color Example"
 
