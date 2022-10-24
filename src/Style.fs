@@ -89,6 +89,13 @@ type Style = {
 module Style =
     let [<Literal>] DefaultIndentation = "    "
 
+    let defaultCustomTags = [
+        CustomTag.createWithMarkup (TagName "number") { Markup.empty with Foreground = Some "magenta" }
+        CustomTag.createWithMarkup (TagName "u") { Markup.empty with Underline = true }
+        CustomTag.createWithMarkup (TagName "i") { Markup.empty with Italic = true }
+        CustomTag.createWithMarkup (TagName "b") { Markup.empty with Bold = true }
+    ]
+
     let defaults = {
         ShowDateTime =
             [
@@ -102,7 +109,7 @@ module Style =
         SectionUnderline = Underline "-"
         Indentation = Indentation DefaultIndentation
         BlockLength = 120
-        CustomTags = []
+        CustomTags = defaultCustomTags
     }
 
     let internal applyCustomTags style text =

@@ -320,6 +320,12 @@ console.Table [ "Tag"; "Value" ] [
 ]
 ```
 
+**NOTE**: There are default custom tags for a simplification of some basic formatting
+    - `number` to style numbers (`<c:magenta>`)
+    - `u` for underline (`<c:|u>`)
+    - `b` for bold (`<c:|b>`)
+    - `i` for italic (`<c:|i>`)
+
 ## Output
 There are multiple outputs available
 - Console - prints output with `Console.Write` functions (**Default**)

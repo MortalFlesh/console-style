@@ -323,6 +323,12 @@ let showConsoleExample (console: ConsoleStyle) =
     |> console.NewLine
 
     console.Section "Custom tags"
+    console.SubTitle "Defaults"
+    console.Message " - this is <number>42</number>"
+    console.Message " - this is <u>underlined</u>"
+    console.Message " - this is <b>bold</b>"
+    console.Message " - this is <i>italic</i>"
+
     console.Message ("Now the <customTag>custom tags</customTag> example")
     console.Table [ "Tag"; "Value" ] [
         [ "service"; "<service>domain-context</service>" ]
@@ -361,7 +367,7 @@ let main argv =
 
     let style = {
         Style.defaults with
-            CustomTags = [
+            CustomTags = Style.defaults.CustomTags @ [
                 CustomTag.createWithMarkup (TagName "customTag") {
                     Bold = true
                     Dim = true
