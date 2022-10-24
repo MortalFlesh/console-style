@@ -7,6 +7,9 @@ type ConsoleStyle (output: Output.IOutput, style) =
     let mutable style = style
     let removeMarkup = Style.removeMarkup style
 
+    let createDefaultProgressBar = fun initialMessage -> new Shell.ProgressBar(initialMessage):> IProgress
+    let mutable createProgressBar = createDefaultProgressBar
+
     // Constructors
     new (style) = ConsoleStyle(Output.ConsoleOutput(Verbosity.Normal), style)
     new (output) = ConsoleStyle(output, Style.defaults)
@@ -293,8 +296,19 @@ type ConsoleStyle (output: Output.IOutput, style) =
     // Progress bar
     //
 
+    /// Create progress bar with a defaults
+    member _.CreateProgressWith() = createProgressBar <- createDefaultProgressBar
+
+    /// Create progress bar with a custom creator, it will bypass the default progress bar
+    member _.CreateProgressWith(f) = createProgressBar <- f
+
+    /// Allways starts the default progress bar, no matter what creator was set to the `CreateProgressWith` method
+    member this.ProgressStartDefault(initialMessage, total) =
+        if this.IsNormal() then ProgressBar.start createDefaultProgressBar initialMessage total
+        else Inactive
+
     member this.ProgressStart (initialMessage: string) (total: int): ProgressBar =
-        if this.IsNormal() then ProgressBar.start initialMessage total
+        if this.IsNormal() then ProgressBar.start createProgressBar initialMessage total
         else Inactive
 
     member this.ProgressStartChild (progress: ProgressBar) (initialMessage: string) (total: int): ProgressBar =
@@ -308,5 +322,6 @@ type ConsoleStyle (output: Output.IOutput, style) =
     member _.ProgressAdvance (progress: ProgressBar): unit =
         progress.Advance()
 
-    member _.ProgressFinish (progress: ProgressBar): unit =
+    member this.ProgressFinish (progress: ProgressBar): unit =
         progress.Finish()
+        this.NewLine()

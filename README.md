@@ -247,6 +247,8 @@ for _ in 1 .. total do
 console.ProgressFinish progressBar
 ```
 
+**TIP**: For more examples (_async, with children, etc_) see the `example/Program.fs`
+
 ## Styling
 There is a `Style` settings where you can set up some attributes
 ```fs
@@ -317,6 +319,12 @@ console.Table [ "Tag"; "Value" ] [
     [ "name"; "<name>Jon Snow</name>" ]
 ]
 ```
+
+**NOTE**: There are default custom tags for a simplification of some basic formatting
+    - `number` to style numbers (`<c:magenta>`)
+    - `u` for underline (`<c:|u>`)
+    - `b` for bold (`<c:|b>`)
+    - `i` for italic (`<c:|i>`)
 
 ## Output
 There are multiple outputs available

@@ -2,6 +2,18 @@
 
 <!-- There is always Unreleased section on the top. Subsections (Add, Changed, Fix, Removed) should be Add as needed. -->
 ## Unreleased
+- Allow to use custom progress bar instance
+    - Add `IProgress` interface for a progress bar
+    - Add `ConsoleStyle` method
+        - `CreateProgressWith`
+        - `ProgressStartDefault`
+- Allow to create inactive progress bar
+    - Add `ProgressBar.inactive` function
+- Add custom tag
+    - `number` to style numbers
+    - `u` for underline
+    - `b` for bold
+    - `i` for italic
 
 ## 4.1.0 - 2022-10-19
 - Show errors with more then 2 lines just in red foreground, without a block

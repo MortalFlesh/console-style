@@ -118,6 +118,42 @@ let provideStyles: TestCase list = [
             ""
         ]
     }
+    {
+        Description = "Custom tag - number"
+        Style = style
+        Render = fun console -> console.Message "This is <number>42</number>"
+        Expected = [
+            "This is 42"
+            ""
+        ]
+    }
+    {
+        Description = "Custom tag - underline"
+        Style = style
+        Render = fun console -> console.Message "This is <u>underlined</u>"
+        Expected = [
+            "This is underlined"
+            ""
+        ]
+    }
+    {
+        Description = "Custom tag - bold"
+        Style = style
+        Render = fun console -> console.Message "This is <b>bold</b>"
+        Expected = [
+            "This is bold"
+            ""
+        ]
+    }
+    {
+        Description = "Custom tag - italic"
+        Style = style
+        Render = fun console -> console.Message "This is <i>italic</i>"
+        Expected = [
+            "This is italic"
+            ""
+        ]
+    }
 ]
 
 [<Tests>]
