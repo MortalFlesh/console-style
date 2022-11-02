@@ -2,6 +2,10 @@
 
 <!-- There is always Unreleased section on the top. Subsections (Add, Changed, Fix, Removed) should be Add as needed. -->
 ## Unreleased
+- Add `NoMarkup` constructors
+- Add `ConsoleStyle` members
+    - `Output` with get, set
+    - `Style` with get, set
 
 ## 4.3.0 - 2022-11-02
 - Add `NoMarkup` Output

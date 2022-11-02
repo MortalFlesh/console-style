@@ -28,9 +28,15 @@ type ConsoleStyle (output: Output.IOutput, style) =
     member _.IsDebug() = output.IsDebug()
 
     // Output
+    member this.Output
+        with get() = output
+        and set(value) = this.ChangeOutput(value)
     member _.ChangeOutput(newOutput) = output <- newOutput
 
     // Style
+    member this.Style
+        with get() = style
+        and set(value) = this.ChangeStyle(value)
     member _.ChangeStyle(newStyle) = style <- newStyle
     member _.UpdateStyle(f) = style <- f style
     member _.Indent message = sprintf "%s%s" (style.Indentation |> Indentation.value) message

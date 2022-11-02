@@ -3,8 +3,10 @@ namespace MF.ConsoleStyle.Output
 open System
 open MF.ConsoleStyle
 
-type NoMarkup (style: Style, output: IOutput) =
-    let removeMarkup = Style.removeMarkup style
+type NoMarkup (removeMarkup, output: IOutput) =
+
+    new (style, output) = NoMarkup(Style.removeMarkup style, output)
+    new (consoleStyle: ConsoleStyle) = NoMarkup(consoleStyle.RemoveMarkup, consoleStyle.Output)
 
     interface IOutput with
         // Verbosity
