@@ -332,6 +332,7 @@ There are multiple outputs available
 - Print - prints output with `printf` and `eprintf` functions
 - Buffered - buffer every write into string and offers it on `Fetch` method
 - Stream - writes to the given `System.IO.Stream`
+- NoMarkup - writes to the given `IOutput` and remove markup by given `Style`
 - _Combined_ - combination of other outputs
 
 ### Usage

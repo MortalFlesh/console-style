@@ -30,6 +30,7 @@
     <Compile Include="src/Output/Stream.fs" />
     <Compile Include="src/Output/Print.fs" />
     <Compile Include="src/Output/Buffer.fs" />
+    <Compile Include="src/Output/NoMarkup.fs" />
   </ItemGroup>
 
   <ItemGroup>

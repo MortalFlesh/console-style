@@ -341,3 +341,51 @@ module OutputTest =
 
                 Expect.equal outputs expected "Combined Buffered outputs should all have a message."
         ]
+
+    [<Tests>]
+    let noMarkupOutputTest =
+        testList "No Markup output" [
+            let style = Style.defaults
+
+            testCase "should output to given output without *any* markup" <| fun _ ->
+                let verbosity = Verbosity.Normal
+
+                use buffer = new Output.BufferOutput(verbosity)
+                let noMarkup = Output.NoMarkup(style, buffer)
+
+                let console = ConsoleStyle(noMarkup)
+
+                console.Write "<c:yellow>Message</c>"
+
+                let outputs = buffer.Fetch()
+                let expected = "Message"
+
+                Expect.equal outputs expected "Buffered outputs should have a message without markup."
+
+            testCase "should output to combined output without *any* markup" <| fun _ ->
+                let verbosity = Verbosity.Normal
+
+                use buffer1 = new Output.BufferOutput(verbosity)
+                use buffer2 = new Output.BufferOutput(verbosity)
+                use buffer3 = new Output.BufferOutput(verbosity)
+
+                let combined = buffer1 <+> buffer2 <+> buffer3
+                let noMarkup = Output.NoMarkup(style, combined)
+                let console = ConsoleStyle(noMarkup)
+
+                console.Write "<c:yellow>Message</c>"
+
+                let outputs = [
+                    buffer1.Fetch()
+                    buffer2.Fetch()
+                    buffer3.Fetch()
+                ]
+
+                let expected = [
+                    "Message"
+                    "Message"
+                    "Message"
+                ]
+
+                Expect.equal outputs expected "Combined Buffered outputs should all have a message without markup."
+        ]
