@@ -2,6 +2,7 @@
 
 <!-- There is always Unreleased section on the top. Subsections (Add, Changed, Fix, Removed) should be Add as needed. -->
 ## Unreleased
+- Add `NoMarkup` Output
 
 ## 4.2.0 - 2022-10-24
 - Allow to use custom progress bar instance
