@@ -116,9 +116,11 @@ module Markup =
     type private MessageParts = MessagePart list
 
     module internal Bash =
-        /// See https://github.com/silkfire/Pastel/blob/master/src/ConsoleExtensions.cs#L42
+        // See https://github.com/silkfire/Pastel/blob/master/src/ConsoleExtensions.cs#L42
+
         let [<Literal>] private FormatStart = "\u001b"
         let [<Literal>] private FormatEnd = "\u001b[0m"
+
         let [<Literal>] private ForegroundPrefix = 3
         let [<Literal>] private BackgroundPrefix = 4
 
