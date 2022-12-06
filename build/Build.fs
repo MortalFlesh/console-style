@@ -1,5 +1,5 @@
 // ========================================================================================================
-// === F# / Public Library fake build ============================================================= 3.0.0 =
+// === F# / Public Library fake build ============================================================= 3.1.0 =
 // --------------------------------------------------------------------------------------------------------
 // Options:
 //  - no-clean   - disables clean of dirs in the first step (required on CI)
@@ -7,9 +7,8 @@
 // --------------------------------------------------------------------------------------------------------
 // Table of contents:
 //      1. Information about project, configuration
-//      2. Utilities, Dotnet functions
-//      3. FAKE targets
-//      4. FAKE targets hierarchy
+//      2. FAKE targets
+//      3. FAKE targets hierarchy
 // ========================================================================================================
 
 open System
@@ -48,6 +47,7 @@ module ProjectSources =
     let all =
         library
         ++ "tests/*.fsproj"
+        ++ "build/*.fsproj"
 
 // --------------------------------------------------------------------------------------------------------
 // 2. Targets for FAKE
@@ -55,11 +55,6 @@ module ProjectSources =
 
 let initTargets () =
     Target.initEnvironment ()
-
-    Target.create "Foo" <| skipOn "no-clean" (fun _ ->
-        Trace.tracefn "Foo"
-        Directory.ensure "foo"
-    )
 
     Target.create "Clean" <| skipOn "no-clean" (fun _ ->
         !! "./**/bin/Release"
@@ -71,9 +66,15 @@ let initTargets () =
     )
 
     Target.create "AssemblyInfo" (fun _ ->
-        let release = ReleaseNotes.parse (File.ReadAllLines changeLog |> Seq.filter ((<>) "## Unreleased"))
-
         let getAssemblyInfoAttributes projectName =
+            let now = DateTime.Now
+            let release = ReleaseNotes.parse (File.ReadAllLines changeLog |> Seq.filter ((<>) "## Unreleased"))
+
+            let gitValue initialValue =
+                initialValue
+                |> stringToOption
+                |> Option.defaultValue "unknown"
+
             [
                 AssemblyInfo.Title projectName
                 AssemblyInfo.Product project
@@ -81,8 +82,9 @@ let initTargets () =
                 AssemblyInfo.Version release.AssemblyVersion
                 AssemblyInfo.FileVersion release.AssemblyVersion
                 AssemblyInfo.InternalsVisibleTo "tests"
-                AssemblyInfo.Metadata("gitbranch", gitBranch)
-                AssemblyInfo.Metadata("gitcommit", gitCommit)
+                AssemblyInfo.Metadata("gitbranch", gitBranch |> gitValue)
+                AssemblyInfo.Metadata("gitcommit", gitCommit |> gitValue)
+                AssemblyInfo.Metadata("createdAt", now.ToString("yyyy-MM-dd HH:mm:ss"))
             ]
 
         let getProjectDetails (projectPath: string) =
@@ -137,7 +139,7 @@ let initTargets () =
             match UserInput.getUserPassword "Nuget ApiKey: " with
             | "" -> failwithf "You have to provide an api key for nuget."
             | apiKey ->
-                !! "*.*proj"
+                !! "*.fsproj"
                 |> Seq.iter (DotNet.pack id)
 
                 Directory.ensure "release"
