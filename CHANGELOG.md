@@ -2,6 +2,7 @@
 
 <!-- There is always Unreleased section on the top. Subsections (Add, Changed, Fix, Removed) should be Add as needed. -->
 ## Unreleased
+- Fix build .net version
 
 ## 6.0.0 - 2023-12-14
 - [**BC**] Use net 8.0
