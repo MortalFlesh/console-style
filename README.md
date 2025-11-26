@@ -1,8 +1,11 @@
 Console style
 =============
 
-[![NuGet Version and Downloads count](https://buildstats.info/nuget/ConsoleStyle)](https://www.nuget.org/packages/ConsoleStyle)
-[![Check](https://github.com/MortalFlesh/console-style/actions/workflows/checks.yaml/badge.svg)](https://github.com/MortalFlesh/console-style/actions/workflows/checks.yaml)
+---
+
+Repository moved to [FeatherTools/console-style](https://github.com/FeatherTools/console-style)
+
+---
 
 > One of the most boring tasks when creating console commands is to deal with the styling of the command's input and output. Displaying titles and tables or asking questions to the user involves a lot of repetitive code.
 
